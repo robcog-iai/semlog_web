@@ -19,7 +19,7 @@ You need to retrieve an instance of SemLog database to use this framework.
 
 2. Open terminal, run
 ```        
-pip install django pillow opencv-python pandas numpy matplotlib pymongo django_heroku dnspython open3d-python
+pip install django pillow opencv-python pandas numpy matplotlib pymongo django_heroku dnspython
 ```
 
 3. clone the repo 
