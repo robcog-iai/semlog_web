@@ -22,6 +22,8 @@
     </script>
 </head>
 
+<!-- This page is totally built with "Django template language" in logic and "Semantic-UI" in display. -->
+
 <body>
     <div id='like_button_container'></div>
     {% load static %}
@@ -107,10 +109,6 @@
                             {% for img_path in image_path_list %}
                             <div class="three wide column">
                                 <div class="ui medium rounded image">
-                                    <!-- <a class="ui left corner label" target="_blank"
-                       href="/show_one_image/?img_path={{ img_path }}">
-                        <i class="zoom-in icon"></i>
-                    </a> -->
                                     <a href="/create_pc/?img_path={{ img_path }}" target="_blank">
                                         <img src="{% static img_path %}">
                                     </a>
