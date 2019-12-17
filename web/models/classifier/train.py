@@ -10,10 +10,8 @@ from random import randrange
 from web.models.classifier.dataset import ClassifierDataset
 from web.models.classifier.model import Multiclass_classifier
 
-
-
-
 def create_vis_figures(vis):
+    """Create figures in Visdom."""
     accuracy_figure = vis.line(
         X=np.array([0]),
         Y=np.array([0]),
@@ -38,6 +36,17 @@ batch_size = 5
 
 
 def train(dataset_path, class_list, num_epoch=10, test_split=0.2, model_saving_path=None, lr=0.00001):
+    """Train a classifier with Pytorch.
+
+        Args:
+            dataset_path: Path to a dataset.
+            class_list: List of class names.
+            num_epoch: Number of epoches to train.
+            test_split: Percentage of test set in the whole dataset.
+            model_saving_path: Path to save the model.
+            lr: The learning rate.
+
+    """
 
     vis = visdom.Visdom()
     accuracy_figure,train_loss_figure=create_vis_figures(vis)
@@ -122,6 +131,7 @@ def train(dataset_path, class_list, num_epoch=10, test_split=0.2, model_saving_p
         print('accuracy', acc.count(1) / len(acc))
 
 def show_predictions_on_images(vis,images,pred,labels):
+    """Show model predictions with Visdom."""
     pred_list=','.join(str(i) for i in pred.tolist())
     label_list=','.join(str(i) for i in labels.tolist())
     vis.images(images,opts={"title":"Predict:"+pred_list+os.linesep

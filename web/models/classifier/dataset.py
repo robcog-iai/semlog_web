@@ -5,6 +5,7 @@ from PIL import Image
 
 
 class ClassifierDataset(Dataset):
+    """Pytorch dataset class for multi-class classifier."""
     def __init__(self, image_folder, class_list):
 
         self.image_path_list = absoluteFilePaths(image_folder)

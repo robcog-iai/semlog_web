@@ -3,6 +3,7 @@ import torch.nn as nn
 
 
 def Multiclass_classifier(n_classes):
+    """Full model for multi-class classifier."""
     model = models.vgg16(pretrained=True)
     for param in model.parameters():
         param.requires_grad = False
