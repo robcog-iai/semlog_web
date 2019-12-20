@@ -48,18 +48,18 @@ $(document).ready(function () {
         $("#div_event_search").hide();
     });
     var id = 0;
-    $("#view_add").click(function () {
+    $("#camera_view_add").click(function () {
         var field = document.createElement("input");
-        field.name = "view_object_id" + id;
+        field.name = "camera_view_object_id" + id;
         field.type = "text";
-        field.placeholder = "View object id";
-        $(".view_object_list").append(field);
+        field.placeholder = "Camera view name";
+        $(".camera_view_object_list").append(field);
         id += 1;
 
 
     });
-    $("#view_remove").click(function () {
-        $('.view_object_list').children().last().remove()
+    $("#camera_view_remove").click(function () {
+        $('.camera_view_object_list').children().last().remove()
     })
 
     var padding_div='<div class="padding grouped fields" ><div class="field"><div class="ui radio checkbox">'+

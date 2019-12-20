@@ -82,6 +82,19 @@
                         </div>
                         <div class="title">
                             <i class="dropdown icon"></i>
+                            2.Choose camera view :
+                        </div>
+                        <div class="content">
+                                <div class="object_container" >
+                                <button class="ui primary button" type="button" id="camera_view_add">Add view</button>
+                                <button class="ui button" type="button" id="camera_view_remove">Remove view</button>
+                                <div class="camera_view_object_list">
+                                    <input autofocus type="text" name="camera_view_object_id001" placeholder="Camera view name">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="title">
+                            <i class="dropdown icon"></i>
                             2.Add objects:
                         </div>
                         <div class="content">
@@ -114,6 +127,21 @@
                                             <label>at least one</label>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui checkbox">
+
+                                    <input type="checkbox" name="checkbox_label">
+                                    <label>Draw labels on images</label>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <div class="ui checkbox">
+
+                                    <input type="checkbox" name="checkbox_expand_skel">
+                                    <label>Expand bones if skel is searched.</label>
                                 </div>
                             </div>
                             <div class="object_container" hidden>
@@ -322,6 +350,12 @@
                                 <div class="ui checkbox">
                                     <input type="checkbox" name="normal">
                                     <label>Normal</label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui checkbox">
+                                    <input type="checkbox" name="unlit">
+                                    <label>Unlit</label>
                                 </div>
                             </div>
                         </div>

@@ -112,7 +112,7 @@ def start_search(request):
     d = WebsiteData(form_dict, request.session['ip'])
     request.session['user_id'] = d.user_id
     request.session['dataset_pattern'] = d.dataset_pattern
-    request.session['class_id_list'] = d.class_id_list
+    # request.session['class_id_list'] = d.class_id_list
 
     # Create MongoDB instance
     mongoManager = MongoDB(d.database_collection_list, d.ip,config_path=CONFIG_PATH)
@@ -128,12 +128,15 @@ def start_search(request):
     # Search entities
     elif d.search_pattern == "entity_search":
         print("ENTITY SEARCH")
-        df = mongoManager.entity_search(
-            object_id_list=d.object_id_list,
-            class_id_list=d.class_id_list, object_pattern=d.checkbox_object_pattern,
+        df = mongoManager.new_entity_search(
+            id_list=d.object_id_list, object_pattern=d.checkbox_object_pattern,
             object_logic=d.object_logic,
-            image_type_list=d.image_type_list, flag_ignore_similar_image=d.flag_ignore_duplicate_image,
-            flag_class_ignore_similar_image=d.flag_class_ignore_duplicate_image)
+            image_type_list=d.image_type_list,
+            view_id_list=d.camera_view_list)
+        print(df.shape)
+        # No result
+        if df.shape[0]==0:
+            return HttpResponse("<h1 class='ui header'>No result is found in the given scope!</h1>")
         print("Search Done.")
     else:
         print("EVENT SEARCH")
@@ -144,6 +147,9 @@ def start_search(request):
                     root_folder_name=d.user_id, df=df,config_path=CONFIG_PATH)
     print("Download Done.")
 
+    # Draw labels on images
+    if d.flag_draw_label is True:
+        draw_all_labels(df,IMAGE_ROOT,d.user_id)
 
 
     # Perform origin image crop if selected.

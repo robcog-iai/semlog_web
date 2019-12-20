@@ -39,6 +39,7 @@ class WebsiteData():
         object_id_list = []
         image_type_list = []
         view_list = []
+        camera_view_list=[]
         scan_class_list=[]
         bounding_box_dict = {}
         search_pattern = 'entity_search'
@@ -48,6 +49,8 @@ class WebsiteData():
         flag_class_ignore_duplicate_image = False
         flag_class_apply_filtering = False
         flag_split_bounding_box = False
+        flag_draw_label=False
+        flag_expand_skel=False
         padding_constant_color=None
         padding_type=None
 
@@ -79,6 +82,10 @@ class WebsiteData():
                 search_pattern = value
             if key.startswith('checkbox_dataset_pattern'):
                 dataset_pattern = value
+            if key.startswith('checkbox_label'):
+                flag_draw_label=True
+            if key.startswith('checkbox_expand_skel'):
+                flag_expand_skel=True
             if key.startswith('padding_constant_color'):
                 padding_constant_color=[int(i) for i in value.split(",")]
             if key.startswith("padding_type"):
@@ -122,6 +129,8 @@ class WebsiteData():
             # Get multiply objects/classes from input fields
             if key.startswith('object_id') and value != '':
                 object_id_list.append(value)
+            if key.startswith('camera_view') and value!='':
+                camera_view_list.append(value)
             if key.startswith('class_id') and value!='':
                 scan_class_list.append(value)
             # Get selected image type checkbox
@@ -133,6 +142,8 @@ class WebsiteData():
                 image_type_list.append('Normal')
             if key.startswith('mask'):
                 image_type_list.append('Mask')
+            if key.startswith('unlit'):
+                image_type_list.append('Unlit')
 
             # Get the logic of object/class
             if key.startswith('checkbox_object_logic'):
@@ -140,24 +151,25 @@ class WebsiteData():
                     object_logic = 'or'
 
         m = MongoDB(database_collection_list, ip,config_path=CONFIG_PATH)
-        if object_id_list==[]:
-            self.object_id_list=None
-            self.class_id_list=None
-        elif object_id_list==["*"]:
-            self.object_id_list=object_id_list
-            self.class_id_list=None
-            self.object_rgb_dict=None
-        elif checkbox_object_pattern == 'class':
-            self.class_id_list=object_id_list.copy()
-            print(object_id_list,checkbox_object_pattern)
-            self.object_rgb_dict = m.get_object_rgb_dict(object_id_list, checkbox_object_pattern)
-            print(self.object_rgb_dict)
-            self.object_id_list = list(self.object_rgb_dict.keys())
-        else:
-            self.object_rgb_dict = m.get_object_rgb_dict(object_id_list, checkbox_object_pattern)
-            self.object_id_list = object_id_list
-            self.class_id_list = None
-
+        # if object_id_list==[]:
+        #     self.object_id_list=None
+        #     self.class_id_list=None
+        # elif object_id_list==["*"]:
+        #     self.object_id_list=object_id_list
+        #     self.class_id_list=None
+        #     self.object_rgb_dict=None
+        # elif checkbox_object_pattern == 'class':
+        #     self.class_id_list=object_id_list.copy()
+        #     print(object_id_list,checkbox_object_pattern)
+        #     self.object_rgb_dict = m.get_object_rgb_dict(object_id_list, checkbox_object_pattern)
+        #     print(self.object_rgb_dict)
+        #     self.object_id_list = list(self.object_rgb_dict.keys())
+        # else:
+        #     self.object_rgb_dict = m.get_object_rgb_dict(object_id_list, checkbox_object_pattern)
+        #     self.object_id_list = object_id_list
+        #     self.class_id_list = None
+        self.object_id_list=object_id_list
+        self.camera_view_list=camera_view_list
         self.scan_collection=scan_collection
         self.scan_class_list=scan_class_list
         self.database_collection_list=database_collection_list
@@ -169,6 +181,8 @@ class WebsiteData():
         self.flag_class_ignore_duplicate_image = flag_class_ignore_duplicate_image
         self.flag_class_apply_filtering = flag_class_apply_filtering
         self.flag_split_bounding_box = flag_split_bounding_box
+        self.flag_draw_label=flag_draw_label
+        self.flag_expand_skel=flag_expand_skel
         # self.similar_dict = {"linear_distance_tolerance": linear_distance_tolerance,
         #                      "angular_distance_tolerance": angular_distance_tolerance,
         #                      "class_linear_distance_tolerance": class_linear_distance_tolerance,
