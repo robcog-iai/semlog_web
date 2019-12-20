@@ -172,14 +172,12 @@ def start_search(request):
         print("----------------Prepare dataset for object detection---------------------")
 
         d.customize_image_resolution(image_dir)
-        df = calculate_bounding_box(
-            df, d.object_rgb_dict, IMAGE_ROOT, d.user_id)
         df.to_csv(os.path.join(IMAGE_ROOT, d.user_id, 'info.csv'), index=False)
 
     elif d.dataset_pattern == 'classifier' and d.search_pattern == "entity_search":
         print("----------------Prepare dataset for classifier---------------------------")
 
-        download_bounding_box(df, d.object_rgb_dict, IMAGE_ROOT, d.user_id)
+        download_bounding_box(df, IMAGE_ROOT, d.user_id)
         bounding_box_dict = scan_bb_images(
             IMAGE_ROOT, d.user_id, unnest=True)
         d.customize_image_resolution(bounding_box_dict)

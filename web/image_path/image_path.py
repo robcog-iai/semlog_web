@@ -43,16 +43,7 @@ def scan_images(root_folder_path, root_folder_name, image_type_list,unnest=False
         return result
     return image_dir
 
-# def scan_scan_images(root_folder_path,root_folder_name):
-#     scan_root=os.path.join(root_folder_path, root_folder_name,"scans")
-#     if not os.path.isdir(scan_root):
-#         return {}
-#     scan_folders = os.listdir(scan_root)
-#     bounding_box_dict = {}
-#     for each_class_folder in scan_folders:
-#         type_folder_paths=os.listdir(os.path.join(scan_root,each_class_folder))
 
-        # if platform.system()=="Linux":
 
 
 def scan_bb_images(root_folder_path, root_folder_name,unnest=False,folder_name="BoundingBoxes"):
