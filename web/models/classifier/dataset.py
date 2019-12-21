@@ -6,17 +6,18 @@ from PIL import Image
 
 class ClassifierDataset(Dataset):
     """Pytorch dataset class for multi-class classifier."""
-    def __init__(self, image_folder, class_list):
+    def __init__(self, image_folder):
 
         self.image_path_list = absoluteFilePaths(image_folder)
+        self.class_list=list(set([i.split("_")[2].split(".")[0] for i in self.image_path_list]))
         self.label_list = []
         self.transform = transforms.Compose([
             transforms.ToTensor(),
         ])
         for p in self.image_path_list:
-            for class_name in class_list:
+            for class_name in self.class_list:
                 if class_name in p:
-                    ind = class_list.index(class_name)
+                    ind = self.class_list.index(class_name)
                     self.label_list.append(ind)
 
     def __len__(self):
@@ -27,3 +28,6 @@ class ClassifierDataset(Dataset):
         image = self.transform(image)
         label = self.label_list[idx]
         return image,label
+
+    def get_class_list(self):
+        return self.class_list

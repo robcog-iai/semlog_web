@@ -62,11 +62,9 @@ def training(request):
     """Entrance for training the multiclass classifier."""
     dataset_pattern = request.session['dataset_pattern']
     user_id = request.session['user_id']
-    class_list = request.session['class_id_list']
     if dataset_pattern == "classifier":
         classifier_train.train(
             dataset_path=os.path.join(IMAGE_ROOT, user_id, "BoundingBoxes"),
-            class_list=class_list,
             model_saving_path=os.path.join(IMAGE_ROOT, user_id)
         )
     return HttpResponse("Model starts training. Progress can be seen in port 8097.")

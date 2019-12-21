@@ -35,7 +35,7 @@ criterion = nn.NLLLoss()
 batch_size = 5
 
 
-def train(dataset_path, class_list, num_epoch=10, test_split=0.2, model_saving_path=None, lr=0.00001):
+def train(dataset_path, num_epoch=10, test_split=0.2, model_saving_path=None, lr=0.00001):
     """Train a classifier with Pytorch.
 
         Args:
@@ -50,11 +50,13 @@ def train(dataset_path, class_list, num_epoch=10, test_split=0.2, model_saving_p
 
     vis = visdom.Visdom()
     accuracy_figure,train_loss_figure=create_vis_figures(vis)
+    dataset = ClassifierDataset(dataset_path)
+    dataset_length = len(dataset)
+    class_list=dataset.get_class_list()
     model = Multiclass_classifier(n_classes=len(class_list))
     model = model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    dataset = ClassifierDataset(dataset_path, class_list)
-    dataset_length = len(dataset)
+
     train_length=int(dataset_length*(1-test_split))
     test_length=dataset_length-train_length
     train_dataset, test_dataset = random_split(
@@ -74,6 +76,8 @@ def train(dataset_path, class_list, num_epoch=10, test_split=0.2, model_saving_p
             output = model(images)
             labels = labels.to(device)
             loss = criterion(output, labels)
+            print(loss)
+            print(loss.shape)
             loss.backward()
             # print(loss)
             optimizer.step()
