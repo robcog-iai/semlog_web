@@ -126,11 +126,13 @@ def start_search(request):
     # Search entities
     elif d.search_pattern == "entity_search":
         print("ENTITY SEARCH")
+        print("Expand skel:",d.flag_expand_skel)
         df = mongoManager.new_entity_search(
             id_list=d.object_id_list, object_pattern=d.checkbox_object_pattern,
             object_logic=d.object_logic,
             image_type_list=d.image_type_list,
-            view_id_list=d.camera_view_list)
+            view_id_list=d.camera_view_list,
+            flag_expand_skel=d.flag_expand_skel)
         print(df.shape)
         # No result
         if df.shape[0]==0:

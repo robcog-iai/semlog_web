@@ -19,8 +19,9 @@ You need to retrieve an instance of SemLog database to use this framework.
 
 2. Open terminal, run
 ```        
-pip install django pillow opencv-python pandas numpy matplotlib pymongo django_heroku dnspython
+pip install django pillow opencv-python pandas numpy matplotlib pymongo django_heroku dnspython visdom
 ```
+Install [pytorch](https://pytorch.org/) to enable real time model training.
 
 3. clone the repo 
 ```
