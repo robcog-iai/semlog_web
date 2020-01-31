@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-{% load static %}
+<!DOCTYPE html> {% load static %}
 
 <head>
     <meta charset="utf-8">
@@ -16,24 +15,42 @@
     <script>
         // assign django global variable for js
         var token = '{{csrf_token}}'
-        $(document).ready(function () {
-        $('.ui.accordion').accordion();
-        $('.ui.dropdown').dropdown({
-        allowAdditions: true,
-        })
-        $('.question')
-        .popup();
-        $("#enable_bounding_box").click(function () {
-        // $("#checkbox_bounding_box").prop("checked", true)
-        // $("#checkbox_split_bounding_box").prop("checked", true)
-        })
+        $(document).ready(function() {
+            $('.ui.accordion').accordion();
+            $('.ui.dropdown').dropdown({
+                allowAdditions: true,
+            })
+            $('.question')
+                .popup();
+            $("#enable_bounding_box").click(function() {
+                // $("#checkbox_bounding_box").prop("checked", true)
+                // $("#checkbox_split_bounding_box").prop("checked", true)
+            })
         });
-        </script>
+    </script>
     <script src="{% static 'js/main.js' %}"></script>
 </head>
 
 <body>
+
+    <div class="ui secondary mini  menu" style="background-color: #145179;">
+        <a class="item">
+            <font color="white" size="4"> <b> RobCogVis </b></font>
+        </a>
+        <div class="right menu">
+
+            <img class="ui tiny circular image" src="{% static 'img/rob.jpg' %}" style="width: 25px;height: 25px;position: relative;top: 5px;" />
+            <a class="ui item">
+                <font color="white" size="2"> &nbsp; Logout</font>
+            </a>
+        </div>
+    </div>
+
+
+
+
     <div class="ui column stackable center page grid">
+
         <div class="row">
             <div class="four wide column"></div>
             <form method="post" class="ui form eight wide column" id="formadd">
@@ -45,7 +62,7 @@
         <div class="row">
             <div class="four wide column"></div>
             <div class="ui styled accordion eight wide column">
-                <form method="get" class="ui form" action="/start_search/" id='main_form' hidden>
+                <form method="get" class="ui form" action="/start_search/" id='main_form'>
                     <div class="database"></div>
                     <div class="inline fields">
                         <label>Search for:</label>
@@ -71,8 +88,7 @@
                     <div id="div_entity_search">
                         <h3>Entity Search:</h3>
                         <div class="active title">
-                            <i class="dropdown icon"></i>
-                            1. Choose collections:
+                            <i class="dropdown icon"></i> 1. Choose collections:
                         </div>
                         <div class="active content">
                             <select name="collections" id="collection_selector" multiple="" class="ui fluid search dropdown">
@@ -81,11 +97,10 @@
                             <div class="db_input" hidden></div>
                         </div>
                         <div class="title">
-                            <i class="dropdown icon"></i>
-                            2.Choose camera view :
+                            <i class="dropdown icon"></i> 2.Choose camera view :
                         </div>
                         <div class="content">
-                                <div class="object_container" >
+                            <div class="object_container">
                                 <button class="ui primary button" type="button" id="camera_view_add">Add view</button>
                                 <button class="ui button" type="button" id="camera_view_remove">Remove view</button>
                                 <div class="camera_view_object_list">
@@ -94,8 +109,7 @@
                             </div>
                         </div>
                         <div class="title">
-                            <i class="dropdown icon"></i>
-                            2.Add objects:
+                            <i class="dropdown icon"></i> 2.Add objects:
                         </div>
                         <div class="content">
                             <div class="inline fields">
@@ -187,8 +201,7 @@
                             </div>
                         </div> -->
                         <div class="title" id="enable_bounding_box">
-                            <i class="dropdown icon"></i>
-                            3.Dataset preparation:
+                            <i class="dropdown icon"></i> 3.Dataset preparation:
                         </div>
                         <div class="content">
                             <div class="inline fields">
@@ -218,15 +231,13 @@
                     <div id="div_scan_search" hidden>
                         <h3>Scan Search:</h3>
                         <div class="active title">
-                            <i class="dropdown icon"></i>
-                            1. Choose collections:
+                            <i class="dropdown icon"></i> 1. Choose collections:
                         </div>
                         <div class="active content scan_collection">
                             <input autofocus type="text" name="scan_collection">
                         </div>
                         <div class="title">
-                            <i class="dropdown icon"></i>
-                            2. Add classes:
+                            <i class="dropdown icon"></i> 2. Add classes:
                         </div>
                         <div class="content">
                             <div class="object_container" hidden>
@@ -242,8 +253,7 @@
                     <div id="div_event_search" hidden>
                         <h3>Event Search:</h3>
                         <div class="title">
-                            <i class="dropdown icon"></i>
-                            1.View specification:
+                            <i class="dropdown icon"></i> 1.View specification:
                         </div>
                         <div class="content">
                             <div class="ui icon message">
@@ -267,8 +277,7 @@
                     <!-- End of event search div -->
                     <h3>Image postprocessing:</h3>
                     <div class="title">
-                        <i class="dropdown icon"></i>
-                        1.Resize image
+                        <i class="dropdown icon"></i> 1.Resize image
                     </div>
                     <div class="content" id='div_resize'>
                         <div class="ui grid">
@@ -323,8 +332,7 @@
                         <!-- <input type="text" name="constant_color" placeholder="constant color for padding"> -->
                     </div>
                     <div class="title">
-                        <i class="dropdown icon"></i>
-                        2.Image type:
+                        <i class="dropdown icon"></i> 2.Image type:
                     </div>
                     <div class="content">
                         <div class="inline fields">
@@ -369,6 +377,17 @@
             </div>
         </div>
     </div>
+    <div class="ui grid">
+        <div class="row"></div>
+    </div>
+    <Segment attached='bottom'>
+
+        <div class="ui secondary mini  menu" style="background-color: #145179;">
+            <a class="item">
+                <font color="white" size="4"> <b> Logo1 </b></font>
+            </a>
+        </div>
+    </Segment>
 
     <script type="text/jsx" src="{% static 'js/main_react.js' %}"></script>
 </body>
