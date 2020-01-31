@@ -23,7 +23,8 @@ from .imageViewer import views as image_views
 from .pointCloudViewer import views as pc_views
 
 urlpatterns = [
-    path(r'', image_views.search),
+    path(r'', image_views.login),
+    path(r"to_search_page/",image_views.search),
     path(r'start_search/', image_views.start_search),
     path(r'create_pc/', pc_views.create_pc),
     path(r'update_database_info/', image_views.update_database_info),

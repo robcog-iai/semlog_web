@@ -11,6 +11,7 @@ from web.website.settings import IMAGE_ROOT,CONFIG_PATH
 from web.image_path.image_path import *
 from web.semlog_vis.semlog_vis.bounding_box import *
 from web.semlog_vis.semlog_vis.image import *
+from web.semlog_mongo.semlog_mongo.utils_new import check_mongodb_state
 import web.models.classifier.train as classifier_train
 
 
@@ -21,12 +22,20 @@ def clean_folder(x):
     t1 = time.time()
     try:
         shutil.rmtree(x)
-    except exception as e:
+    except Exception as e:
         print(e)
     print(os.listdir(x))
     print("remove", x)
     print("delete folder for:", time.time() - t1)
     return x
+
+
+def login(request):
+    server_state=check_mongodb_state(CONFIG_PATH)
+    state="Online" if server_state==True else "Offline"
+    return_dict={"server_state":state}
+    print("Server state: ",state)
+    return render(request,'login.html',return_dict)
 
 
 def search(request):
