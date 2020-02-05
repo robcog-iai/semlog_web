@@ -154,20 +154,6 @@ def main_search(form_dict,ip,user_id):
     # Search entities
     elif d.search_pattern == "entity_search":
         logger.write("Enter entity search ")
-        # logger.write("Flag -> Expand skeleton: "+str(d.flag_expand_skel))
-        print('....')
-        print(d.object_id_list)
-
-        print('....')
-        print(d.checkbox_object_pattern)
-
-        print('....')
-        print(d.object_logic)
-
-        print('....')
-        print(d.database_collection_list)
-
-        print('....')
         df = mongoManager.new_entity_search(
             id_list=d.object_id_list, object_pattern=d.checkbox_object_pattern,
             object_logic=d.object_logic,
@@ -203,7 +189,7 @@ def main_search(form_dict,ip,user_id):
 
         image_dir = scan_images(root_folder_path=IMAGE_ROOT,
                                 root_folder_name=d.user_id, image_type_list=d.image_type_list)
-        crop_with_all_bounding_box(d.object_rgb_dict, image_dir)
+        crop_with_all_bounding_box(df, image_dir)
 
     # Retrieve local image paths
     image_dir = scan_images(root_folder_path=IMAGE_ROOT, root_folder_name=d.user_id,
