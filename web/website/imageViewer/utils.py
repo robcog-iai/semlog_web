@@ -10,14 +10,16 @@ try:
     from web.semlog_mongo.semlog_mongo.mongo import *
     from web.semlog_mongo.semlog_mongo.utils import *
     from web.semlog_vis.semlog_vis.image import *
-    from web.website.settings import CONFIG_PATH
+    from web.website.settings import CONFIG_PATH,IMAGE_ROOT
+    from web.image_path.logger import Logger
 except Exception as e:
     os.system("git submodule init")
     os.system("git submodule update")
     from web.semlog_mongo.semlog_mongo.mongo import *
     from web.semlog_mongo.semlog_mongo.utils import *
     from web.semlog_vis.semlog_vis.image import *
-    from web.website.settings import CONFIG_PATH
+    from web.website.settings import CONFIG_PATH,IMAGE_ROOT
+    from web.image_path.logger import Logger
 
 
 class WebsiteData():
@@ -33,6 +35,7 @@ class WebsiteData():
         """Clean all inputs from form_dict."""
 
         pprint.pprint(form_dict)
+        logger=Logger(os.path.join(IMAGE_ROOT,user_id))
         username, password = load_mongo_account(CONFIG_PATH)
         user_id = user_id
         database_collection_list = []
@@ -176,6 +179,7 @@ class WebsiteData():
         self.scan_collection = scan_collection
         self.scan_class_list = scan_class_list
         self.database_collection_list = database_collection_list
+        logger.write("Selected collections:"+str(database_collection_list))
         self.image_type_list = image_type_list
         self.bounding_box_dict = bounding_box_dict
         self.object_logic = object_logic

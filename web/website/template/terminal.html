@@ -43,18 +43,32 @@
                 },
             });
         })
-        window.setInterval(function() {
+        var flag_stop = 0
+        var interval = window.setInterval(function() {
             var log_info = update_server_msg()
             log_info = log_info['data'].split("@")
             $("#server_log").empty()
             for (let key in log_info) {
+                var content = log_info[key]
                 var text = document.createTextNode(log_info[key])
                 $("#server_log").append(text)
                 $("#server_log").append("<br />")
-                console.log(log_info[key])
+                if (content.includes("succeeded")) {
+                    $(".operation_button").removeClass("disabled")
+                }
+                if (content.includes("classifier")) {
+                    $(".training_button").removeClass("disabled")
+
+                }
+                if (content.includes("Query")) {
+                    flag_stop = 1
+                }
             }
 
-            // $("#server_log").text(log_info)
+            if (flag_stop == 1) {
+                clearInterval(interval)
+            }
+
         }, 1000)
     </script>
 
@@ -80,6 +94,7 @@
     </div>
 
     <div class="ui center page grid">
+
         <div class="row"></div>
         <div class="row">
             <div class="four wide column"></div>
@@ -96,6 +111,19 @@
 
             </div>
         </div>
+    </div>
+
+    <div class="three blue ui buttons" style="margin-left:35%;margin-right:auto;display:block;margin-top:22%;margin-bottom:0%">
+        <a href="/download/" target="_blank">
+            <button class="ui massive button disabled operation_button" type="button">Download</button>
+        </a>
+        <a href="/view_images/" target="_blank">
+            <button class="ui massive button disabled operation_button" type="button">View</button>
+        </a>
+        <a href="/training/" target="_blank">
+
+            <button class="ui massive button disabled training_button" type="button">Train</button>
+        </a>
     </div>
 
     <Segment attached='bottom'>

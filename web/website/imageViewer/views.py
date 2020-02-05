@@ -125,11 +125,13 @@ def show_one_image(request):
 
 
 def main_search(form_dict,ip,user_id):
+    # Create root folder
+    os.mkdir(os.path.join(IMAGE_ROOT, user_id))
+
     # Read the input from teh user.
     d = WebsiteData(form_dict,ip,user_id)
 
-    # Create root folder
-    os.mkdir(os.path.join(IMAGE_ROOT, d.user_id))
+
 
     # Create logger instance
     logger = Logger(os.path.join(IMAGE_ROOT, d.user_id))
@@ -153,19 +155,19 @@ def main_search(form_dict,ip,user_id):
     elif d.search_pattern == "entity_search":
         logger.write("Enter entity search ")
         # logger.write("Flag -> Expand skeleton: "+str(d.flag_expand_skel))
-        # print('....')
-        # print(d.object_id_list)
+        print('....')
+        print(d.object_id_list)
 
-        # print('....')
-        # print(d.checkbox_object_pattern)
+        print('....')
+        print(d.checkbox_object_pattern)
 
-        # print('....')
-        # print(d.object_logic)
+        print('....')
+        print(d.object_logic)
 
-        # print('....')
-        # print(d.database_collection_list)
+        print('....')
+        print(d.database_collection_list)
 
-        # print('....')
+        print('....')
         df = mongoManager.new_entity_search(
             id_list=d.object_id_list, object_pattern=d.checkbox_object_pattern,
             object_logic=d.object_logic,
@@ -225,7 +227,7 @@ def main_search(form_dict,ip,user_id):
             IMAGE_ROOT, d.user_id, unnest=True)
         d.customize_image_resolution(bounding_box_dict)
 
-    logger.write("Operation is finished.")
+    logger.write("Query succeeded.")
 
     # Store static info in local json file
     info = {'image_type_list': d.image_type_list,
@@ -242,7 +244,6 @@ def start_search(request):
     user_id=str(uuid.uuid4())
     request.session['user_id'] =user_id
     form_dict=request.GET.dict()
-    print(form_dict)
     ip=request.session['ip']
     thr = threading.Thread(target=main_search, args=(form_dict,ip,user_id))
     thr.start()

@@ -5,7 +5,9 @@ $(document).ready(function() {
     $.ajaxSetup({
         data: { csrfmiddlewaretoken: token },
     });
-    $('#formadd').submit(function() {
+
+    function get_databases() {
+
         var ip_address = '127.0.0.1';
 
         $.ajax({
@@ -18,12 +20,13 @@ $(document).ready(function() {
                 r = result;
             },
             async: false
-            error: function(xhr, status, error) {
-                alert(xhr.responseText);
-            },
+                // error: function(xhr, status, error) {
+                //     alert(xhr.responseText);
+                // },
         });
         return false;
-    });
+    }
+    get_databases()
 
 
 

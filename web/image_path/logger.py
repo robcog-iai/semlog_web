@@ -10,7 +10,7 @@ class Logger:
     def write(self, msg, flag_print=True):
         """Write one msg to log file. Add time and line break."""
         file = open(self.log_path, "a")
-        current_time = datetime.now().strftime("%b %d %Y %H:%M:%S")
+        current_time = "["+datetime.now().strftime("%b %d %Y %H:%M:%S")+"]"
         log_msg = current_time + "  " + msg + "@" +"\n" 
         file.write(log_msg)
         if flag_print is True:

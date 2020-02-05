@@ -27,7 +27,7 @@ urlpatterns = [
     path(r"to_search_page/", image_views.search),
     path(r'start_search/', image_views.start_search),
     path(r'create_pc/', pc_views.create_pc),
-    path(r'update_database_info/', image_views.update_database_info),
+    path(r'to_search_page/update_database_info/', image_views.update_database_info),
     path(r'start_search/read_log/', image_views.read_log),
     path(r'show_one_image/', image_views.show_one_image),
     path(r'download/', image_views.download),
