@@ -147,13 +147,12 @@ def main_search(form_dict,ip,user_id):
 
     # Return error if no result for entity_search
     elif d.object_id_list is None and d.search_pattern == "entity_search":
-        logger.write("No result.")
-        logger.write("Query finished.")
-        return HttpResponse("<h1 class='ui header'>No result is found in the given scope!</h1>")
+        logger.write("No result in the given scope.")
+        logger.write("Query stopped.")
 
     # Search entities
     elif d.search_pattern == "entity_search":
-        logger.write("Enter entity search ")
+        logger.write("Enter entity search. ")
         df = mongoManager.new_entity_search(
             id_list=d.object_id_list, object_pattern=d.checkbox_object_pattern,
             object_logic=d.object_logic,
@@ -164,9 +163,8 @@ def main_search(form_dict,ip,user_id):
 
         # No result
         if df.shape[0] == 0:
-            logger.write("No result.")
-            logger.write("Query finished.")
-            return HttpResponse("<h1 class='ui header'>No result is found in the given scope!</h1>")
+            logger.write("No result in the given scope.")
+            logger.write("Query stopped.")
     else:
         logger.write("Enter event search.")
         df = event_search(ip=d.ip, view_list=d.view_list,
@@ -176,20 +174,21 @@ def main_search(form_dict,ip,user_id):
     logger.write("Start downloading images...")
     download_images(ip=d.ip, root_folder_path=IMAGE_ROOT,
                     root_folder_name=d.user_id, df=df, config_path=CONFIG_PATH)
-    logger.write("Download is finished.")
+    logger.write("Download finished.")
 
     # Draw labels on images
     if d.flag_draw_label is True:
         logger.write("Start annotating images...")
         draw_all_labels(df, IMAGE_ROOT, d.user_id)
-        logger.write("Annotation is finished.")
+        logger.write("Annotation finished.")
 
     # Perform origin image crop if selected.
     if d.flag_split_bounding_box is True and d.search_pattern == "entity_search":
-
+        logger.write("Cropping images with all bounding boxes..")
         image_dir = scan_images(root_folder_path=IMAGE_ROOT,
                                 root_folder_name=d.user_id, image_type_list=d.image_type_list)
         crop_with_all_bounding_box(df, image_dir)
+        logger.write("Cropping finished.")
 
     # Retrieve local image paths
     image_dir = scan_images(root_folder_path=IMAGE_ROOT, root_folder_name=d.user_id,
@@ -214,6 +213,7 @@ def main_search(form_dict,ip,user_id):
         d.customize_image_resolution(bounding_box_dict)
 
     logger.write("Query succeeded.")
+    logger.write("Click buttons below to utilize results.")
 
     # Store static info in local json file
     info = {'image_type_list': d.image_type_list,
