@@ -48,327 +48,40 @@
 <div class="ui column stackable center page grid">
 
     <div class="row">
-        <div class="four wide column"></div>
-        <form method="post" class="ui form eight wide column" id="formadd">
-            <h1>Connect to database:</h1>
-            {% csrf_token %}
-            <button type="submit" class="ui fluid secondary button" id="button_ip">Connect</button>
-        </form>
     </div>
     <div class="row">
         <div class="four wide column"></div>
-        <div class="ui styled accordion eight wide column">
+        <div class=" eight wide column">
             <form method="get" class="ui form" action="/start_search/" id='main_form'>
-                <div class="database"></div>
-                <div class="inline fields">
-                    <label>Search for:</label>
-                    <div class="field">
-                        <div class="ui radio checkbox">
-                            <input type="radio" name="checkbox_search_pattern" value="entity_search" id='entity_search' checked="checked">
-                            <label>Object</label>
-                        </div>
+                <div class="ui accordion field">
+                    <div class="active title" style="border-radius: 8px;background-color: #cfd8dd">
+                        <i class="icon angle down" style="float:right;"></i> Query
                     </div>
-                    <div class="field">
-                        <div class="ui radio checkbox">
-                            <input type='radio' name="checkbox_search_pattern" value="event_search" id="event_search">
-                            <label>Event</label>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <div class="ui radio checkbox">
-                            <input type='radio' name="checkbox_search_pattern" value="scan_search" id="scan_search">
-                            <label>Scan</label>
-                        </div>
-                    </div>
-                </div>
-                <div id="div_entity_search">
-                    <h3>Entity Search:</h3>
-                    <div class="active title">
-                        <i class="dropdown icon"></i> 1. Choose collections:
-                    </div>
-                    <div class="active content">
-                        <select name="collections" id="collection_selector" multiple="" class="ui fluid search dropdown">
-                                <option value="" disabled selected hidden>All databases & collections are selected by default.</option>
-                            </select>
-                        <div class="db_input" hidden></div>
-                    </div>
-                    <div class="title">
-                        <i class="dropdown icon"></i> 2.Choose camera view :
-                    </div>
-                    <div class="content">
-                        <div class="object_container">
-                            <button class="ui primary button" type="button" id="camera_view_add">Add view</button>
-                            <button class="ui button" type="button" id="camera_view_remove">Remove view</button>
-                            <div class="camera_view_object_list">
-                                <input autofocus type="text" name="camera_view_object_id001" placeholder="Camera view name">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="title">
-                        <i class="dropdown icon"></i> 2.Add objects:
-                    </div>
-                    <div class="content">
-                        <div class="inline fields">
-                            <div class="field">
-                                <div class="ui radio checkbox">
-                                    <input type="radio" name="checkbox_object_pattern" value="id">
-                                    <label>id</label>
-                                </div>
-                            </div>
-                            <div class="field">
-                                <div class="ui radio checkbox">
-                                    <input type="radio" name="checkbox_object_pattern" value="class" checked="checked">
-                                    <label>class</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="grouped fields">
-                            <label>Contains:</label>
-                            <div class="inline fields">
-                                <div class="field">
-                                    <div class="ui radio checkbox">
-                                        <input type="radio" name="checkbox_object_logic" value="and">
-                                        <label>all</label>
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <div class="ui radio checkbox">
-                                        <input type="radio" name="checkbox_object_logic" value='or' checked="checked">
-                                        <label>at least one</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="field">
-                            <div class="ui checkbox">
+                    <div class="active content field">
 
-                                <input type="checkbox" name="checkbox_label">
-                                <label>Draw labels on images</label>
-                            </div>
-                        </div>
+                        <input placeholder="Query sentence" name="query_data" type="text">
+                    </div>
 
-                        <div class="field">
-                            <div class="ui checkbox">
 
-                                <input type="checkbox" name="checkbox_expand_skel">
-                                <label>Expand bones if skel is searched.</label>
-                            </div>
-                        </div>
-                        <div class="object_container" hidden>
-                            <button class="ui primary button" type="button" id="add">Add object</button>
-                            <button class="ui button" type="button" id="remove">Remove object</button>
-                            <div class="object_list">
-                                <input autofocus type="text" name="object_id001" placeholder="Object id">
-                            </div>
-                        </div>
+                    <div class="title" style="border-radius: 8px;background-color: #cfd8dd">
+                        <i class="icon angle down" style="float:right;"></i> Data
                     </div>
-                    <!--                      <div class="title">
-                            <i class="dropdown icon"></i>
-                            3.Filtering functions:
-                        </div>
-                        <div class="content">
-                            <h3 class="ui header">Per image filtering</h3>
-                            <label>Linear distance tolerance:</label>
-                            <input type="text" name="linear_distance_tolerance" placeholder="Threshold for filtering out duplicates" value=50>
-                            <label>Angular distance tolerance:</label>
-                            <input type="text" name="angular_distance_tolerance" placeholder="Threshold for filtering out duplicates" value=1>
-                            <div class="ui toggle checkbox">
-                                <input type="checkbox" name="checkbox_apply_filtering">
-                                <label>Apply duplicate images filtering function</label>
-                            </div>
-                            <div class="ui toggle checkbox">
-                                <input type="checkbox" name="checkbox_ignore_duplicate_image">
-                                <label>Ignore duplicate images in results</label>
-                            </div>
-                            <h3 class="ui header">Per class filtering</h3>
-                            <label>Linear distance tolerance:</label>
-                            <input type="text" name="class_linear_distance_tolerance" placeholder="Threshold for filtering out duplicates" value=0.05>
-                            <label>Angular distance tolerance:</label>
-                            <input type="text" name="class_angular_distance_tolerance" placeholder="Threshold for filtering out duplicates" value=0.005>
-                            <label>Number of pixels tolerance:</label>
-                            <input type="text" name="class_num_pixels_tolerance" placeholder="Threshold for filtering out duplicates" value=150>
-                            <div class="ui toggle checkbox">
-                                <input type="checkbox" name="checkbox_class_apply_filtering">
-                                <label>Apply duplicate images filtering function</label>
-                            </div>
-                            <div class="ui toggle checkbox">
-                                <input type="checkbox" name="checkbox_class_ignore_duplicate_image">
-                                <label>Ignore duplicate objects in results</label>
-                            </div>
-                        </div> -->
-                    <div class="title" id="enable_bounding_box">
-                        <i class="dropdown icon"></i> 3.Dataset preparation:
+                    <div class="content field">
+                        <input placeholder="Query sentence" type="text">
                     </div>
-                    <div class="content">
-                        <div class="inline fields">
-                            <label>Choose type of dataset:</label>
-                            <div class="field">
-                                <div class="ui radio checkbox">
-                                    <input type="radio" name="checkbox_dataset_pattern" value="detection">
-                                    <label>Object detection</label>
-                                </div>
-                            </div>
-                            <div class="field">
-                                <div class="ui radio checkbox">
-                                    <input type='radio' name="checkbox_dataset_pattern" value="classifier">
-                                    <label>Multiclass Classifier</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="sixteen wide column">
-                            <div class="ui toggle checkbox">
-                                <input type="checkbox" id="checkbox_split_bounding_box" name="checkbox_split_bounding_box">
-                                <label>Crop images with all bounding boxes</label>
-                            </div>
-                            <i class="question circle icon" id="helper_bounding_box" data-content="If selected, images are resized depending on the max boundaries of all bounding boxes."></i>
-                        </div>
+
+                    <div class="title" style="border-radius: 8px;background-color: #cfd8dd">
+                        <i class="icon angle down" style="float:right;"></i> Results
+                    </div>
+                    <div class="content field">
+                        <input placeholder="Query sentence" type="text">
                     </div>
                 </div>
-                <div id="div_scan_search" hidden>
-                    <h3>Scan Search:</h3>
-                    <div class="active title">
-                        <i class="dropdown icon"></i> 1. Choose collections:
-                    </div>
-                    <div class="active content scan_collection">
-                        <input autofocus type="text" name="scan_collection">
-                    </div>
-                    <div class="title">
-                        <i class="dropdown icon"></i> 2. Add classes:
-                    </div>
-                    <div class="content">
-                        <div class="object_container" hidden>
-                            <button class="ui primary button" type="button" id="add_class">Add class</button>
-                            <button class="ui button" type="button" id="remove_class">Remove class</button>
-                            <div class="class_list">
-                                <input autofocus type="text" name="class_id001" placeholder="All classes are selected by default">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Start of event search div -->
-                <div id="div_event_search" hidden>
-                    <h3>Event Search:</h3>
-                    <div class="title">
-                        <i class="dropdown icon"></i> 1.View specification:
-                    </div>
-                    <div class="content">
-                        <div class="ui icon message">
-                            <i class="question circle icon"></i>
-                            <div class="content">
-                                <div class="header">
-                                    <br>The sentence grammar for input field:
-                                </div>
-                                <p> database-collection-timestamp-cameraView</p>
-                            </div>
-                        </div>
-                        <div class="object_container" hidden>
-                            <button class="ui primary button" type="button" id="view_add">Add target</button>
-                            <button class="ui button" type="button" id="view_remove">Remove target</button>
-                            <div class="view_object_list">
-                                <input type="text" name="view_object_id001" placeholder="Example: db1-collection2-0.23-ThefrontView">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End of event search div -->
-                <h3>Image postprocessing:</h3>
-                <div class="title">
-                    <i class="dropdown icon"></i> 1.Resize image
-                </div>
-                <div class="content" id='div_resize'>
-                    <div class="ui grid">
-                        <div class="eight wide column">
-                            <input autofocus type="text" name="width" placeholder="width">
-                        </div>
-                        <div class="eight wide column">
-                            <input type="text" name="height" placeholder="height">
-                        </div>
-                    </div>
-                    <div class="inline fields">
-                        <label>Choose one way:</label>
-                        <div class="field">
-                            <div class="ui radio resize checkbox">
-                                <input type="radio" name="checkbox_resize_type" value="cut" checked="checked">
-                                <label>Stretch</label>
-                            </div>
-                        </div>
-                        <div class="field">
-                            <div class="ui radio pad checkbox">
-                                <input type="radio" name="checkbox_resize_type" id="input_pad" value="pad">
-                                <label>Padding</label>
-                            </div>
-                        </div>
-                    </div>
-                    <!--                               <div class="padding grouped fields" >
-                                <div class="field">
-                                  <div class="ui radio checkbox">
-                                    <input type="radio" name="padding_type" checked="checked" value="constant">
-                                    <label>Constant</label>
-                                  </div>
-                                </div>
-                                <div class="field">
-                                  <div class="ui radio checkbox">
-                                    <input type="radio" name="padding_type" value="reflect">
-                                    <label>Reflect</label>
-                                  </div>
-                                </div>
-                                <div class="field">
-                                  <div class="ui radio checkbox">
-                                    <input type="radio" name="padding_type" value="reflect_101">
-                                    <label>Reflect_101</label>
-                                  </div>
-                                </div>
-                                <div class="field">
-                                  <div class="ui radio checkbox">
-                                    <input type="radio" name="padding_type" value="replicate">
-                                    <label>Replicate</label>
-                                  </div>
-                                </div>
-                              </div> -->
-                    <!-- <input type="text" name="constant_color" placeholder="constant color for padding"> -->
-                </div>
-                <div class="title">
-                    <i class="dropdown icon"></i> 2.Image type:
-                </div>
-                <div class="content">
-                    <div class="inline fields">
-                        <div class="field">
-                            <div class="ui checkbox">
-                                <input type="checkbox" name="rgb" checked="checked">
-                                <label>RGB</label>
-                            </div>
-                        </div>
-                        <div class="field">
-                            <div class="ui checkbox">
-                                <input type="checkbox" name="depth" checked="checked">
-                                <label>Depth</label>
-                            </div>
-                        </div>
-                        <div class="field">
-                            <div class="ui checkbox">
-                                <input type="checkbox" name="mask" checked="checked">
-                                <label>Mask</label>
-                            </div>
-                        </div>
-                        <div class="field">
-                            <div class="ui checkbox">
-                                <input type="checkbox" name="normal">
-                                <label>Normal</label>
-                            </div>
-                        </div>
-                        <div class="field">
-                            <div class="ui checkbox">
-                                <input type="checkbox" name="unlit">
-                                <label>Unlit</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
                 <button type="submit" id="search" formtarget="_blank" class="fluid ui left labeled icon button">
                         <i class="search icon"></i>
                         Search
                     </button>
-                <!-- <button type="button" id='test'> test</button> -->
             </form>
         </div>
     </div>
@@ -379,11 +92,15 @@
     <div class="row"></div>
 </div>
 
-<div class="ui bottom secondary mini fluid menu" style="background-color: #145179;">
+<div class="ui bottom secondary mini fluid menu" style="background-color: #145179;position:absolute;bottom: 0;">
+
     <a class="item">
         <font color="white" size="4"> <b> Logo1 </b></font>
     </a>
 </div>
+
+
+
 
 
 </body>

@@ -13,8 +13,8 @@ class Logger:
         current_time = "["+datetime.now().strftime("%b %d %Y %H:%M:%S")+"]"
         log_msg = current_time + "  " + msg + "@" +"\n" 
         file.write(log_msg)
-        if flag_print is True:
-            print(log_msg)
+        # if flag_print is True:
+        print(log_msg)
 
     def read(self):
         file = open(self.log_path, "r")

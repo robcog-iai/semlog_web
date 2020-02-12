@@ -10,7 +10,7 @@ try:
     from web.semlog_mongo.semlog_mongo.mongo import *
     from web.semlog_mongo.semlog_mongo.utils import *
     from web.semlog_vis.semlog_vis.image import *
-    from web.website.settings import CONFIG_PATH,IMAGE_ROOT
+    from web.website.settings import CONFIG_PATH, IMAGE_ROOT
     from web.image_path.logger import Logger
 except Exception as e:
     os.system("git submodule init")
@@ -18,7 +18,7 @@ except Exception as e:
     from web.semlog_mongo.semlog_mongo.mongo import *
     from web.semlog_mongo.semlog_mongo.utils import *
     from web.semlog_vis.semlog_vis.image import *
-    from web.website.settings import CONFIG_PATH,IMAGE_ROOT
+    from web.website.settings import CONFIG_PATH, IMAGE_ROOT
     from web.image_path.logger import Logger
 
 
@@ -31,11 +31,11 @@ class WebsiteData():
 
     """
 
-    def __init__(self, form_dict, ip,user_id):
+    def __init__(self, form_dict, ip, user_id):
         """Clean all inputs from form_dict."""
 
         pprint.pprint(form_dict)
-        logger=Logger(os.path.join(IMAGE_ROOT,user_id))
+        logger = Logger(os.path.join(IMAGE_ROOT, user_id))
         username, password = load_mongo_account(CONFIG_PATH)
         user_id = user_id
         database_collection_list = []
