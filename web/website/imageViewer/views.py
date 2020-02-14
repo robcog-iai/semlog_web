@@ -141,39 +141,42 @@ def main_search(form_dict, user_id):
     logger.write("Download finished.")
 
     # Draw labels on images
-    # if d.flag_draw_label is True:
-    #     logger.write("Start annotating images...")
-    #     draw_all_labels(df, IMAGE_ROOT, user_id)
-    #     logger.write("Annotation finished.")
+    if 'label' in query_dict.keys():
+        logger.write("Start annotating images...")
+        draw_all_labels(df, IMAGE_ROOT, user_id)
+        logger.write("Annotation finished.")
 
-    # # Perform origin image crop if selected.
+    # Perform origin image crop if selected.
+    if "crop" in query_dict.keys():
+        logger.write("Cropping images with all bounding boxes..")
+        image_dir = scan_images(root_folder_path=IMAGE_ROOT,
+                                root_folder_name=user_id, image_type_list=query_dict['type'])
+        crop_with_all_bounding_box(df, image_dir)
+        logger.write("Cropping finished.")
+
     # if d.flag_split_bounding_box is True and d.search_pattern == "entity_search":
-    #     logger.write("Cropping images with all bounding boxes..")
-    #     image_dir = scan_images(root_folder_path=IMAGE_ROOT,
-    #                             root_folder_name=d.user_id, image_type_list=d.image_type_list)
-    #     crop_with_all_bounding_box(df, image_dir)
-    #     logger.write("Cropping finished.")
+
 
     # Retrieve local image paths
-    # image_dir = scan_images(root_folder_path=IMAGE_ROOT, root_folder_name=d.user_id,
-    #                         image_type_list=d.image_type_list, unnest=True)
+    # image_dir = scan_images(root_folder_path=IMAGE_ROOT, root_folder_name=user_id,
+    #                         image_type_list=query_dict['type'], unnest=True)
 
     # Move scan images to the right folders
-    # if d.search_pattern == "scan_search":
-    # d.customize_image_resolution(image_dir)
-    # arrange_scan_by_class(df, IMAGE_ROOT, user_id)
+    if query_dict['search_type'] == "scan":
+        logger.write("Rearange scan images...")
+        # d.customize_image_resolution(image_dir)
+        arrange_scan_by_class(df, IMAGE_ROOT, user_id)
     # Prepare dataset
-    # elif d.dataset_pattern == 'detection' and d.search_pattern == "entity_search":
-    #     logger.write("Prepare dataset for object detection.")
+    elif "detection" in query_dict.keys():
+        logger.write("Prepare dataset for object detection.")
     #     d.customize_image_resolution(image_dir)
-    #     df.to_csv(os.path.join(IMAGE_ROOT, d.user_id, 'info.csv'), index=False)
+        df.to_csv(os.path.join(IMAGE_ROOT, user_id, 'info.csv'), index=False)
 
-    # elif d.dataset_pattern == 'classifier' and d.search_pattern == "entity_search":
-    #     logger.write("Prepare dataset for classifier.")
-
-    #     download_bounding_box(df, IMAGE_ROOT, d.user_id)
-    #     bounding_box_dict = scan_bb_images(
-    #         IMAGE_ROOT, d.user_id, unnest=True)
+    elif "classifier" in query_dict.keys():
+        logger.write("Prepare dataset for classifier.")
+        download_bounding_box(df, IMAGE_ROOT, user_id)
+        bounding_box_dict = scan_bb_images(
+            IMAGE_ROOT, user_id, unnest=True)
     #     d.customize_image_resolution(bounding_box_dict)
 
     logger.write("Query succeeded.")
@@ -208,14 +211,19 @@ def view_images(request):
     image_type_list = info['image_type_list']
     search_pattern = info['search_pattern']
     image_dir = scan_images(IMAGE_ROOT, user_id, image_type_list)
-    if search_pattern == "scan_search":
+    print(image_type_list)
+    print(image_dir)
+
+    flag_scan=False
+    if search_pattern == "scan":
+        flag_scan=True
         bounding_box_dict = scan_bb_images(
             IMAGE_ROOT, user_id, folder_name="scans")
     else:
         bounding_box_dict = scan_bb_images(IMAGE_ROOT, user_id)
 
     return render(request, 'gallery.html',
-                  {"object_id_list": object_id_list, "image_dir": image_dir, "bounding_box": bounding_box_dict})
+                  {"object_id_list": object_id_list, "image_dir": image_dir, "bounding_box": bounding_box_dict,"flag_scan":flag_scan})
 
 
 def download(request):

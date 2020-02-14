@@ -118,20 +118,21 @@ $(document).ready(function() {
         })
 
     })
-    $("#" + first_db_button).trigger('click')
     $("p").css("marginTop", "10px")
     $("p").css("marginBottom", "10px")
     $("h4").css("marginTop", "10px")
     $("h4").css("marginBottom", "10px")
     $("h5").css("marginTop", "10px")
     $("h5").css("marginBottom", "10px")
-    $('#main_form').on('keyup keypress', function(e) {
-        var keyCode = e.keyCode || e.which;
-        if (keyCode === 13) {
-            e.preventDefault();
-            return false;
-        }
-    });
+
+    $("#" + first_db_button).trigger('click')
+        // $('#main_form').on('keyup keypress', function(e) {
+        //     var keyCode = e.keyCode || e.which;
+        //     if (keyCode === 13) {
+        //         e.preventDefault();
+        //         return false;
+        //     }
+        // });
 
 
 
