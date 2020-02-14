@@ -28,107 +28,103 @@ $(document).ready(function() {
     }
     get_databases()
 
+    var loop_counter = 0;
+    var first_db_button;
+    Object.keys(r).forEach(function(each_db) {
+        var db_button = document.createElement("BUTTON")
+        db_button.type = "button"
+        db_button.classList.add("ui", "button")
+        db_button.id = each_db
+        db_button.innerHTML = each_db
+        db_button.style.width = "100px"
+        db_button.style.height = "40px"
+        db_button.style.marginTop = "10px"
+        $("#database_list").append(db_button)
+        if (loop_counter == 0) {
+            first_db_button = each_db
+        }
+        loop_counter += 1
+
+        $("#" + each_db).click(function() {
+            $("#detail_list").empty()
+
+            details = r[each_db]
+
+            var task_title = document.createElement("h4")
+            task_title.innerHTML = "Task Description:"
+            var task = document.createElement("p")
+            task.style.marginLeft = "20px"
+            task.innerHTML = details['task_description']
+            $("#detail_list").append(task_title)
+            $("#detail_list").append(task)
+
+            var collection_title = document.createElement("h4")
+            collection_title.innerHTML = "Collections:"
+            var collections = document.createElement("p")
+            collections.style.marginLeft = "20px"
+            collections.innerHTML = details['collections'].join(", ")
+            $("#detail_list").append(collection_title)
+            $("#detail_list").append(collections)
+
+            var entities_title = document.createElement("h4")
+            entities_title.innerHTML = "Entities:"
+            entities_info = details['entities']
+            var entities = document.createElement("p")
+            entities.style.marginLeft = "20px"
+            for (var each_class in entities_info) {
+                id_array = entities_info[each_class]
+                id_content = id_array.join(", ")
+                class_elem = document.createElement("h5")
+                class_elem.innerHTML = each_class + " -->"
+                entities.append(class_elem)
+                id_elem = document.createElement("p")
+                id_elem.style.marginLeft = "20px"
+                id_elem.innerHTML = id_content
+                entities.append(id_elem)
+            }
+
+            $("#detail_list").append(entities_title)
+            $("#detail_list").append(entities)
 
 
+            var skels_title = document.createElement("h4")
+            skels_title.innerHTML = "Skeletal Entities:"
+            bones_info = details['skels']
+            var skels = document.createElement("p")
+            skels.style.marginLeft = "20px"
+            for (var each_skel in bones_info) {
+                bone_array = bones_info[each_skel]
+                bone_content = bone_array.join(", ")
+                skel_elem = document.createElement("h5")
+                skel_elem.innerHTML = each_skel + " -->"
+                skels.append(skel_elem)
+                bone_elem = document.createElement("p")
+                bone_elem.style.marginLeft = "20px"
+                bone_elem.innerHTML = bone_content
+                skels.append(bone_elem)
+            }
 
-    // Add hide/show for two search pattern
-    $("#entity_search").click(function() {
-        $("#div_entity_search").show();
-        $("#div_event_search").hide();
-        $("#div_scan_search").hide();
-    });
-    $("#event_search").click(function() {
-        $("#div_event_search").show();
-        $("#div_entity_search").hide();
-        $("#div_scan_search").hide();
-    });
-    $("#scan_search").click(function() {
-        $("#div_scan_search").show();
-        $("#div_entity_search").hide();
-        $("#div_event_search").hide();
-    });
-    var id = 0;
-    $("#camera_view_add").click(function() {
-        var field = document.createElement("input");
-        field.name = "camera_view_object_id" + id;
-        field.type = "text";
-        field.placeholder = "Camera view name";
-        $(".camera_view_object_list").append(field);
-        id += 1;
+            $("#detail_list").append(skels_title)
+            $("#detail_list").append(skels)
 
+            var camera_view_title = document.createElement("h4")
+            camera_view_title.innerHTML = "Camera Views:"
+            var camera_view = document.createElement("p")
+            camera_view.style.marginLeft = "20px"
+            camera_view.innerHTML = details['camera_views'].join(", ")
+            $("#detail_list").append(camera_view_title)
+            $("#detail_list").append(camera_view)
 
-    });
-    $("#camera_view_remove").click(function() {
-        $('.camera_view_object_list').children().last().remove()
+        })
+
     })
-
-    var padding_div = '<div class="padding grouped fields" ><div class="field"><div class="ui radio checkbox">' +
-        '<input type="radio" name="padding_type" checked="checked" value="constant">' +
-        '<label>Constant</label></div></div>' +
-        '<div class="field"><div class="ui radio checkbox">' +
-        '<input type="radio" name="padding_type" value="reflect">' +
-        '<label>Reflect</label></div></div>' +
-        '<div class="field"><div class="ui radio checkbox">' +
-        '<input type="radio" name="padding_type" value="reflect_101">' +
-        '<label>Reflect_101</label></div></div>' +
-        '<div class="field"><div class="ui radio checkbox">' +
-        '<input type="radio" name="padding_type" value="replicate">' +
-        '<label>Replicate</label></div></div></div>'
-
-    $(".ui.radio.pad").checkbox({
-        onChecked: function() {
-            // $(".input_pad").remove();
-            // $("#div_resize").append('<input type="text" name="padding_constant_color" class="input_pad" placeholder="constant color for padding">');
-            // $("#div_resize").append('<input type="text" name="padding_type" class="input_pad" placeholder="type for padding">');
-            $("#div_resize").append(padding_div)
-        },
-    })
-
-    $(".ui.radio.resize").checkbox({
-        onChecked: function() {
-            $(".padding.grouped.fields").remove();
-        },
-    })
-
-
-
-    $("#button_ip").click(function() {
-        $("#main_form").removeAttr("hidden")
-
-    })
-
-    var id = 0;
-    $("#add").click(function() {
-        var field = document.createElement("input");
-        field.name = "object_id" + id;
-        field.type = "text";
-        field.placeholder = "Object id";
-        $(".object_list").append(field);
-        id += 1;
-
-
-    });
-    $("#remove").click(function() {
-        $('.object_list').children().last().remove()
-    })
-
-
-    var id = 0;
-
-    $("#add_class").click(function() {
-        var field = document.createElement("input");
-        field.name = "class_id" + id;
-        field.type = "text";
-        field.placeholder = "Class name";
-        $(".class_list").append(field);
-        id += 1;
-
-
-    });
-    $("#remove_class").click(function() {
-        $('.class_list').children().last().remove()
-    })
-
+    $("#" + first_db_button).trigger('click')
+    $("p").css("marginTop", "10px")
+    $("p").css("marginBottom", "10px")
+    $("h4").css("marginTop", "10px")
+    $("h4").css("marginBottom", "10px")
+    $("h5").css("marginTop", "10px")
+    $("h5").css("marginBottom", "10px")
     $('#main_form').on('keyup keypress', function(e) {
         var keyCode = e.keyCode || e.which;
         if (keyCode === 13) {
@@ -137,82 +133,6 @@ $(document).ready(function() {
         }
     });
 
-    $("#search").click(function() {
-        var r = ""
-        $("a.ui.label.transition.visible").each(function() {
-                // console.log($(this)[0].outerText)
-                // alert($(this)[0].outerText)
-                r = r + $(this)[0].outerText + "@"
-            })
-            // console.log(r)
-        var i = document.createElement("input")
-        i.type = "hidden"
-        i.name = "database_collection_list"
-        i.value = r
-        $(".db_input").append(i)
-            // $(".ui.label.transition.visible").addClass('red');
-    })
 
-    $('#main_form').submit(function(e) {
-            var db_list = Object.keys(r);
-            console.log(db_list)
-            var stop_submit = 0;
-            $('a.ui.label.transition.visible').each(function() {
-
-                var input_db = $(this)[0].outerText;
-
-                // Remove old error div
-                // if ($(this).parent().hasClass("error")){
-                //     console.log('has error div!')
-                //     $(this).unwrap()
-                // }
-
-                // Get each input
-                //     var input_db=$(this).val();
-
-                //     // if *.*, continue
-                if (input_db == "*.*") {
-                    return true
-                }
-
-                // Remove whitespaces
-                input_array = input_db.replace(/\s/g, "");
-                input_array = input_array.split('.');
-
-                db = input_array[0];
-                coll = input_array[1];
-                if (input_array.length != 2) {
-
-                    $(this).addClass('red');
-                    stop_submit = 1;
-                } else if (db == "*" & coll != "*") {
-
-                    $(this).addClass('red');
-                    stop_submit = 1;
-                }
-                // check if db exists
-                else if (!db_list.includes(db)) {
-                    $(this).addClass('red');
-                    stop_submit = 1;
-                }
-                // check if collection exists
-                else if (coll != "*") {
-                    var collection_list = r[db].sort();
-                    console.log(collection_list)
-                    if (!collection_list.includes(coll)) {
-                        $(this).addClass('red');
-                        stop_submit = 1;
-                    }
-                }
-
-
-
-                if (stop_submit == 1) {
-                    e.preventDefault();
-                }
-            })
-        })
-        // Remove the arrow in the selection input field of choosing collections
-    $(".dropdown.icon").remove()
 
 })

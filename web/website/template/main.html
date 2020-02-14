@@ -25,6 +25,7 @@
             })
         });
     </script>
+
     <script src="{% static 'js/main.js' %}"></script>
 </head>
 
@@ -50,12 +51,13 @@
     <div class="row">
     </div>
     <div class="row">
-        <div class="four wide column"></div>
-        <div class=" eight wide column">
+        <div class="two wide column"></div>
+        <div class=" ten wide column">
             <form method="get" class="ui form" action="/start_search/" id='main_form'>
                 <div class="ui accordion field">
                     <div class="active title" style="border-radius: 8px;background-color: #cfd8dd">
-                        <i class="icon angle down" style="float:right;"></i> Query
+                        <i class="icon angle down" style="float:right;"></i>
+                        <font size="4"><b>  &nbsp;&nbsp;Query </b></font>
                     </div>
                     <div class="active content field">
 
@@ -64,17 +66,22 @@
 
 
                     <div class="title" style="border-radius: 8px;background-color: #cfd8dd">
-                        <i class="icon angle down" style="float:right;"></i> Data
-                    </div>
-                    <div class="content field">
-                        <input placeholder="Query sentence" type="text">
-                    </div>
+                        <i class="icon angle down" style="float:right;"></i>
 
-                    <div class="title" style="border-radius: 8px;background-color: #cfd8dd">
-                        <i class="icon angle down" style="float:right;"></i> Results
+                        <font size="4"><b> &nbsp; &nbsp;Dataset </b></font>
                     </div>
                     <div class="content field">
-                        <input placeholder="Query sentence" type="text">
+                        <div class="ui grid">
+                            <div class="row">
+                                <div class="four wide column" id="database_list">
+
+                                </div>
+                                <div class="eleven wide column" id="detail_list" style="overflow-x:auto;height: 300px;">
+
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
 

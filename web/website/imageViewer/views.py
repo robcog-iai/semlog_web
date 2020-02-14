@@ -93,6 +93,7 @@ def read_log(request):
         return HttpResponse(return_dict)
 
 
+
 def update_database_info(request):
     """Show avaiable database-collection in real time with ajax."""
     return_dict = {}
@@ -107,8 +108,9 @@ def update_database_info(request):
         for db in db_list:
             return_dict[db] = [
                 i for i in m[db].list_collection_names() if "." not in i]
+
+        return_dict=get_db_info(return_dict,CONFIG_PATH)
         return_dict = json.dumps(return_dict)
-        print(return_dict)
 
         return HttpResponse(return_dict)
     else:
