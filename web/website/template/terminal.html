@@ -21,7 +21,7 @@
                 data: {
                     ip_address: ip_address
                 },
-                url: "read_log/",
+                url: "/read_log/",
                 cache: false,
                 dataType: "json",
                 success: function(result, statues, xml) {
@@ -72,6 +72,7 @@
         }, 1000)
     </script>
 
+    <script src="{% static 'js/log_out.js' %}"></script>
 
 
 
@@ -88,7 +89,7 @@
 
             <img class="ui tiny circular image" src="{% static 'img/rob.jpg' %}" style="width: 25px;height: 25px;position: relative;top: 5px;" />
             <a class="ui item">
-                <font color="white" size="2"> &nbsp; Logout</font>
+                <font color="white" size="2" id="log_out"> &nbsp; Logout</font>
             </a>
         </div>
     </div>

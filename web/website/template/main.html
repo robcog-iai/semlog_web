@@ -27,6 +27,7 @@
     </script>
 
     <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/log_out.js' %}"></script>
 </head>
 
 
@@ -38,7 +39,7 @@
 
         <img class="ui tiny circular image" src="{% static 'img/rob.jpg' %}" style="width: 25px;height: 25px;position: relative;top: 5px;" />
         <a class="ui item">
-            <font color="white" size="2"> &nbsp; Logout</font>
+            <font color="white" size="2" id="log_out"> &nbsp; Logout</font>
         </a>
     </div>
 </div>
@@ -75,6 +76,26 @@
                         <p style="margin-left: 20px;">scan@CalibMap@IAIFridgeDoorPanel+Template_Map_Floor@Color+Depth</p>
                     </div>
 
+
+                    <div class="title" style="border-radius: 8px;background-color: #cfd8dd">
+
+                        <i class="icon angle down" style="float:right;"></i>
+
+                        <font size="4"><b> &nbsp; &nbsp;Customization </b></font>
+                    </div>
+                    <div class="content field">
+
+                        <input placeholder="customization sentence" name="customization_data" type="text">
+
+                        <h3>Examples:</h3>
+                        <h4>Cut images</h4>
+                        <p style="margin-left: 20px;">cut@480@320</p>
+                        <h4>Pad images:</h4>
+                        <p style="margin-left: 20px;">pad@480@320</p>
+                        <h5 style="margin-left: 20px;">Optional input (add with one whitespace):</h5>
+                        <p style="margin-left: 40px;">reflect,replicate,constant=255,0,0</p>
+
+                    </div>
 
                     <div class="title" style="border-radius: 8px;background-color: #cfd8dd">
                         <i class="icon angle down" style="float:right;"></i>

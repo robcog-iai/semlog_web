@@ -7,13 +7,10 @@ $(document).ready(function() {
     });
 
     function get_databases() {
-
-        var ip_address = '127.0.0.1';
-
         $.ajax({
             type: "POST",
-            data: { ip_address: ip_address },
-            url: "update_database_info/",
+            data: {},
+            url: "/update_database_info/",
             cache: false,
             dataType: "json",
             success: function(result, statues, xml) {
@@ -26,6 +23,10 @@ $(document).ready(function() {
         });
         return false;
     }
+
+
+
+
     get_databases()
 
     var loop_counter = 0;
@@ -125,14 +126,17 @@ $(document).ready(function() {
     $("h5").css("marginTop", "10px")
     $("h5").css("marginBottom", "10px")
 
+
+
     $("#" + first_db_button).trigger('click')
-        // $('#main_form').on('keyup keypress', function(e) {
-        //     var keyCode = e.keyCode || e.which;
-        //     if (keyCode === 13) {
-        //         e.preventDefault();
-        //         return false;
-        //     }
-        // });
+
+    // $('#main_form').on('keyup keypress', function(e) {
+    //     var keyCode = e.keyCode || e.which;
+    //     if (keyCode === 13) {
+    //         e.preventDefault();
+    //         return false;
+    //     }
+    // });
 
 
 

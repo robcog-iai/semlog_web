@@ -17,6 +17,7 @@ from web.semlog_vis.semlog_vis.image import *
 from web.semlog_vis.semlog_vis.bounding_box import *
 from web.image_path.logger import Logger
 from web.image_path.image_path import *
+from web.image_path.utils import create_a_folder
 from web.website.settings import IMAGE_ROOT, CONFIG_PATH
 from web.website.imageViewer.utils import *
 
@@ -33,6 +34,15 @@ def clean_folder(x):
     print("delete folder for:", time.time() - t1)
     return x
 
+def log_out(request):
+    user_id=request.session['user_id']
+    user_folder=os.path.join(IMAGE_ROOT,user_id)
+    try:
+        shutil.rmtree(user_folder)
+    except Exception as e:
+        print(e)
+    print("User: ",user_id," is logged out.")
+    return HttpResponse("Logged out.")
 
 def login(request):
     server_state = check_mongodb_state(CONFIG_PATH)
@@ -45,12 +55,21 @@ def login(request):
 def search(request):
     """Delete old folders before search."""
     t1 = time.time()
+    if request.method=="GET":
+        login_dict=request.GET.dict()
+        request.session['user_id']=user_id=login_dict['user_id']
+        request.session['user_root']=os.path.join(IMAGE_ROOT,user_id)
+    
     if os.path.isdir(IMAGE_ROOT) is False:
         print("Create image root.")
         os.makedirs(IMAGE_ROOT)
-    delete_path = os.listdir(IMAGE_ROOT)
-    delete_path = [os.path.join(IMAGE_ROOT, i)
-                   for i in delete_path]
+    else:
+        delete_path = os.listdir(IMAGE_ROOT)
+        user_list=delete_path
+        if user_id in user_list:
+            return HttpResponse("<h1 style='text-align:center;margin-top:300px;'>This user name is occupied. Please use another name.<h1>")
+        delete_path = [os.path.join(IMAGE_ROOT, i)
+                    for i in delete_path]
     try:
         pool = Pool(12)
         pool.map(clean_folder, delete_path)
@@ -85,8 +104,9 @@ def training(request):
 
 def read_log(request):
     if request.method == 'POST':
-        user_id = request.session['user_id']
-        logger = Logger(os.path.join(IMAGE_ROOT, user_id))
+        user_root=request.session['user_root']
+        print(user_root)
+        logger = Logger(user_root)
         log_data = logger.read()
         return_dict = {"data": log_data}
         return_dict = json.dumps(return_dict)
@@ -124,33 +144,38 @@ def show_one_image(request):
     return render(request, 'origin_size.html', dic)
 
 
-def main_search(form_dict, user_id):
+def main_search(form_dict, user_id,search_id):
     # Create root folder
     user_root = os.path.join(IMAGE_ROOT, user_id)
-    os.mkdir(user_root)
+    create_a_folder(user_root)
     logger = Logger(user_root)
     query_data = form_dict['query_data']
+    print(form_dict)
+    if form_dict['customization_data'] !="":
+        customization_data=form_dict['customization_data']
+        customization_dict=compile_customization(customization_data)
+        logger.write("customization input: "+str(customization_dict))
     query_dict=compile_query(query_data)
+
+
     df = search_mongo(query_dict,logger, CONFIG_PATH)
-
-
     # Download images
     logger.write("Start downloading images...")
-    download_images(root_folder_path=IMAGE_ROOT,
-                    root_folder_name=user_id, df=df, config_path=CONFIG_PATH)
+    download_images(root_folder_path=user_root,
+                    root_folder_name=search_id, df=df, config_path=CONFIG_PATH)
     logger.write("Download finished.")
 
     # Draw labels on images
     if 'label' in query_dict.keys():
         logger.write("Start annotating images...")
-        draw_all_labels(df, IMAGE_ROOT, user_id)
+        draw_all_labels(df, user_root, search_id)
         logger.write("Annotation finished.")
 
     # Perform origin image crop if selected.
     if "crop" in query_dict.keys():
         logger.write("Cropping images with all bounding boxes..")
-        image_dir = scan_images(root_folder_path=IMAGE_ROOT,
-                                root_folder_name=user_id, image_type_list=query_dict['type'])
+        image_dir = scan_images(root_folder_path=user_root,
+                                root_folder_name=search_id, image_type_list=query_dict['type'])
         crop_with_all_bounding_box(df, image_dir)
         logger.write("Cropping finished.")
 
@@ -165,18 +190,18 @@ def main_search(form_dict, user_id):
     if query_dict['search_type'] == "scan":
         logger.write("Rearange scan images...")
         # d.customize_image_resolution(image_dir)
-        arrange_scan_by_class(df, IMAGE_ROOT, user_id)
+        arrange_scan_by_class(df, user_root, search_id)
     # Prepare dataset
     elif "detection" in query_dict.keys():
         logger.write("Prepare dataset for object detection.")
     #     d.customize_image_resolution(image_dir)
-        df.to_csv(os.path.join(IMAGE_ROOT, user_id, 'info.csv'), index=False)
+        df.to_csv(os.path.join(user_root, search_id, 'info.csv'), index=False)
 
     elif "classifier" in query_dict.keys():
         logger.write("Prepare dataset for classifier.")
-        download_bounding_box(df, IMAGE_ROOT, user_id)
+        download_bounding_box(df, user_root, search_id)
         bounding_box_dict = scan_bb_images(
-            IMAGE_ROOT, user_id, unnest=True)
+            user_root, search_id, unnest=True)
     #     d.customize_image_resolution(bounding_box_dict)
 
     logger.write("Query succeeded.")
@@ -184,8 +209,9 @@ def main_search(form_dict, user_id):
 
     # Store static info in local json file
     info = {'image_type_list': query_dict['type'],
-            'object_id_list': query_dict['class'], 'search_pattern': query_dict['search_type']}
-    with open(os.path.join(IMAGE_ROOT, user_id, 'info.json'), 'w') as f:
+            'object_id_list': query_dict['class'],
+            'search_pattern': query_dict['search_type']}
+    with open(os.path.join(user_root, search_id, 'info.json'), 'w') as f:
         json.dump(info, f)
 
     # return render(request, 'make_your_choice.html')
@@ -194,33 +220,32 @@ def main_search(form_dict, user_id):
 def start_search(request):
     """The most important function of the website.
         Read the form and search the db, download images to static folder."""
-    user_id = str(uuid.uuid4())
-    request.session['user_id'] = user_id
+    user_id=request.session['user_id']
     form_dict = request.GET.dict()
-    thr = threading.Thread(target=main_search, args=(form_dict, user_id))
+    search_id=str(uuid.uuid4())
+    request.session['search_id']=search_id
+    thr = threading.Thread(target=main_search, args=(form_dict, user_id,search_id))
     thr.start()
     return render(request, "terminal.html")
 
 
 def view_images(request):
     """Entrance of viewing mode of the website."""
-    user_id = request.session['user_id']
-    with open(os.path.join(IMAGE_ROOT, user_id, 'info.json')) as f:
+    user_root=request.session['user_root']
+    search_id=request.session['search_id']
+    with open(os.path.join(user_root, search_id, 'info.json')) as f:
         info = json.load(f)
     object_id_list = info['object_id_list']
     image_type_list = info['image_type_list']
     search_pattern = info['search_pattern']
-    image_dir = scan_images(IMAGE_ROOT, user_id, image_type_list)
-    print(image_type_list)
-    print(image_dir)
-
+    image_dir = scan_images(user_root, search_id, image_type_list)
     flag_scan=False
     if search_pattern == "scan":
         flag_scan=True
         bounding_box_dict = scan_bb_images(
-            IMAGE_ROOT, user_id, folder_name="scans")
+            user_root, search_id, folder_name="scans")
     else:
-        bounding_box_dict = scan_bb_images(IMAGE_ROOT, user_id)
+        bounding_box_dict = scan_bb_images(user_root,search_id)
 
     return render(request, 'gallery.html',
                   {"object_id_list": object_id_list, "image_dir": image_dir, "bounding_box": bounding_box_dict,"flag_scan":flag_scan})
