@@ -12,7 +12,7 @@ import uuid
 sys.path.append("..")
 
 import web.models.classifier.train as classifier_train
-from web.semlog_mongo.semlog_mongo.utils_new import *
+from web.semlog_mongo.semlog_mongo.utils import *
 from web.semlog_vis.semlog_vis.image import *
 from web.semlog_vis.semlog_vis.bounding_box import *
 from web.image_path.logger import Logger
