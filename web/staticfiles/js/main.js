@@ -2,6 +2,16 @@ var r;
 
 $(document).ready(function() {
 
+    $("#query_input").focusout(function() {
+
+        if (this.value.length > 0) {
+            this.style.width = ((this.value.length + 1) * 8) + 'px';
+        } else {
+            this.style.width = ((this.getAttribute('placeholder').length + 1) * 8) + 'px';
+        }
+
+    });
+
     $.ajaxSetup({
         data: { csrfmiddlewaretoken: token },
     });

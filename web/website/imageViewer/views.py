@@ -105,8 +105,8 @@ def training(request):
 def read_log(request):
     if request.method == 'POST':
         user_root=request.session['user_root']
-        print(user_root)
-        logger = Logger(user_root)
+        search_id=request.session['search_id']
+        logger = Logger(os.path.join(user_root,search_id))
         log_data = logger.read()
         return_dict = {"data": log_data}
         return_dict = json.dumps(return_dict)
@@ -148,7 +148,8 @@ def main_search(form_dict, user_id,search_id):
     # Create root folder
     user_root = os.path.join(IMAGE_ROOT, user_id)
     create_a_folder(user_root)
-    logger = Logger(user_root)
+    create_a_folder(os.path.join(user_root,search_id))
+    logger = Logger(os.path.join(user_root,search_id))
     query_data = form_dict['query_data']
     print(form_dict)
     if form_dict['customization_data'] !="":
@@ -184,18 +185,16 @@ def main_search(form_dict, user_id,search_id):
     image_dir = scan_images(root_folder_path=user_root, root_folder_name=search_id,
                             image_type_list=query_dict['type'], unnest=True)
 
+    if form_dict['customization_data']!="":
+        customize_image_resolution(customization_dict,image_dir)
     # Move scan images to the right folders
     if query_dict['search_type'] == "scan":
         logger.write("Rearange scan images...")
-        if form_dict['customization_data']!="":
-            customize_image_resolution(customization_dict,image_dir)
         arrange_scan_by_class(df, user_root, search_id)
     # Prepare dataset
     elif "detection" in query_dict.keys():
         logger.write("Prepare dataset for object detection.")
-        if form_dict['customization_data']!="":
-            df=recalculate_bb(df,customization_dict,image_dir)
-            customize_image_resolution(customization_dict,image_dir)
+        df=recalculate_bb(df,customization_dict,image_dir)
         df.to_csv(os.path.join(user_root, search_id, 'info.csv'), index=False)
 
     elif "classifier" in query_dict.keys():
@@ -269,9 +268,10 @@ def download(request):
         shutil.move('%s.%s' % (name, format), destination)
 
     user_id = request.session['user_id']
-    image_root = IMAGE_ROOT
-    zip_target = os.path.join(image_root, user_id)
-    zip_path = os.path.join(image_root, user_id, "Color_images.zip")
+    user_root=request.session['user_root']
+    search_id=request.session['search_id']
+    zip_target = os.path.join(user_root, search_id)
+    zip_path = os.path.join(user_root,search_id, "Color_images.zip")
     make_archive(zip_target, zip_path)
     print("finish zip.")
     zip_file = open(zip_path, '+rb')

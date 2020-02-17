@@ -73,6 +73,7 @@ def compile_customization(data):
         return_dict['width']=int(data[1])
         return_dict['height']=int(data[2])
         return_dict['padding_type']='reflect'
+        return_dict['constant_color']=[255,0,0]
 
         if len(optional_data)!=0:
             optional_data=optional_data[0]

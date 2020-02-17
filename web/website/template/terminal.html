@@ -70,6 +70,8 @@
             }
 
         }, 1000)
+        var element = $("#div_server_log")
+        element.scrollTop = element.scrollHeight;
     </script>
 
     <script src="{% static 'js/log_out.js' %}"></script>
@@ -104,7 +106,7 @@
                     <div class="active title" style="background-color: #cfd8dd">
                         <i class="dropdown icon"></i> Server state
                     </div>
-                    <div class="active content" style="background-color: #e5e5e7;height:300px;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
+                    <div class="active content" id="div_server_log" style="background-color: #e5e5e7;height:400px;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
                         <p id="server_log"></p>
 
                     </div>
@@ -114,7 +116,7 @@
         </div>
     </div>
 
-    <div class="three blue ui buttons" style="position: relative;left: 450px;top: 40px;">
+    <div class="three blue ui buttons" style="display:block;margin-left: 35%;margin-right: auto;margin-top: 1%;">
         <a href="/download/" target="_blank">
             <button class="ui massive button disabled operation_button" type="button">Download</button>
         </a>

@@ -61,8 +61,8 @@
                         <font size="4"><b>  &nbsp;&nbsp;Query </b></font>
                     </div>
                     <div class="active content field">
-
-                        <input placeholder="Query sentence" name="query_data" type="text">
+                        <!-- <input placeholder="Query sentence" name="query_data" type="text"> -->
+                        <span><input name="query_data" id="query_input" placeholder="Input the query sentence to search images from databases" type="text" onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px';"></span>
 
                         <h3>Examples:</h3>
                         <h4>Entity search:</h4>
@@ -100,7 +100,7 @@
                     <div class="title" style="border-radius: 8px;background-color: #cfd8dd">
                         <i class="icon angle down" style="float:right;"></i>
 
-                        <font size="4"><b> &nbsp; &nbsp;Dataset </b></font>
+                        <font size="4"><b> &nbsp; &nbsp;Details of Datasets </b></font>
                     </div>
                     <div class="content field">
                         <div class="ui grid">
