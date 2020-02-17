@@ -36,6 +36,9 @@
             return log_info
 
         }
+
+        var flag_stop = 0
+        var flag_classifier = 0
         $(document).ready(function() {
             $.ajaxSetup({
                 data: {
@@ -43,7 +46,7 @@
                 },
             });
         })
-        var flag_stop = 0
+
         var interval = window.setInterval(function() {
             var log_info = update_server_msg()
             log_info = log_info['data'].split("@")
@@ -55,9 +58,12 @@
                 $("#server_log").append("<br />")
                 if (content.includes("succeeded")) {
                     $(".operation_button").removeClass("disabled")
+                    if (flag_classifier == 1) {
+                        $(".training_button").removeClass("disabled")
+                    }
                 }
                 if (content.includes("classifier")) {
-                    $(".training_button").removeClass("disabled")
+                    flag_classifier = 1
 
                 }
                 if (content.includes("Query")) {

@@ -92,13 +92,13 @@ def search(request):
 
 def training(request):
     """Entrance for training the multiclass classifier."""
-    dataset_pattern = request.session['dataset_pattern']
     user_id = request.session['user_id']
-    if dataset_pattern == "classifier":
-        classifier_train.train(
-            dataset_path=os.path.join(IMAGE_ROOT, user_id, "BoundingBoxes"),
-            model_saving_path=os.path.join(IMAGE_ROOT, user_id)
-        )
+    user_root=request.session['user_root']
+    search_id=request.session['search_id']
+    classifier_train.train(
+        dataset_path=os.path.join(user_root,search_id, "BoundingBoxes"),
+        model_saving_path=os.path.join(user_root,search_id)
+    )
     return HttpResponse("Model starts training. Progress can be seen in port 8097.")
 
 
@@ -185,8 +185,6 @@ def main_search(form_dict, user_id,search_id):
     image_dir = scan_images(root_folder_path=user_root, root_folder_name=search_id,
                             image_type_list=query_dict['type'], unnest=True)
 
-    if form_dict['customization_data']!="":
-        customize_image_resolution(customization_dict,image_dir)
     # Move scan images to the right folders
     if query_dict['search_type'] == "scan":
         logger.write("Rearange scan images...")
@@ -204,7 +202,8 @@ def main_search(form_dict, user_id,search_id):
             user_root, search_id, unnest=True)
         if form_dict['customization_data']!="":
             customize_image_resolution(customization_dict,bounding_box_dict)
-
+    elif form_dict['customization_data']!="":
+        customize_image_resolution(customization_dict,image_dir)
 
     logger.write("Query succeeded.")
     logger.write("Click buttons below to utilize results.")
