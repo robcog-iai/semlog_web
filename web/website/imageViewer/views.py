@@ -63,13 +63,10 @@ def search(request):
     if os.path.isdir(IMAGE_ROOT) is False:
         print("Create image root.")
         os.makedirs(IMAGE_ROOT)
-    else:
-        delete_path = os.listdir(IMAGE_ROOT)
-        user_list=delete_path
-        if user_id in user_list:
-            return HttpResponse("<h1 style='text-align:center;margin-top:300px;'>This user name is occupied. Please use another name.<h1>")
-        delete_path = [os.path.join(IMAGE_ROOT, i)
-                    for i in delete_path]
+    delete_path = os.listdir(IMAGE_ROOT)
+    user_list=delete_path
+    delete_path = [os.path.join(IMAGE_ROOT, i)
+                for i in delete_path]
     try:
         pool = Pool(12)
         pool.map(clean_folder, delete_path)
@@ -86,6 +83,9 @@ def search(request):
     if os.path.isdir(IMAGE_ROOT) is False:
         print("Create image root.")
         os.makedirs(IMAGE_ROOT)
+
+    if user_id in user_list:
+        return HttpResponse("<h1 style='text-align:center;margin-top:300px;'>This user name is occupied. Please use another name.<h1>")
 
     return render(request, 'main.html')
 
@@ -179,22 +179,23 @@ def main_search(form_dict, user_id,search_id):
         crop_with_all_bounding_box(df, image_dir)
         logger.write("Cropping finished.")
 
-    # if d.flag_split_bounding_box is True and d.search_pattern == "entity_search":
-
 
     # Retrieve local image paths
-    # image_dir = scan_images(root_folder_path=IMAGE_ROOT, root_folder_name=user_id,
-    #                         image_type_list=query_dict['type'], unnest=True)
+    image_dir = scan_images(root_folder_path=user_root, root_folder_name=search_id,
+                            image_type_list=query_dict['type'], unnest=True)
 
     # Move scan images to the right folders
     if query_dict['search_type'] == "scan":
         logger.write("Rearange scan images...")
-        # d.customize_image_resolution(image_dir)
+        if form_dict['customization_data']!="":
+            customize_image_resolution(customization_dict,image_dir)
         arrange_scan_by_class(df, user_root, search_id)
     # Prepare dataset
     elif "detection" in query_dict.keys():
         logger.write("Prepare dataset for object detection.")
-    #     d.customize_image_resolution(image_dir)
+        if form_dict['customization_data']!="":
+            df=recalculate_bb(df,customization_dict,image_dir)
+            customize_image_resolution(customization_dict,image_dir)
         df.to_csv(os.path.join(user_root, search_id, 'info.csv'), index=False)
 
     elif "classifier" in query_dict.keys():
@@ -202,7 +203,9 @@ def main_search(form_dict, user_id,search_id):
         download_bounding_box(df, user_root, search_id)
         bounding_box_dict = scan_bb_images(
             user_root, search_id, unnest=True)
-    #     d.customize_image_resolution(bounding_box_dict)
+        if form_dict['customization_data']!="":
+            customize_image_resolution(customization_dict,bounding_box_dict)
+
 
     logger.write("Query succeeded.")
     logger.write("Click buttons below to utilize results.")

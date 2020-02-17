@@ -70,9 +70,9 @@ def compile_customization(data):
         data = data[0].split("@")
         return_dict = {}
         return_dict['resize_type']=data[0]
-        return_dict['width']=data[1]
-        return_dict['height']=data[2]
-        return_dict['pad_type']='reflect'
+        return_dict['width']=int(data[1])
+        return_dict['height']=int(data[2])
+        return_dict['padding_type']='reflect'
 
         if len(optional_data)!=0:
             optional_data=optional_data[0]
@@ -86,16 +86,22 @@ def compile_customization(data):
         
 
 
-def customize_image_resolution(self, image_dir):
+def customize_image_resolution(customization_dict,image_dir):
     """Wrapper for three different resize functions for all images."""
-    print(image_dir)
-    if self.flag_resize_type == 'pad':
-        self.padding_type = convert_padding_type(self.padding_type)
-        pad_all_images(image_dir, self.width, self.height,
-                        self.padding_type, self.padding_constant_color)
+    print("Entering resolution changing!!!!!!!!!!!!!!")
+    print(customization_dict)
+    resize_type=customization_dict['resize_type']
+    padding_type=customization_dict['padding_type']
+    width=customization_dict['width']
+    height=customization_dict['height']
+
+    if resize_type == 'pad':
+        padding_type = convert_padding_type(padding_type)
+        pad_all_images(image_dir, width, height,
+                        padding_type, customization_dict['constant_color'])
     else:
-        resize_all_images(image_dir, self.width,
-                            self.height, self.flag_resize_type)
+        resize_all_images(image_dir, width,
+                            height, resize_type)
 
 
 def convert_padding_type(padding_type):
@@ -112,3 +118,30 @@ def convert_padding_type(padding_type):
     else:
         padding_type = cv2.BORDER_REFLECT
     return padding_type
+
+def recalculate_bb(df,customization_dict,image_dir):
+    """After resizing images, bb coordinates are recalculated.
+    
+    Args:
+        df (Dataframe): A df for image info.
+        customization_dict (dict): Resize dict.
+        image_dir (list): Image path list
+    
+    Returns:
+        Dataframe: Updated dataframe.
+    """
+    img = cv2.imread(image_dir[0])
+    h,w,_=img.shape
+    new_width=customization_dict['width']
+    new_height=customization_dict['height']
+    w_ratio=new_width/w
+    h_ratio=new_height/h
+    df['x_min']=df['x_min']*w_ratio
+    df['x_max']=df['x_max']*w_ratio
+    df['y_min']=df['y_min']*h_ratio
+    df['y_max']=df['y_max']*h_ratio
+    df.x_min=df.x_min.astype("int16")
+    df.x_max=df.x_max.astype("int16")
+    df.y_min=df.y_min.astype("int16")
+    df.y_max=df.y_max.astype("int16")
+    return df
