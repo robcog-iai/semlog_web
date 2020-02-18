@@ -7,8 +7,8 @@ import visdom
 import os
 from random import randrange
 
-from web.models.classifier.dataset import ClassifierDataset
-from web.models.classifier.model import Multiclass_classifier
+from models.classifier.dataset import ClassifierDataset
+from models.classifier.model import Multiclass_classifier
 
 def create_vis_figures(vis):
     """Create figures in Visdom."""

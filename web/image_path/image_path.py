@@ -3,7 +3,7 @@ import pandas as pd
 from itertools import chain
 import platform
 import shutil
-from web.image_path.utils import *
+from image_path.utils import *
 
 
 def scan_images(root_folder_path, root_folder_name, image_type_list,unnest=False):

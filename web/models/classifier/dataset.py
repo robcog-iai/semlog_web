@@ -1,4 +1,4 @@
-from web.image_path.utils import absoluteFilePaths
+from image_path.utils import absoluteFilePaths
 from torchvision import transforms
 from torch.utils.data import Dataset
 from PIL import Image
