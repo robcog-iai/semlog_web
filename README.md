@@ -35,24 +35,13 @@ pip install torch==1.4.0+cpu torchvision==0.5.0+cpu -f https://download.pytorch.
 
 4. make sure the **local MongoDB** is running.
 
-5. Open a terminal and enter the "**SemLog_web/web**" folder, run
+5. In the terminal, run
 ```
 python manage.py runserver
 ```
+To start the server.
 
 6. Open your browser and visit the website via the address "**localhost:8000**".
-
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Go to "**semlog_web/web/example**", run
-```
-jupyter notebook
-```
-And check all important features in the framework.
-
 
 ## Deployment
 
@@ -81,5 +70,5 @@ This project is licensed under the BSD-3-Clause License
 
 ## Acknowledgments
 
-* This framework is developed by Xiaoyue Zhang in the Institute of Artificial Intelligence, University of Bremen, under the supervision of Andrei Haidu
+* This framework is developed by Xiaoyue Zhang in the Institute of Artificial Intelligence, University of Bremen, under the supervision of Andrei Haidu.
 
