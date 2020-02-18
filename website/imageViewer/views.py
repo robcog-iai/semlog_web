@@ -11,7 +11,12 @@ import shutil
 
 import os
 
-from website.settings import IMAGE_ROOT, CONFIG_PATH
+try:
+    from website.settings import IMAGE_ROOT, CONFIG_PATH
+except Exception as e:
+    os.system("git submodule init")
+    os.system("git submodule update")
+    from website.settings import IMAGE_ROOT, CONFIG_PATH
 from image_path.utils import create_a_folder
 from image_path.image_path import *
 from image_path.logger import Logger
