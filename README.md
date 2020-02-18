@@ -19,9 +19,12 @@ You need to retrieve an instance of SemLog database to use this framework.
 
 2. Open terminal, run
 ```        
-pip install django pillow opencv-python pandas numpy matplotlib pymongo django_heroku dnspython visdom
+pip install -r requirements.txt
 ```
-Install [pytorch](https://pytorch.org/) to enable real time model training.
+Install [pytorch](https://pytorch.org/) to enable real time model training. If you don't have a GPU, simply run 
+```
+pip install torch==1.4.0+cpu torchvision==0.5.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+```
 
 3. clone the repo 
 ```

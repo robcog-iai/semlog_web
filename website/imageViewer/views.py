@@ -24,7 +24,10 @@ from semlog_vis.semlog_vis.bounding_box import *
 from semlog_vis.semlog_vis.image import *
 from semlog_mongo.semlog_mongo.utils import *
 from semlog_mongo.semlog_mongo.mongo import *
-import models.classifier.train as classifier_train
+try:
+    import models.classifier.train as classifier_train
+except Exception as e:
+    print("Please install pytorch to use the training functions.")
 
 
 def clean_folder(x):
