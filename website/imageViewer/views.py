@@ -49,7 +49,7 @@ def log_out(request):
 
 def login(request):
     server_state = check_mongodb_state(CONFIG_PATH)
-    state = "Online" if server_state else "Offline"
+    state = "Online" if server_state == True else "Offline"
     return_dict = {"server_state": state}
     print("Server state: ", state)
     return render(request, 'login.html', return_dict)

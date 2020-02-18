@@ -1,7 +1,10 @@
+from pathlib import Path
+import pandas as pd
+import sys
+sys.path.append("../..")
+
 from semlog_vis.semlog_vis.image import *
 from image_path.image_path import *
-import pandas as pd
-from pathlib import Path
 
 def download_bounding_box(df, root_folder_path, root_folder_name):
     """Main function for download bounding boxes.
@@ -23,7 +26,8 @@ def download_bounding_box(df, root_folder_path, root_folder_name):
             folder_header: Root folder name.
 
         """
-        image_dir, image_type_list, class_name = get_image_path_for_bounding_box(df, object_id, root_folder_path, root_folder_name)
+        image_dir, image_type_list, class_name = get_image_path_for_bounding_box(
+            df, object_id, root_folder_path, root_folder_name)
 
         if "/" in object_id:
             print("weird object id,neglect!")
@@ -33,25 +37,25 @@ def download_bounding_box(df, root_folder_path, root_folder_name):
             if t != "Color":
                 continue
             folder_name = object_id + "$" + t + "$" + 'boundingBox'
-            saving_folder = os.path.join(root_folder_path, root_folder_name,'BoundingBoxes', folder_name)
+            saving_folder = os.path.join(
+                root_folder_path, root_folder_name, 'BoundingBoxes', folder_name)
             if not os.path.isdir(saving_folder):
                 os.makedirs(saving_folder)
-                print("make folder for:",saving_folder)
-            object_df=df[(df.object==object_id) & (df.type==t)]
-            for _,each_row in object_df.iterrows():
-                crop_object_from_image(saving_folder,root_folder_path,root_folder_name,each_row)
+                print("make folder for:", saving_folder)
+            object_df = df[(df.object == object_id) & (df.type == t)]
+            for _, each_row in object_df.iterrows():
+                crop_object_from_image(
+                    saving_folder, root_folder_path, root_folder_name, each_row)
 
-            
             # Create and save cut images
             # for rgb_img, mask_img in zip(rgb_img_list, mask_img_list):
             #     img_saving_path = os.path.join(
             #         saving_folder, os.path.basename(rgb_img[:-4]) + "_" + class_name + '.png')
             #     cut_object(rgb_img, mask_img, rgb, saving_path=img_saving_path)
 
-    object_id_list=list(df.object.unique())
+    object_id_list = list(df.object.unique())
     for object_id in object_id_list:
         download_bounding_box_by_object(object_id)
-
 
 
 def calculate_bounding_box(df, object_rgb_dict, root_folder_path, root_folder_name):
@@ -77,7 +81,8 @@ def calculate_bounding_box(df, object_rgb_dict, root_folder_path, root_folder_na
             bounding_box_columns: columns for storing coordinates of bounding boxes.
 
         """
-        image_dir, image_type_list, class_name = get_image_path_for_bounding_box(df, object_id, root_folder_path, root_folder_name)
+        image_dir, image_type_list, class_name = get_image_path_for_bounding_box(
+            df, object_id, root_folder_path, root_folder_name)
         print("Object id: %s, rgb_color: %s" % (object_id, rgb))
 
         # Create dict and folder
@@ -95,14 +100,14 @@ def calculate_bounding_box(df, object_rgb_dict, root_folder_path, root_folder_na
             else:
                 sample_img = cv2.imread(rgb_img_list[0])
                 origin_width, origin_height = sample_img.shape[
-                                                  1], sample_img.shape[0]
+                    1], sample_img.shape[0]
             count = 0
 
             # Create and save cut images
             for rgb_img, mask_img in zip(rgb_img_list, mask_img_list):
 
                 # Cut object and update location to the collection
-                hmin,hmax,wmin,wmax = cut_object(rgb_img, mask_img, rgb)
+                hmin, hmax, wmin, wmax = cut_object(rgb_img, mask_img, rgb)
                 if wmin == -1:
                     print("ignore this bounding box!")
                     continue
@@ -119,22 +124,24 @@ def calculate_bounding_box(df, object_rgb_dict, root_folder_path, root_folder_na
                 y_center = ((hmax + hmin) / 2) / origin_height
                 width = (wmax - wmin) / origin_width
                 height = (hmax - hmin) / origin_height
-                update_values = [wmin, wmax, hmin, hmax, x_center, y_center, width, height]
+                update_values = [wmin, wmax, hmin, hmax,
+                                 x_center, y_center, width, height]
                 file_id = os.path.basename(rgb_img)[:-4]
 
                 if df.loc[(df.object == object_id) & (df.file_id == file_id), bounding_box_columns]['wmin'].values == "":
-                    df.loc[(df.object == object_id) & (df.file_id == file_id), bounding_box_columns] = update_values
+                    df.loc[(df.object == object_id) & (df.file_id ==
+                                                       file_id), bounding_box_columns] = update_values
 
                 count = count + 1
         return df
 
-
-    bounding_box_columns = ['wmin', 'wmax', 'hmin', 'hmax', 'x_center', 'y_center', 'width', 'height']
+    bounding_box_columns = ['wmin', 'wmax', 'hmin',
+                            'hmax', 'x_center', 'y_center', 'width', 'height']
     for col in bounding_box_columns:
         df[col] = ""
     for object_id, rgb in object_rgb_dict.items():
         rgb = object_rgb_dict[object_id]
-        df = calculate_bounding_box_by_object( object_id,rgb)
+        df = calculate_bounding_box_by_object(object_id, rgb)
     return df
 
 
@@ -147,45 +154,44 @@ def crop_with_all_bounding_box(df, image_dir):
     """
 
     rgb_dir = image_dir['Color']
-    parent_path=Path(rgb_dir[0]).parent
-    df=df[df["type"]=="Color"]
+    parent_path = Path(rgb_dir[0]).parent
+    df = df[df["type"] == "Color"]
 
-    grouped_df=df.groupby(['file_id'])
-    for name,group in grouped_df:
-        xmin=group['x_min'].min()
-        ymin=group['y_min'].min()
-        xmax=group['x_max'].max()
-        ymax=group['y_max'].max()
-        img_dir=os.path.join(parent_path,name+".png")
+    grouped_df = df.groupby(['file_id'])
+    for name, group in grouped_df:
+        xmin = group['x_min'].min()
+        ymin = group['y_min'].min()
+        xmax = group['x_max'].max()
+        ymax = group['y_max'].max()
+        img_dir = os.path.join(parent_path, name+".png")
         img = cv2.imread(img_dir)
-        img = img[ymin:ymax,xmin:xmax]
+        img = img[ymin:ymax, xmin:xmax]
         cv2.imwrite(img_dir, img)
 
 
-
-def recalculate_bb(df,customization_dict,image_dir):
+def recalculate_bb(df, customization_dict, image_dir):
     """After resizing images, bb coordinates are recalculated.
-    
+
     Args:
         df (Dataframe): A df for image info.
         customization_dict (dict): Resize dict.
         image_dir (list): Image path list
-    
+
     Returns:
         Dataframe: Updated dataframe.
     """
     img = cv2.imread(image_dir[0])
-    h,w,_=img.shape
-    new_width=customization_dict['width']
-    new_height=customization_dict['height']
-    w_ratio=new_width/w
-    h_ratio=new_height/h
-    df['x_min']=df['x_min']*w_ratio
-    df['x_max']=df['x_max']*w_ratio
-    df['y_min']=df['y_min']*h_ratio
-    df['y_max']=df['y_max']*h_ratio
-    df.x_min=df.x_min.astype("int16")
-    df.x_max=df.x_max.astype("int16")
-    df.y_min=df.y_min.astype("int16")
-    df.y_max=df.y_max.astype("int16")
+    h, w, _ = img.shape
+    new_width = customization_dict['width']
+    new_height = customization_dict['height']
+    w_ratio = new_width/w
+    h_ratio = new_height/h
+    df['x_min'] = df['x_min']*w_ratio
+    df['x_max'] = df['x_max']*w_ratio
+    df['y_min'] = df['y_min']*h_ratio
+    df['y_max'] = df['y_max']*h_ratio
+    df.x_min = df.x_min.astype("int16")
+    df.x_max = df.x_max.astype("int16")
+    df.y_min = df.y_min.astype("int16")
+    df.y_max = df.y_max.astype("int16")
     return df

@@ -1,6 +1,5 @@
 from PIL import Image
 import numpy as np
-# from open3d import read_point_cloud, draw_geometries
 import time
 
 
