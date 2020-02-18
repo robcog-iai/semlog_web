@@ -17,18 +17,20 @@ You need to retrieve an instance of SemLog database to use this framework.
 - In "Advanced options", tick both options (Add Anaconda to my PATH environment)
 - Note: You can test if Python is installed by enter "python" in your terminal.
 
-2. Open terminal, run
+2. clone the repo 
+```
+git clone https://github.com/robcog-iai/semlog_web.git
+```
+
+3. Open a terminal with the project root path, run
 ```        
 pip install -r requirements.txt
 ```
+To install all required libraries.
+
 Install [pytorch](https://pytorch.org/) to enable real time model training. If you don't have a GPU, simply run 
 ```
 pip install torch==1.4.0+cpu torchvision==0.5.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
-```
-
-3. clone the repo 
-```
-git clone https://github.com/robcog-iai/semlog_web.git
 ```
 
 4. make sure the **local MongoDB** is running.
