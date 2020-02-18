@@ -1,0 +1,12 @@
+
+__pycache__/
+*.pyc
+*/*/*/__pycache__/
+*/*/__pycache__/
+*/__pycache__/
+
+semlog_mongo/duplicate_checker/info\.csv
+
+*.csv
+__pycache__/__init__.cpython-37.pyc
+__pycache__/__init__.cpython-37.pyc
