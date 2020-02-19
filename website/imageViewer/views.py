@@ -170,58 +170,61 @@ def main_search(form_dict, user_id, search_id):
 
     df = search_mongo(query_dict, logger, CONFIG_PATH)
     # Download images
-    logger.write("Start downloading images...")
-    download_images(root_folder_path=user_root,
-                    root_folder_name=search_id, df=df, config_path=CONFIG_PATH)
-    logger.write("Download finished.")
+    if df.shape==(0,0):
+        logger.write("No results. Query is stopped.")
+    else:
+        logger.write("Start downloading images...")
+        download_images(root_folder_path=user_root,
+                        root_folder_name=search_id, df=df, config_path=CONFIG_PATH)
+        logger.write("Download finished.")
 
-    # Draw labels on images
-    if 'label' in query_dict.keys():
-        logger.write("Start annotating images...")
-        draw_all_labels(df, user_root, search_id)
-        logger.write("Annotation finished.")
+        # Draw labels on images
+        if 'label' in query_dict.keys():
+            logger.write("Start annotating images...")
+            draw_all_labels(df, user_root, search_id)
+            logger.write("Annotation finished.")
 
-    # Perform origin image crop if selected.
-    if "crop" in query_dict.keys():
-        logger.write("Cropping images with all bounding boxes..")
-        image_dir = scan_images(root_folder_path=user_root,
-                                root_folder_name=search_id, image_type_list=query_dict['type'])
-        crop_with_all_bounding_box(df, image_dir)
-        logger.write("Cropping finished.")
+        # Perform origin image crop if selected.
+        if "crop" in query_dict.keys():
+            logger.write("Cropping images with all bounding boxes..")
+            image_dir = scan_images(root_folder_path=user_root,
+                                    root_folder_name=search_id, image_type_list=query_dict['type'])
+            crop_with_all_bounding_box(df, image_dir)
+            logger.write("Cropping finished.")
 
-    # Retrieve local image paths
-    image_dir = scan_images(root_folder_path=user_root, root_folder_name=search_id,
-                            image_type_list=query_dict['type'], unnest=True)
+        # Retrieve local image paths
+        image_dir = scan_images(root_folder_path=user_root, root_folder_name=search_id,
+                                image_type_list=query_dict['type'], unnest=True)
 
-    # Move scan images to the right folders
-    if query_dict['search_type'] == "scan":
-        logger.write("Rearange scan images...")
-        arrange_scan_by_class(df, user_root, search_id)
-    # Prepare dataset
-    elif "detection" in query_dict.keys():
-        logger.write("Prepare dataset for object detection.")
-        df = recalculate_bb(df, customization_dict, image_dir)
-        df.to_csv(os.path.join(user_root, search_id, 'info.csv'), index=False)
+        # Move scan images to the right folders
+        if query_dict['search_type'] == "scan":
+            logger.write("Rearange scan images...")
+            arrange_scan_by_class(df, user_root, search_id)
+        # Prepare dataset
+        elif "detection" in query_dict.keys():
+            logger.write("Prepare dataset for object detection.")
+            df = recalculate_bb(df, customization_dict, image_dir)
+            df.to_csv(os.path.join(user_root, search_id, 'info.csv'), index=False)
 
-    elif "classifier" in query_dict.keys():
-        logger.write("Prepare dataset for classifier.")
-        download_bounding_box(df, user_root, search_id)
-        bounding_box_dict = scan_bb_images(
-            user_root, search_id, unnest=True)
-        if form_dict['customization_data'] != "":
-            customize_image_resolution(customization_dict, bounding_box_dict)
-    elif form_dict['customization_data'] != "":
-        customize_image_resolution(customization_dict, image_dir)
+        elif "classifier" in query_dict.keys():
+            logger.write("Prepare dataset for classifier.")
+            download_bounding_box(df, user_root, search_id)
+            bounding_box_dict = scan_bb_images(
+                user_root, search_id, unnest=True)
+            if form_dict['customization_data'] != "":
+                customize_image_resolution(customization_dict, bounding_box_dict)
+        elif form_dict['customization_data'] != "":
+            customize_image_resolution(customization_dict, image_dir)
 
-    logger.write("Query succeeded.")
-    logger.write("Click buttons below to utilize results.")
+        logger.write("Query succeeded.")
+        logger.write("Click buttons below to utilize results.")
 
-    # Store static info in local json file
-    info = {'image_type_list': query_dict['type'],
-            'object_id_list': query_dict['class'],
-            'search_pattern': query_dict['search_type']}
-    with open(os.path.join(user_root, search_id, 'info.json'), 'w') as f:
-        json.dump(info, f)
+        # Store static info in local json file
+        info = {'image_type_list': query_dict['type'],
+                'object_id_list': query_dict['class'],
+                'search_pattern': query_dict['search_type']}
+        with open(os.path.join(user_root, search_id, 'info.json'), 'w') as f:
+            json.dump(info, f)
 
     # return render(request, 'make_your_choice.html')
 
