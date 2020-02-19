@@ -117,11 +117,16 @@ def read_log(request):
     if request.method == 'POST':
         user_root = request.session['user_root']
         search_id = request.session['search_id']
-        logger = Logger(os.path.join(user_root, search_id))
+        create_a_folder(user_root)
+        logger = Logger(user_root,search_id)
         log_data = logger.read()
+
         return_dict = {"data": log_data}
         return_dict = json.dumps(return_dict)
         return HttpResponse(return_dict)
+
+
+
 
 
 def update_database_info(request):
@@ -154,19 +159,21 @@ def show_one_image(request):
     return render(request, 'origin_size.html', dic)
 
 
-def main_search(form_dict, user_id, search_id):
+def main_search(query_input,resize_input, user_id, search_id):
     # Create root folder
     user_root = os.path.join(IMAGE_ROOT, user_id)
     create_a_folder(user_root)
     create_a_folder(os.path.join(user_root, search_id))
-    logger = Logger(os.path.join(user_root, search_id))
-    query_data = form_dict['query_data']
-    print(form_dict)
-    if form_dict['customization_data'] != "":
-        customization_data = form_dict['customization_data']
-        customization_dict = compile_customization(customization_data)
+    logger = Logger(user_root,search_id)
+    if resize_input != "":
+        customization_dict = compile_customization(resize_input)
         logger.write("customization input: "+str(customization_dict))
-    query_dict = compile_query(query_data)
+    query_dict = compile_query(query_input)
+    print(query_dict)
+    if query_dict== False or query_dict=={}:
+        logger.write("Invalid input. Query is stopped.")
+        logger.write("----------------DIVIDING LINE --------------------")
+        return HttpResponse("Invalid input.")
 
     df = search_mongo(query_dict, logger, CONFIG_PATH)
     # Download images
@@ -211,13 +218,13 @@ def main_search(form_dict, user_id, search_id):
             download_bounding_box(df, user_root, search_id)
             bounding_box_dict = scan_bb_images(
                 user_root, search_id, unnest=True)
-            if form_dict['customization_data'] != "":
+            if resize_input != "":
                 customize_image_resolution(customization_dict, bounding_box_dict)
-        elif form_dict['customization_data'] != "":
+        elif resize_input != "":
             customize_image_resolution(customization_dict, image_dir)
 
         logger.write("Query succeeded.")
-        logger.write("Click buttons below to utilize results.")
+        logger.write("----------------DIVIDING LINE --------------------")
 
         # Store static info in local json file
         info = {'image_type_list': query_dict['type'],
@@ -228,6 +235,17 @@ def main_search(form_dict, user_id, search_id):
 
     # return render(request, 'make_your_choice.html')
 
+
+def search_database(request):
+    query_input=request.POST.get('query_input')
+    resize_input=request.POST.get('resize_input')
+    user_id=request.session['user_id']
+    search_id = str(uuid.uuid4())
+    request.session['search_id'] = search_id
+    thr = threading.Thread(target=main_search, args=(
+        query_input,resize_input, user_id, search_id))
+    thr.start()
+    return HttpResponse('.....')
 
 def start_search(request):
     """The most important function of the website.

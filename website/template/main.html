@@ -56,11 +56,11 @@
         <div class=" ten wide column">
             <form method="get" class="ui form" action="/start_search/" id='main_form'>
                 <div class="ui accordion field">
-                    <div class="active title" style="border-radius: 8px;background-color: #cfd8dd">
+                    <div class="active title class_accord" style="border-radius: 8px;background-color: #cfd8dd">
                         <i class="icon angle down" style="float:right;"></i>
                         <font size="4"><b>  &nbsp;&nbsp;Query </b></font>
                     </div>
-                    <div class="active content field">
+                    <div class="active content field class_accord">
                         <!-- <input placeholder="Query sentence" name="query_data" type="text"> -->
                         <span><input name="query_data" id="query_input" placeholder="Input the query sentence to search images from databases" type="text" onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px';"></span>
 
@@ -77,15 +77,15 @@
                     </div>
 
 
-                    <div class="title" style="border-radius: 8px;background-color: #cfd8dd">
+                    <div class="title class_accord" style="border-radius: 8px;background-color: #cfd8dd">
 
                         <i class="icon angle down" style="float:right;"></i>
 
                         <font size="4"><b> &nbsp; &nbsp;Customization </b></font>
                     </div>
-                    <div class="content field">
+                    <div class="content field class_accord">
 
-                        <input placeholder="customization sentence" name="customization_data" type="text">
+                        <input placeholder="customization sentence" name="customization_data" id="resize_input" type="text">
 
                         <h3>Examples:</h3>
                         <h4>Cut images</h4>
@@ -97,12 +97,12 @@
 
                     </div>
 
-                    <div class="title" style="border-radius: 8px;background-color: #cfd8dd">
+                    <div class="title class_accord" style="border-radius: 8px;background-color: #cfd8dd">
                         <i class="icon angle down" style="float:right;"></i>
 
                         <font size="4"><b> &nbsp; &nbsp;Details of Datasets </b></font>
                     </div>
-                    <div class="content field">
+                    <div class="content field class_accord">
                         <div class="ui grid">
                             <div class="row">
                                 <div class="four wide column" id="database_list">
@@ -115,15 +115,41 @@
 
                         </div>
                     </div>
+                    <div class="title class_terminal" style="border-radius: 8px;background-color: #cfd8dd">
+                        <i class="icon angle down" style="float:right;"></i>
+
+                        <font size="4"><b> &nbsp; &nbsp;Terminal </b></font>
+                    </div>
+                    <div class="content field class_terminal">
+
+                        <div class="active content" id="div_server_log" style="background-color: #e5e5e7;height:400px;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
+                            <p id="server_log"></p>
+                        </div>
+                    </div>
+
                 </div>
 
-                <button type="submit" id="search" formtarget="_blank" class="fluid ui left labeled icon button">
+                <button type="button" id="search" formtarget="_blank" class="fluid ui left labeled icon button">
                         <i class="search icon"></i>
                         Search
                     </button>
             </form>
         </div>
     </div>
+</div>
+
+
+<div class="three blue ui buttons" style="display:block;margin-left: 35%;margin-right: auto;margin-top: 1%;">
+    <a href="/download/" target="_blank">
+        <button class="ui massive button disabled operation_button" type="button">Download</button>
+    </a>
+    <a href="/view_images/" target="_blank">
+        <button class="ui massive button disabled operation_button" type="button">View</button>
+    </a>
+    <a href="/training/" target="_blank">
+
+        <button class="ui massive button disabled training_button" type="button">Train</button>
+    </a>
 </div>
 <div class="ui grid">
     <div class="row"></div>

@@ -11,16 +11,13 @@
 
     <script>
         var token = '{{csrf_token}}'
-        var ip_address = "127.0.0.1"
         var interval = 1000;
 
         function update_server_msg() {
             var log_info;
             $.ajax({
                 type: "POST",
-                data: {
-                    ip_address: ip_address
-                },
+                data: {},
                 url: "/read_log/",
                 cache: false,
                 dataType: "json",

@@ -16,6 +16,100 @@ $(document).ready(function() {
         data: { csrfmiddlewaretoken: token },
     });
 
+    var interval = 1000;
+
+
+    function update_server_msg() {
+        var log_info;
+        $.ajax({
+            type: "POST",
+            data: {},
+            url: "/read_log/",
+            cache: false,
+            dataType: "json",
+            success: function(result, statues, xml) {
+                log_info = result
+            },
+            async: false,
+            error: function(xhr, status, error) {
+                console.log(error)
+            },
+
+        });
+        return log_info
+
+    }
+
+
+
+
+    $("#search").click(function() {
+
+        // $(".class_accord").removeClass("active")
+        // $(".class_terminal").addClass("active")
+
+        $(".operation_button").addClass("disabled")
+
+        $(".training_button").addClass("disabled")
+        var query_input = $("#query_input").val()
+        var resize_input = $("#resize_input").val()
+
+        $.ajax({
+            type: "POST",
+            data: {
+                "query_input": query_input,
+                "resize_input": resize_input
+            },
+            url: "/search_database/",
+            cache: false,
+            dataType: "json",
+            success: function(result, statues, xml) {
+                r = result;
+            },
+            async: false
+                // error: function(xhr, status, error) {
+                //     alert(xhr.responseText);
+                // },
+        });
+        var interval = window.setInterval(function() {
+            var flag_stop = 0
+            var flag_classifier = 0
+            var log_info = update_server_msg()
+            log_info = log_info['data'].split("@")
+            $("#server_log").empty()
+            for (let key in log_info) {
+                var content = log_info[key]
+                var text = document.createTextNode(log_info[key])
+                $("#server_log").append(text)
+                $("#server_log").append("<br />")
+                if (content.includes("succeeded")) {
+                    $(".operation_button").removeClass("disabled")
+                    if (flag_classifier == 1) {
+                        $(".training_button").removeClass("disabled")
+                    }
+                }
+                if (content.includes("classifier")) {
+                    flag_classifier = 1
+
+                }
+                if (content.includes("Query")) {
+                    flag_stop = 1
+                }
+            }
+
+
+            if (flag_stop == 1) {
+                clearInterval(interval)
+            }
+
+        }, 1000)
+        return false;
+
+
+    })
+
+
+
     function get_databases() {
         $.ajax({
             type: "POST",

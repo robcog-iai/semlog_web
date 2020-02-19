@@ -5,45 +5,49 @@ from semlog_mongo.semlog_mongo.utils import *
 
 
 def compile_query(data):
-    data = data.split(" ")
-    optional_data = data[1:]
-    data = data[0].split("@")
-    search_type = data[0]
-    query = {}
+    try:
+        data = data.split(" ")
+        optional_data = data[1:]
+        data = data[0].split("@")
+        search_type = data[0]
+        query = {}
 
-    if search_type == "entity":
-        query["search_type"] = "entity"
-        query['database'] = data[1]
-        query['collection'] = data[2].split("+")
-        query['logic'] = data[3]
-        query['class'] = data[4].split("+")
-        query['type'] = data[5].split("+")
+        if search_type == "entity":
+            query["search_type"] = "entity"
+            query['database'] = data[1]
+            query['collection'] = data[2].split("+")
+            query['logic'] = data[3]
+            query['class'] = data[4].split("+")
+            query['type'] = data[5].split("+")
 
-        if len(optional_data) != 0:
-            if "label" in optional_data:
-                query['label'] = True
-            if "crop" in optional_data:
-                query['crop'] = True
-            if "detection" in optional_data:
-                query['detection'] = True
-            if "classifier" in optional_data:
-                query['classifier'] = True
+            if len(optional_data) != 0:
+                if "label" in optional_data:
+                    query['label'] = True
+                if "crop" in optional_data:
+                    query['crop'] = True
+                if "detection" in optional_data:
+                    query['detection'] = True
+                if "classifier" in optional_data:
+                    query['classifier'] = True
 
-    elif search_type == "scan":
-        query["search_type"] = "scan"
-        query['database'] = data[1]
-        query['collection'] = data[1]+".meta"
-        query['class'] = data[2].split("+")
-        query['type'] = data[3].split("+")
+        elif search_type == "scan":
+            query["search_type"] = "scan"
+            query['database'] = data[1]
+            query['collection'] = data[1]+".meta"
+            query['class'] = data[2].split("+")
+            query['type'] = data[3].split("+")
 
-    elif search_type == "event":
-        query["search_type"] = "event"
-        query['database'] = data[1]
-        query['collection'] = data[2]
-        query['camera_view'] = data[3]
-        query['timestamp'] = data[4]
-        query['class'] = ['Event']
-        query['type'] = data[5].split("+")
+        elif search_type == "event":
+            query["search_type"] = "event"
+            query['database'] = data[1]
+            query['collection'] = data[2]
+            query['camera_view'] = data[3]
+            query['timestamp'] = data[4]
+            query['class'] = ['Event']
+            query['type'] = data[5].split("+")
+    except Exception as e:
+        # All invalid input return false
+        return False
     return query
 
 

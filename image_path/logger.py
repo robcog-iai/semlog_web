@@ -4,8 +4,8 @@ import os
 
 
 class Logger:
-    def __init__(self, log_path):
-        self.log_path = os.path.join(log_path, "log.txt")
+    def __init__(self, log_path,log_file_name=None):
+        self.log_path = os.path.join(log_path, "log"+log_file_name)
 
     def write(self, msg, flag_print=True):
         """Write one msg to log file. Add time and line break."""
