@@ -188,7 +188,8 @@ def main_search(query_input,resize_input, user_id, search_id):
         # Draw labels on images
         if 'label' in query_dict.keys():
             logger.write("Start annotating images...")
-            draw_all_labels(df, user_root, search_id)
+            # Need to implement multirpocessing to speed up this part.
+            draw_all_labels(df[:100], user_root, search_id)
             logger.write("Annotation finished.")
 
         # Perform origin image crop if selected.
@@ -209,12 +210,12 @@ def main_search(query_input,resize_input, user_id, search_id):
             arrange_scan_by_class(df, user_root, search_id)
         # Prepare dataset
         elif "detection" in query_dict.keys():
-            logger.write("Prepare dataset for object detection.")
+            logger.write("Prepare dataset for object detection...")
             df = recalculate_bb(df, customization_dict, image_dir)
             df.to_csv(os.path.join(user_root, search_id, 'info.csv'), index=False)
 
         elif "classifier" in query_dict.keys():
-            logger.write("Prepare dataset for classifier.")
+            logger.write("Prepare dataset for classifier...")
             download_bounding_box(df, user_root, search_id)
             bounding_box_dict = scan_bb_images(
                 user_root, search_id, unnest=True)

@@ -5,7 +5,7 @@ $(document).ready(function() {
     $("#query_input").focusout(function() {
 
         if (this.value.length > 0) {
-            this.style.width = ((this.value.length + 1) * 8) + 'px';
+            this.style.width = ((this.value.length + 1) * 9) + 'px';
         } else {
             this.style.width = ((this.getAttribute('placeholder').length + 1) * 8) + 'px';
         }
@@ -16,7 +16,7 @@ $(document).ready(function() {
         data: { csrfmiddlewaretoken: token },
     });
 
-    var interval = 1000;
+    var interval = 2000;
 
 
     function update_server_msg() {

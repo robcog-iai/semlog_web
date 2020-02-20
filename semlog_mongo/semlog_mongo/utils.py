@@ -43,45 +43,45 @@ def search_entities(client,object_identification,object_pattern='class',image_ty
     pipeline=[]
 
     # Remove docs without vision data
-    pipeline.append({"$match":{"vision":{"$exists":1}}})
+    # pipeline.append({"$match":{"vision":{"$exists":1}}})
 
     # Unwind views for filtering multiple camera views
-    pipeline.append({"$unwind":{"path":"$vision.views"}})
+    pipeline.append({"$unwind":{"path":"$views"}})
 
     # Right now only view name is supported, can be extended to view id easily
     if view_id_list !=[]:
         # Change class to id for view id filtering
-        pipeline.append({"$match":{"vision.views.class":{"$in":view_id_list}}})
+        pipeline.append({"$match":{"views.class":{"$in":view_id_list}}})
 
     if object_pattern=='class':
-        match_key="vision.views.entities.class"
+        match_key="views.entities.class"
     else:
-        match_key="vision.views.entities.id"
+        match_key="views.entities.id"
     # Find docs with the given class name or object id
-    pipeline.append({"$unwind":{"path":"$vision.views.entities"}})
+    pipeline.append({"$unwind":{"path":"$views.entities"}})
     pipeline.append({"$match":{match_key:object_identification}})
 
     # Add info to each image
     pipeline.append({"$addFields": {
 
                                 # Add db/cols
-                                "vision.views.images.database": client.database.name,
-                                "vision.views.images.collection": client.name,
+                                "views.images.database": client.database.name,
+                                "views.images.collection": client.name,
 
                                 # Add object info
-                                "vision.views.images.object": "$vision.views.entities.id",
-                                "vision.views.images.class": "$vision.views.entities.class",
-                                "vision.views.images.percentage": "$vision.views.entities.img_perc",
-                                "vision.views.images.x_min": "$vision.views.entities.img_bb.min.x",
-                                "vision.views.images.y_min": "$vision.views.entities.img_bb.min.y",
-                                "vision.views.images.x_max": "$vision.views.entities.img_bb.max.x",
-                                "vision.views.images.y_max": "$vision.views.entities.img_bb.max.y",
+                                "views.images.object": "$views.entities.id",
+                                "views.images.class": "$views.entities.class",
+                                "views.images.percentage": "$views.entities.img_perc",
+                                "views.images.x_min": "$views.entities.img_bb.min.x",
+                                "views.images.y_min": "$views.entities.img_bb.min.y",
+                                "views.images.x_max": "$views.entities.img_bb.max.x",
+                                "views.images.y_max": "$views.entities.img_bb.max.y",
 
                                 # Add document id
-                                "vision.views.images.document": "$_id"}})
+                                "views.images.document": "$_id"}})
 
     # Remove unnecessary info
-    pipeline.append({"$replaceRoot":{"newRoot":"$vision.views"}})
+    pipeline.append({"$replaceRoot":{"newRoot":"$views"}})
 
     # Add image type filter
     pipeline.append({"$unwind": {"path": "$images"}})
@@ -119,42 +119,42 @@ def search_skel(client,object_identification,object_pattern='class',image_type_l
     pipeline.append({"$match":{"vision":{"$exists":1}}})
 
     # Unwind views for filtering multiple camera views
-    pipeline.append({"$unwind":{"path":"$vision.views"}})
+    pipeline.append({"$unwind":{"path":"$views"}})
 
     # Right now only view name is supported, can be extended to view id easily
     if view_id_list != []:
         # Change class to id for view id filtering
-        pipeline.append({"$match":{"vision.views.class":{"$in":view_id_list}}})
+        pipeline.append({"$match":{"views.class":{"$in":view_id_list}}})
 
     if object_pattern=='class':
-        match_key="vision.views.skel_entities.class"
+        match_key="views.skel_entities.class"
     else:
-        match_key="vision.views.skel_entities.id"
+        match_key="views.skel_entities.id"
     # Find docs with the given class name or object id
-    pipeline.append({"$unwind":{"path":"$vision.views.skel_entities"}})
+    pipeline.append({"$unwind":{"path":"$views.skel_entities"}})
     pipeline.append({"$match":{match_key:object_identification}})
 
     # Add info to each image
     pipeline.append({"$addFields": {
 
                                 # Add db/cols
-                                "vision.views.images.database": client.database.name,
-                                "vision.views.images.collection": client.name,
+                                "views.images.database": client.database.name,
+                                "views.images.collection": client.name,
 
                                 # Add object info
-                                "vision.views.images.object": "$vision.views.skel_entities.id",
-                                "vision.views.images.class": "$vision.views.skel_entities.class",
-                                "vision.views.images.percentage": "$vision.views.skel_entities.img_perc",
-                                "vision.views.images.x_min": "$vision.views.skel_entities.img_bb.min.x",
-                                "vision.views.images.y_min": "$vision.views.skel_entities.img_bb.min.y",
-                                "vision.views.images.x_max": "$vision.views.skel_entities.img_bb.max.x",
-                                "vision.views.images.y_max": "$vision.views.skel_entities.img_bb.max.x",
+                                "views.images.object": "$views.skel_entities.id",
+                                "views.images.class": "$views.skel_entities.class",
+                                "views.images.percentage": "$views.skel_entities.img_perc",
+                                "views.images.x_min": "$views.skel_entities.img_bb.min.x",
+                                "views.images.y_min": "$views.skel_entities.img_bb.min.y",
+                                "views.images.x_max": "$views.skel_entities.img_bb.max.x",
+                                "views.images.y_max": "$views.skel_entities.img_bb.max.x",
 
                                 # Add document id
-                                "vision.views.images.document": "$_id"}})
+                                "views.images.document": "$_id"}})
 
     # Remove unnecessary info
-    pipeline.append({"$replaceRoot":{"newRoot":"$vision.views"}})
+    pipeline.append({"$replaceRoot":{"newRoot":"$views"}})
 
     # Add image type filter
     pipeline.append({"$unwind": {"path": "$images"}})
@@ -192,44 +192,44 @@ def search_bones(client,object_identification,object_pattern='class',image_type_
     pipeline.append({"$match":{"vision":{"$exists":1}}})
 
     # Unwind views for filtering multiple camera views
-    pipeline.append({"$unwind":{"path":"$vision.views"}})
+    pipeline.append({"$unwind":{"path":"$views"}})
 
     # Right now only view name is supported, can be extended to view id easily
     if view_id_list !=[]:
         # Change class to id for view id filtering
-        pipeline.append({"$match":{"vision.views.class":{"$in":view_id_list}}})
+        pipeline.append({"$match":{"views.class":{"$in":view_id_list}}})
 
     if object_pattern=='class':
-        match_key="vision.views.skel_entities.bones.class"
+        match_key="views.skel_entities.bones.class"
     else:
-        match_key="vision.views.skel_entities.bones.id"
+        match_key="views.skel_entities.bones.id"
     # Find docs with the given class name or object id
-    pipeline.append({"$unwind":{"path":"$vision.views.skel_entities"}})
+    pipeline.append({"$unwind":{"path":"$views.skel_entities"}})
     # Expand bones with unwind
-    pipeline.append({"$unwind":{"path":"$vision.views.skel_entities.bones"}})
+    pipeline.append({"$unwind":{"path":"$views.skel_entities.bones"}})
     pipeline.append({"$match":{match_key:object_identification}})
 
     # Add info to each image
     pipeline.append({"$addFields": {
 
                                 # Add db/cols
-                                "vision.views.images.database": client.database.name,
-                                "vision.views.images.collection": client.name,
+                                "views.images.database": client.database.name,
+                                "views.images.collection": client.name,
 
                                 # Add object info
-                                "vision.views.images.object": "$vision.views.skel_entities.id",
-                                "vision.views.images.class": "$vision.views.skel_entities.bones.class",
-                                "vision.views.images.percentage": "$vision.views.skel_entities.bones.img_perc",
-                                "vision.views.images.x_min": "$vision.views.skel_entities.bones.img_bb.min.x",
-                                "vision.views.images.y_min": "$vision.views.skel_entities.bones.img_bb.min.y",
-                                "vision.views.images.x_max": "$vision.views.skel_entities.bones.img_bb.max.x",
-                                "vision.views.images.y_max": "$vision.views.skel_entities.bones.img_bb.max.y",
+                                "views.images.object": "$views.skel_entities.id",
+                                "views.images.class": "$views.skel_entities.bones.class",
+                                "views.images.percentage": "$views.skel_entities.bones.img_perc",
+                                "views.images.x_min": "$views.skel_entities.bones.img_bb.min.x",
+                                "views.images.y_min": "$views.skel_entities.bones.img_bb.min.y",
+                                "views.images.x_max": "$views.skel_entities.bones.img_bb.max.x",
+                                "views.images.y_max": "$views.skel_entities.bones.img_bb.max.y",
 
                                 # Add document id
-                                "vision.views.images.document": "$_id"}})
+                                "views.images.document": "$_id"}})
 
     # Remove unnecessary info
-    pipeline.append({"$replaceRoot":{"newRoot":"$vision.views"}})
+    pipeline.append({"$replaceRoot":{"newRoot":"$views"}})
 
     # Add image type filter
     pipeline.append({"$unwind": {"path": "$images"}})
@@ -268,46 +268,46 @@ def search_all_bones_from_skel(client,object_identification,object_pattern='clas
     pipeline.append({"$match":{"vision":{"$exists":1}}})
 
     # Unwind views for filtering multiple camera views
-    pipeline.append({"$unwind":{"path":"$vision.views"}})
+    pipeline.append({"$unwind":{"path":"$views"}})
 
     # Right now only view name is supported, can be extended to view id easily
     if view_id_list !=[]:
         # Change class to id for view id filtering
-        pipeline.append({"$match":{"vision.views.class":{"$in":view_id_list}}})
+        pipeline.append({"$match":{"views.class":{"$in":view_id_list}}})
 
     if object_pattern=='class':
-        match_key="vision.views.skel_entities.class"
+        match_key="views.skel_entities.class"
     else:
-        match_key="vision.views.skel_entities.id"
+        match_key="views.skel_entities.id"
     # Find docs with the given class name or object id
-    pipeline.append({"$unwind":{"path":"$vision.views.skel_entities"}})
+    pipeline.append({"$unwind":{"path":"$views.skel_entities"}})
     pipeline.append({"$match":{match_key:object_identification}})
 
     # Expand bones with unwind
-    pipeline.append({"$unwind":{"path":"$vision.views.skel_entities.bones"}})
+    pipeline.append({"$unwind":{"path":"$views.skel_entities.bones"}})
 
 
     # Add info to each image
     pipeline.append({"$addFields": {
 
                                 # Add db/cols
-                                "vision.views.images.database": client.database.name,
-                                "vision.views.images.collection": client.name,
+                                "views.images.database": client.database.name,
+                                "views.images.collection": client.name,
 
                                 # Add object info
-                                "vision.views.images.object": "$vision.views.skel_entities.id",
-                                "vision.views.images.class": "$vision.views.skel_entities.bones.class",
-                                "vision.views.images.percentage": "$vision.views.skel_entities.bones.img_perc",
-                                "vision.views.images.x_min": "$vision.views.skel_entities.bones.img_bb.min.x",
-                                "vision.views.images.y_min": "$vision.views.skel_entities.bones.img_bb.min.y",
-                                "vision.views.images.x_max": "$vision.views.skel_entities.bones.img_bb.max.x",
-                                "vision.views.images.y_max": "$vision.views.skel_entities.bones.img_bb.max.y",
+                                "views.images.object": "$views.skel_entities.id",
+                                "views.images.class": "$views.skel_entities.bones.class",
+                                "views.images.percentage": "$views.skel_entities.bones.img_perc",
+                                "views.images.x_min": "$views.skel_entities.bones.img_bb.min.x",
+                                "views.images.y_min": "$views.skel_entities.bones.img_bb.min.y",
+                                "views.images.x_max": "$views.skel_entities.bones.img_bb.max.x",
+                                "views.images.y_max": "$views.skel_entities.bones.img_bb.max.y",
 
                                 # Add document id
-                                "vision.views.images.document": "$_id"}})
+                                "views.images.document": "$_id"}})
 
     # Remove unnecessary info
-    pipeline.append({"$replaceRoot":{"newRoot":"$vision.views"}})
+    pipeline.append({"$replaceRoot":{"newRoot":"$views"}})
 
     # Add image type filter
     pipeline.append({"$unwind": {"path": "$images"}})
@@ -622,12 +622,11 @@ def event_search(db,collection,timestamp,camera_view,config_path=None):
         """
 
         pipeline = []
-        pipeline.append({"$match":{"vision":{"$exists":1}}})
         pipeline.append({"$match": {"timestamp": {"$gte": timestamp}}})
-        pipeline.append({"$unwind": {"path": "$vision.views"}})
-        pipeline.append({"$match": {"vision.views.class": view_id}})
+        pipeline.append({"$unwind": {"path": "$views"}})
+        pipeline.append({"$match": {"views.class": view_id}})
         pipeline.append({"$limit": 1})
-        pipeline.append({"$replaceRoot": {"newRoot": "$vision.views"}})
+        pipeline.append({"$replaceRoot": {"newRoot": "$views"}})
         pipeline.append({"$unwind": {"path": "$images"}})
         pipeline.append({"$replaceRoot": {"newRoot": "$images"}})
         pipeline.append({"$addFields":{"database":client.database.name}})
@@ -640,12 +639,15 @@ def event_search(db,collection,timestamp,camera_view,config_path=None):
     image_info = search_single_image_by_view(client, timestamp=float(timestamp), view_id=camera_view)
 
 
-    info_df = pd.DataFrame(image_info)
-    if 'df' in locals():
-        df = df.append(info_df, ignore_index=True)
+    df = pd.DataFrame(image_info)
+    # if 'df' in locals():
+    #     df = df.append(info_df, ignore_index=True)
+    # else:
+    #     df = info_df
+    if 'file_id' not in df.columns:
+        df=pd.DataFrame()
     else:
-        df = info_df
-    df['file_id'] = df['file_id'].astype(str)
+        df['file_id'] = df['file_id'].astype(str)
     return df
 
 
@@ -706,10 +708,13 @@ def scan_search(db,collection,scan_class_list,image_type_list,config_path):
     else:
         for each_class in scan_class_list:
             result.extend(get_scans_by_class(meta_client,each_class,image_type_list))
-    df=pd.DataFrame(result)
-    df['database']=db
-    df['collection']=collection
-    return df
+    if result==[]:
+        return pd.DataFrame()
+    else:
+        df=pd.DataFrame(result)
+        df['database']=db
+        df['collection']=collection
+        return df
 
 
     

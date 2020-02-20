@@ -310,6 +310,7 @@ def draw_all_labels(df,root_folder_path,root_folder_name):
         draw_label_on_image(root_folder_path,root_folder_name,img_name,class_name,bb_color,bb_list)
 
 
+
 def draw_label_on_image(root_folder_path,root_folder_name,img_name,class_name,bb_color,bb_list):
     """Create all object annotation on an image.
     

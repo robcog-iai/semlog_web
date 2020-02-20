@@ -33,14 +33,16 @@ def compile_query(data):
         elif search_type == "scan":
             query["search_type"] = "scan"
             query['database'] = data[1]
-            query['collection'] = data[1]+".meta"
+            # Change to scan collection
+            query['collection'] = data[1]+".scans"
             query['class'] = data[2].split("+")
             query['type'] = data[3].split("+")
 
         elif search_type == "event":
             query["search_type"] = "event"
             query['database'] = data[1]
-            query['collection'] = data[2]
+            # Change to .vis collection
+            query['collection'] = data[2]+".vis"
             query['camera_view'] = data[3]
             query['timestamp'] = data[4]
             query['class'] = ['Event']
@@ -74,7 +76,9 @@ def search_mongo(query_dict, logger, config_path):
         logger.write("Enter entity search.")
         logger.write("Database: "+db)
         for coll in coll_list:
+            coll=coll+".vis"
             logger.write("Collection: "+coll)
+            # Change to .vis collection
             client = db_client[coll]
             for _class in class_list:
                 logger.write("Class: "+_class)
