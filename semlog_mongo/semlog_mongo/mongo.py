@@ -4,7 +4,40 @@ sys.path.append("../..")
 from semlog_mongo.semlog_mongo.utils import *
 
 
+
+
 def compile_query(data):
+
+    def compile_class_list(class_info):
+        class_list=class_info.split("+")
+        return_dict={}
+        for each_class in class_list:
+            info=each_class.split("(")
+            class_name=info[0]
+            return_dict[class_name]={}
+
+            # If no optional input
+            if "(" not in each_class:
+                continue
+                
+            params=info[1].replace(")","")
+            param_list=params.split(";") 
+            for param in param_list:
+                if "occlusion" in param:
+                    if ">" in param:
+                        return_dict[class_name]["occlusion_gt"]=float(param.split(">")[1])
+                    elif "<" in param:
+                        return_dict[class_name]["occlusion_lt"]=float(param.split("<")[1])
+                elif "size" in param:
+                    if ">" in param:
+                        return_dict[class_name]["size_gt"]=float(param.split(">")[1])
+                    elif "<" in param:
+                        return_dict[class_name]["size_lt"]=float(param.split("<")[1])
+                elif "clipped" in param:
+                    return_dict[class_name]['clipped']=False if param.split("=")[1] == "false" else True
+
+        return return_dict
+
     try:
         data = data.split(" ")
         optional_data = data[1:]
@@ -17,7 +50,7 @@ def compile_query(data):
             query['database'] = data[1]
             query['collection'] = data[2].split("+")
             query['logic'] = data[3]
-            query['class'] = data[4].split("+")
+            query['class'] = compile_class_list(data[4])
             query['type'] = data[5].split("+")
 
             if len(optional_data) != 0:
@@ -68,7 +101,7 @@ def search_mongo(query_dict, logger, config_path):
     if query_dict["search_type"] == "entity":
         db = query_dict["database"]
         coll_list = query_dict["collection"]
-        class_list = query_dict["class"]
+        class_dict = query_dict["class"]
         image_type_list = query_dict['type']
         db_client = MongoClient(ip, username=username, password=password)[db]
         result = []
@@ -80,10 +113,12 @@ def search_mongo(query_dict, logger, config_path):
             logger.write("Collection: "+coll)
             # Change to .vis collection
             client = db_client[coll]
-            for _class in class_list:
-                logger.write("Class: "+_class)
+            for class_name,optional_dict in class_dict.items():
+                logger.write("Search class: "+class_name)
+                if optional_dict!={}:
+                    logger.write("Parameter dict: "+str(optional_dict))
                 result.extend(search_one(
-                    client, _class, image_type_list=image_type_list))
+                    client, class_name,optional_dict, image_type_list=image_type_list))
                 logger.write("Length of results: "+str(len(result)))
         if len(result) == 0:
             df = pd.DataFrame()

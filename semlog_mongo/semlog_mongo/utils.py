@@ -26,13 +26,61 @@ def check_mongodb_state(config_path):
         return False
 
 
+def compile_entity_optional_dict(optional_dict):
+    and_list=[]
+    for param,value in optional_dict.items():
+        if param=="clipped":
+            and_list.append({"views.entities.clipped":value})
+        elif param=="occlusion_gt":
+            and_list.append({"views.entities.occl_perc":{"$gt":value}})
+        elif param=="occlusion_lt":
+            and_list.append({"views.entities.occl_perc":{"$lt":value}})
+        elif param=="size_gt":
+            and_list.append({"views.entities.img_perc":{"$gt":value}})
+        elif param=="size_lt":
+            and_list.append({"views.entities.img_perc":{"$lt":value}})
+    return {"$match":{"$and":and_list}}
 
-def search_entities(client,object_identification,object_pattern='class',image_type_list=None,view_id_list=[]):
+
+def compile_skel_optional_dict(optional_dict):
+    and_list=[]
+    for param,value in optional_dict.items():
+        if param=="clipped":
+            and_list.append({"views.skel_entities.clipped":value})
+        elif param=="occlusion_gt":
+            and_list.append({"views.skel_entities.occl_perc":{"$gt":value}})
+        elif param=="occlusion_lt":
+            and_list.append({"views.skel_entities.occl_perc":{"$lt":value}})
+        elif param=="size_gt":
+            and_list.append({"views.skel_entities.img_perc":{"$gt":value}})
+        elif param=="size_lt":
+            and_list.append({"views.skel_entities.img_perc":{"$lt":value}})
+    return {"$match":{"$and":and_list}}
+
+def compile_bone_optional_dict(optional_dict):
+    and_list=[]
+    for param,value in optional_dict.items():
+        if param=="clipped":
+            and_list.append({"views.skel_entities.bones.clipped":value})
+        elif param=="occlusion_gt":
+            and_list.append({"views.skel_entities.bones.occl_perc":{"$gt":value}})
+        elif param=="occlusion_lt":
+            and_list.append({"views.skel_entities.bones.occl_perc":{"$lt":value}})
+        elif param=="size_gt":
+            and_list.append({"views.skel_entities.bones.img_perc":{"$gt":value}})
+        elif param=="size_lt":
+            and_list.append({"views.skel_entities.bones.img_perc":{"$lt":value}})
+    return {"$match":{"$and":and_list}}
+
+
+
+def search_entities(client,object_identification,optional_dict={},object_pattern='class',image_type_list=None,view_id_list=[]):
     """Principle searching method to search images that contains one entity.
     
     Args:
         client (pymongo.MongoClient): Client to connect database.
-        object_identification (String): Name of this object
+        object_identification (String): Name of this object.
+        optional_dict (dict): Param dict for constrain search.
         object_pattern (str, optional): Search for id or class. Defaults to 'class'.
         image_type_list (List, optional): List of target image types. Defaults to None.
         view_id_list (list, optional): List for target camera views. Defaults to [].
@@ -60,6 +108,10 @@ def search_entities(client,object_identification,object_pattern='class',image_ty
     # Find docs with the given class name or object id
     pipeline.append({"$unwind":{"path":"$views.entities"}})
     pipeline.append({"$match":{match_key:object_identification}})
+
+    # Add optional dict params
+    if optional_dict!={}:
+        pipeline.append(compile_entity_optional_dict(optional_dict))
 
     # Add info to each image
     pipeline.append({"$addFields": {
@@ -93,19 +145,18 @@ def search_entities(client,object_identification,object_pattern='class',image_ty
 
     # Again remove unnecessary info
     pipeline.append({"$replaceRoot":{"newRoot":"$images"}})
-
-
-
     result=list(client.aggregate(pipeline))
-
     return result
 
-def search_skel(client,object_identification,object_pattern='class',image_type_list=None,view_id_list=[]):
+
+
+def search_skel(client,object_identification,optional_dict={},object_pattern='class',image_type_list=None,view_id_list=[]):
     """Search for skeletal object.
     
     Args:
         client (pymongo.MongoClient): Client to connect db.
-        object_identification (String): Name of the object
+        object_identification (String): Name of the object.
+        optional_dict (dict): Param dict for constrain search.
         object_pattern (str, optional): Id or class. Defaults to 'class'.
         image_type_list (list, optional): List of targe image types. Defaults to None.
         view_id_list (list, optional): List of qualified camera views. Defaults to [].
@@ -114,9 +165,6 @@ def search_skel(client,object_identification,object_pattern='class',image_type_l
         List: Result of qualified image data.
     """
     pipeline=[]
-
-    # Remove docs without vision data
-    pipeline.append({"$match":{"vision":{"$exists":1}}})
 
     # Unwind views for filtering multiple camera views
     pipeline.append({"$unwind":{"path":"$views"}})
@@ -133,6 +181,10 @@ def search_skel(client,object_identification,object_pattern='class',image_type_l
     # Find docs with the given class name or object id
     pipeline.append({"$unwind":{"path":"$views.skel_entities"}})
     pipeline.append({"$match":{match_key:object_identification}})
+
+    # Add optional dict params
+    if optional_dict!={}:
+        pipeline.append(compile_skel_optional_dict(optional_dict))
 
     # Add info to each image
     pipeline.append({"$addFields": {
@@ -167,17 +219,19 @@ def search_skel(client,object_identification,object_pattern='class',image_type_l
     # Again remove unnecessary info
     pipeline.append({"$replaceRoot":{"newRoot":"$images"}})
 
-
     result=list(client.aggregate(pipeline))
 
     return result
 
-def search_bones(client,object_identification,object_pattern='class',image_type_list=None,view_id_list=[]):
+
+
+def search_bones(client,object_identification,optional_dict={},object_pattern='class',image_type_list=None,view_id_list=[]):
     """Search for bone object.
     
     Args:
         client (pymongo.MongoClient): Client to connect db.
-        object_identification (String): Name of the object
+        object_identification (String): Name of the object.
+        optional_dict (dict): Param dict for constrain search.
         object_pattern (str, optional): Id or class. Defaults to 'class'.
         image_type_list (list, optional): List of targe image types. Defaults to None.
         view_id_list (list, optional): List of qualified camera views. Defaults to [].
@@ -187,9 +241,6 @@ def search_bones(client,object_identification,object_pattern='class',image_type_
     """
 
     pipeline=[]
-
-    # Remove docs without vision data
-    pipeline.append({"$match":{"vision":{"$exists":1}}})
 
     # Unwind views for filtering multiple camera views
     pipeline.append({"$unwind":{"path":"$views"}})
@@ -205,9 +256,17 @@ def search_bones(client,object_identification,object_pattern='class',image_type_
         match_key="views.skel_entities.bones.id"
     # Find docs with the given class name or object id
     pipeline.append({"$unwind":{"path":"$views.skel_entities"}})
+
+
     # Expand bones with unwind
     pipeline.append({"$unwind":{"path":"$views.skel_entities.bones"}})
     pipeline.append({"$match":{match_key:object_identification}})
+
+    # Add optional dict params
+    if optional_dict!={}:
+        pipeline.append(compile_bone_optional_dict(optional_dict))
+
+
 
     # Add info to each image
     pipeline.append({"$addFields": {
@@ -249,12 +308,14 @@ def search_bones(client,object_identification,object_pattern='class',image_type_
 
     return result
 
+
 def search_all_bones_from_skel(client,object_identification,object_pattern='class',image_type_list=None,view_id_list=[]):
     """Search for bones from one skeletal object.
     
     Args:
         client (pymongo.MongoClient): Client to connect db.
-        object_identification (String): Name of the object
+        object_identification (String): Name of the object.
+        optional_dict (dict): Param dict for constrain search.
         object_pattern (str, optional): Id or class. Defaults to 'class'.
         image_type_list (list, optional): List of targe image types. Defaults to None.
         view_id_list (list, optional): List of qualified camera views. Defaults to [].
@@ -327,12 +388,13 @@ def search_all_bones_from_skel(client,object_identification,object_pattern='clas
 
     return result
 
-def search_one(client,object_identification,object_pattern='class',image_type_list=None,view_id_list=[],expand_bones=False):
+def search_one(client,object_identification,optional_dict={},object_pattern='class',image_type_list=None,view_id_list=[],expand_bones=False):
     """Search for one object.
     
     Args:
         client (pymongo.MongoClient): Client to connect db.
-        object_identification (String): Name of the object
+        object_identification (String): Name of the object.
+        optional_dict (dict): Param dict for constrain search.
         object_pattern (str, optional): Id or class. Defaults to 'class'.
         image_type_list (list, optional): List of targe image types. Defaults to None.
         view_id_list (list, optional): List of qualified camera views. Defaults to [].
@@ -343,16 +405,16 @@ def search_one(client,object_identification,object_pattern='class',image_type_li
     """
 
     # First Search in entities
-    result=search_entities(client,object_identification,object_pattern,image_type_list,view_id_list)
+    result=search_entities(client,object_identification,optional_dict,object_pattern,image_type_list,view_id_list)
 
     # Not an entity, search for skel then.
     if len(result)==0:
         print("No an entity.")
-        result=search_skel(client,object_identification,object_pattern,image_type_list,view_id_list)
+        result=search_skel(client,object_identification,optional_dict,object_pattern,image_type_list,view_id_list)
         # Not a skel, search for bones then
         if len(result)==0:
             print("No a bone.")
-            result=search_bones(client,object_identification,object_pattern,image_type_list,view_id_list)
+            result=search_bones(client,object_identification,optional_dict,object_pattern,image_type_list,view_id_list)
     # Is a skel, if expanding, expand all bones
     if expand_bones is True:
         print("Expand to search bones")
