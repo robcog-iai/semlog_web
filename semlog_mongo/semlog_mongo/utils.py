@@ -325,9 +325,6 @@ def search_all_bones_from_skel(client,object_identification,object_pattern='clas
     """
     pipeline=[]
 
-    # Remove docs without vision data
-    pipeline.append({"$match":{"vision":{"$exists":1}}})
-
     # Unwind views for filtering multiple camera views
     pipeline.append({"$unwind":{"path":"$views"}})
 
@@ -381,7 +378,7 @@ def search_all_bones_from_skel(client,object_identification,object_pattern='clas
     # Again remove unnecessary info
     pipeline.append({"$replaceRoot":{"newRoot":"$images"}})
 
-    # pprint.pprint(pipeline)
+    pprint.pprint(pipeline)
 
 
     result=list(client.aggregate(pipeline))

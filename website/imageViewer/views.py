@@ -189,7 +189,7 @@ def main_search(query_input,resize_input, user_id, search_id):
         if 'label' in query_dict.keys():
             logger.write("Start annotating images...")
             # Need to implement multirpocessing to speed up this part.
-            draw_all_labels(df[:100], user_root, search_id)
+            draw_all_labels(df, user_root, search_id)
             logger.write("Annotation finished.")
 
         # Perform origin image crop if selected.

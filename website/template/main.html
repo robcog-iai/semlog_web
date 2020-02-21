@@ -67,11 +67,18 @@
                         <h3>Examples:</h3>
                         <h4>Entity search:</h4>
                         <p style="margin-left: 20px;">entity@PaP@1@or@IAISink@Color+Mask label</p>
+                        <p style="margin-left: 20px;"> entity@PaP@1@or@OrionAdam@Color+Mask label expand</p>
                         <p style="margin-left: 20px;">
                             entity@PaP@1@or@IAISink(occlusion&gt;0.2;occlusion&lt;0.7;size&lt;0.8;size>0.02;clipped=true)+IAIFridgeDoorPanel(size&lt;0.03;occlusion&lt;0.03)@Color+Mask
                         </p>
+
                         <h5 style="margin-left: 20px;">Optional input (add with one whitespace):</h5>
-                        <p style="margin-left: 40px;">label, crop, detection, classifier</p>
+                        <p style="margin-left: 40px;">label, crop, expand, detection, classifier</p>
+                        <!-- <p style="margin-left: 60px;">label: Draw labels on images.</p>
+                        <p style="margin-left: 60px;">crop: Crop images with the largest bounding box boundaries.</p>
+                        <p style="margin-left: 60px;">expand: Also search for child bone objects if a skeletal object is entered.</p>
+                        <p style="margin-left: 60px;">detection: Bounding box coordinates can also be downloaded.</p>
+                        <p style="margin-left: 60px;">classifier: Add extra UI and images for each cropped objects </p> -->
 
                         <h4>Event search:</h4>
                         <p style="margin-left: 20px;">event@PaP@1@RightHandView@0.3@Color+Depth+Mask</p>

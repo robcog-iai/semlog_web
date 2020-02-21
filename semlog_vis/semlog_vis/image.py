@@ -301,15 +301,36 @@ def draw_all_labels(df,root_folder_path,root_folder_name):
     coordinate_names=['x_max','x_min','y_max','y_min']
 
     class_label_dict={}
+    label_info_list=[]
     for name, group in grouped_df:
         img_name,class_name=name
         bb_list=group[coordinate_names].values.astype(int)
         if class_name not in class_label_dict.keys():
             class_label_dict[class_name]=get_random_color()
         bb_color=class_label_dict[class_name]
-        draw_label_on_image(root_folder_path,root_folder_name,img_name,class_name,bb_color,bb_list)
+        label_info_list.append([img_name,class_name,bb_color,bb_list])
+        # draw_label_on_image(root_folder_path,root_folder_name,img_name,class_name,bb_color,bb_list)
+    print("Label list generated.")
+    pool = Pool(10)
+    pool.starmap(draw_label_on_one_image, zip(
+        label_info_list, itertools.repeat(root_folder_path), itertools.repeat(root_folder_name)))
+    pool.close()
+    pool.join()
+    print("Drawing labels is finished.")
 
 
+def draw_label_on_one_image(label_info,root_folder_path,root_folder_name):
+    img_name,class_name,bb_color,bb_list=label_info
+
+    img_path=os.path.join(root_folder_path,root_folder_name,"Color",img_name+".png")
+    img=cv2.imread(img_path)
+    if img is None:
+        print("img is not readable. pass")
+        return 0
+    for each_bb in bb_list:
+        cv2.rectangle(img,(each_bb[0],each_bb[2]),(each_bb[1],each_bb[3]),bb_color,3)
+        cv2.putText(img,class_name,(each_bb[0],each_bb[3]),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2,cv2.LINE_AA)
+    cv2.imwrite(img_path,img)
 
 def draw_label_on_image(root_folder_path,root_folder_name,img_name,class_name,bb_color,bb_list):
     """Create all object annotation on an image.

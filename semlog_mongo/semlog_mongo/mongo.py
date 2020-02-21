@@ -62,6 +62,8 @@ def compile_query(data):
                     query['detection'] = True
                 if "classifier" in optional_data:
                     query['classifier'] = True
+                if "expand" in optional_data:
+                    query['expand'] = True
 
         elif search_type == "scan":
             query["search_type"] = "scan"
@@ -103,6 +105,11 @@ def search_mongo(query_dict, logger, config_path):
         coll_list = query_dict["collection"]
         class_dict = query_dict["class"]
         image_type_list = query_dict['type']
+        if "expand" in query_dict.keys():
+            expand_bones=True
+            logger.write("Expand skeletal objects...")
+        else:
+            expand_bones=False
         db_client = MongoClient(ip, username=username, password=password)[db]
         result = []
 
@@ -118,7 +125,7 @@ def search_mongo(query_dict, logger, config_path):
                 if optional_dict!={}:
                     logger.write("Parameter dict: "+str(optional_dict))
                 result.extend(search_one(
-                    client, class_name,optional_dict, image_type_list=image_type_list))
+                    client, class_name,optional_dict, image_type_list=image_type_list,expand_bones=expand_bones))
                 logger.write("Length of results: "+str(len(result)))
         if len(result) == 0:
             df = pd.DataFrame()
