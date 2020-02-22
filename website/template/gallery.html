@@ -66,9 +66,12 @@
                                 <a class="ui left corner label" target="_blank" href="/show_one_image/?img_path={{ img_path }}">
                                     <i class="zoom-in icon"></i>
                                 </a>
-                                <a href="/create_pc/?img_path={{ img_path }}" target="_blank">
-                                    <img src="{% static img_path %}">
+                                {% if "Depth" in image_type_list %}
+                                <a class="ui right corner label" href="/create_pc/?img_path={{ img_path }}" target="_blank">
+                                    <i class="cloud icon"></i>
                                 </a>
+                                {% endif %}
+                                <img src="{% static img_path %}">
                             </div>
                         </div>
                         {% endfor %} {% if forloop.first %}

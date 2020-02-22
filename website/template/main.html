@@ -62,14 +62,18 @@
                     </div>
                     <div class="active content field class_accord">
                         <!-- <input placeholder="Query sentence" name="query_data" type="text"> -->
-                        <span><input name="query_data" id="query_input" placeholder="Input the query sentence to search images from databases" type="text"></span>
+                        <span><input name="query_data" id="query_input" placeholder="Input the query sentence to search images from databases" value="entity@PaP@1@or@IAISink" type="text"></span>
                         <label>Optional:</label>
-                        <span><input name="optional_data" id="optional_input" placeholder="Optional parameters" value="limit=20" type="text" ></span>
+                        <span><input name="optional_data" id="optional_input" placeholder="Optional parameters" value="limit=20,label" type="text" ></span>
                         <label>Image types:</label>
                         <span><input name="type_data" id="type_input" placeholder="Image type parameters" value="Color,Depth,Mask,Normal,Unlit" type="text" ></span>
                         <label>Data manipulation:</label>
                         <span><input name="resize_data" id="resize_input" placeholder="Resize parameters" type="text" ></span>
 
+                        <button type="button" id="search" formtarget="_blank" class="fluid ui left labeled icon button">
+                        <i class="search icon"></i>
+                        Search
+                    </button>
                     </div>
                 </div>
 
@@ -236,7 +240,7 @@
                             <div class="row">
                                 <div class="five wide column">
                                     <a href="/download/" target="_blank">
-                                        <button class="ui fluid button disabled operation_button" type=" button">Download</button>
+                                        <button class="ui fluid button disabled operation_button" type="button">Download</button>
                                     </a>
                                 </div>
                                 <div class="five wide column">
@@ -257,10 +261,7 @@
                     </div>
                 </div>
 
-                <button type="button" id="search" formtarget="_blank" class="fluid ui left labeled icon button">
-                        <i class="search icon"></i>
-                        Search
-                    </button>
+
             </form>
         </div>
     </div>
