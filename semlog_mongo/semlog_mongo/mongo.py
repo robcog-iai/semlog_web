@@ -54,16 +54,20 @@ def compile_query(data):
             query['type'] = data[5].split("+")
 
             if len(optional_data) != 0:
-                if "label" in optional_data:
-                    query['label'] = True
-                if "crop" in optional_data:
-                    query['crop'] = True
-                if "detection" in optional_data:
-                    query['detection'] = True
-                if "classifier" in optional_data:
-                    query['classifier'] = True
-                if "expand" in optional_data:
-                    query['expand'] = True
+                for param in optional_data:
+                    if "label" in param:
+                        query['label'] = True
+                    if "crop" in param:
+                        query['crop'] = True
+                    if "detection" in param:
+                        query['detection'] = True
+                    if "classifier" in param:
+                        query['classifier'] = True
+                    if "expand" in param:
+                        query['expand'] = True
+                    if "limit" in param:
+                        query['limit']=int(param.split("=")[1])
+
 
         elif search_type == "scan":
             query["search_type"] = "scan"
@@ -105,6 +109,8 @@ def search_mongo(query_dict, logger, config_path):
         coll_list = query_dict["collection"]
         class_dict = query_dict["class"]
         image_type_list = query_dict['type']
+        if 'limit' in query_dict.keys():
+            img_limit=query_dict['limit']
         if "expand" in query_dict.keys():
             expand_bones=True
             logger.write("Expand skeletal objects...")
@@ -147,5 +153,19 @@ def search_mongo(query_dict, logger, config_path):
         timestamp = query_dict['timestamp']
         image_type_list = query_dict['type']
         df = event_search(db, coll, timestamp, camera_view, config_path)
+    
+    if "limit" in query_dict.keys():
+        unique_img_list=[]
+        for i, row in df.iterrows():
+            if row['file_id'] not in unique_img_list:
+                unique_img_list.append(row['file_id'])
+            if len(unique_img_list)>img_limit:
+                break
+        new_df=df[:i]
+        unique_documents=new_df.document.unique()
+        df=df[df.document.isin(unique_documents)]
+        return df
+        
+
 
     return df
