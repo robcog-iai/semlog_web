@@ -123,7 +123,8 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
         pandas.Dataframe: A df instance stores image data.
     """
     ip, username, password = load_mongo_account(config_path)
-    logger.write("Optional dict:"+str(optional_dict))
+    logger.write("Query dict: "+str(query_dict))
+    logger.write("Optional dict: "+str(optional_dict))
     logger.write("Image types:"+",".join(image_type_list))
     if query_dict["search_type"] == "entity":
         db = query_dict["database"]
@@ -152,7 +153,6 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
                     logger.write("Parameter dict: "+str(optional_dict))
                 result.extend(search_one(
                     client, class_name,param_dict, image_type_list=image_type_list,expand_bones=expand_bones))
-                logger.write("Length of results: "+str(len(result)))
         if len(result) == 0:
             df = pd.DataFrame()
         else:
@@ -172,21 +172,15 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
         timestamp = query_dict['timestamp']
         df = event_search(db, coll, timestamp, camera_view, config_path)
     
-    if "limit" in optional_dict.keys():
-
+    if "limit" in optional_dict.keys() and query_dict['search_type']=="entity":
         unique_img_list=[]
         for i, row in df.iterrows():
             if row['file_id'] not in unique_img_list:
                 unique_img_list.append(row['file_id'])
             if len(unique_img_list)>img_limit:
                 break
-        print(df.shape)
         new_df=df[:i]
         unique_documents=new_df.document.unique()
         df=df[df.document.isin(unique_documents)]
-        print(df.shape)
-        return df
-        
-
-
+    logger.write("Length of results: "+str(df.shape[1]))
     return df

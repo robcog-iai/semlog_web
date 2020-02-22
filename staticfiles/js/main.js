@@ -82,7 +82,7 @@ $(document).ready(function() {
                 var flag_stop = 0
                 var flag_classifier = 0
                 var log_info = update_server_msg()
-                log_info = log_info['data'].split("@")
+                log_info = log_info['data'].split("$")
                 $("#server_log").empty()
                 for (let key in log_info) {
                     var content = log_info[key]

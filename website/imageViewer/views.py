@@ -185,10 +185,19 @@ def main_search(form_dict, user_id, search_id):
     type_input=form_dict['type_input']
 
 
+
     # Create logger and folder
     create_a_folder(os.path.join(user_root, search_id))
     logger = Logger(user_root,user_id)
 
+    logger.write("Query input:")
+    logger.write(query_input)
+    logger.write("Optional input:")
+    logger.write(optional_input)
+    logger.write("Image type input:")
+    logger.write(type_input)
+    logger.write("Data manipulation input:")
+    logger.write(resize_input)
     # Compile data
     if resize_input != "":
         customization_dict = compile_customization(resize_input)
@@ -216,7 +225,7 @@ def main_search(form_dict, user_id, search_id):
         logger.write("Download finished.")
 
         # Draw labels on images
-        if 'label' in optional_dict.keys():
+        if 'label' in optional_dict.keys() and query_dict['search_type']=="entity":
             logger.write("Start annotating images...")
             # Need to implement multirpocessing to speed up this part.
             draw_all_labels(df, user_root, search_id)
@@ -271,9 +280,6 @@ def main_search(form_dict, user_id, search_id):
 
 
 def search_database(request):
-    # query_input=request.POST.get('query_input')
-    # resize_input=request.POST.get('resize_input')
-    # optional_input=request.POST.get('optional_input')
     form_dict=request.POST.dict()
     print(form_dict)
     user_id=request.session['user_id']
