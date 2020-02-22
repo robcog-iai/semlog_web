@@ -160,14 +160,12 @@ def show_one_image(request):
     return render(request, 'origin_size.html', dic)
 
 
-def main_search(query_input,resize_input, user_id, search_id):
+def main_search(form_dict, user_id, search_id):
 
 
     # Create root folder
     user_root = os.path.join(IMAGE_ROOT, user_id)
     create_a_folder(user_root)
-
-
     # Delete previous folders
     all_folders=os.listdir(user_root)
     delete_path=[os.path.join(user_root,i) for i in all_folders if i!=user_id+".log"]
@@ -180,19 +178,34 @@ def main_search(query_input,resize_input, user_id, search_id):
         print(e)
         pass
 
+    # Read input data
+    query_input=form_dict['query_input']
+    resize_input=form_dict['resize_input']
+    optional_input=form_dict['optional_input']
+    type_input=form_dict['type_input']
+
+
+    # Create logger and folder
     create_a_folder(os.path.join(user_root, search_id))
     logger = Logger(user_root,user_id)
+
+    # Compile data
     if resize_input != "":
         customization_dict = compile_customization(resize_input)
         logger.write("customization input: "+str(customization_dict))
     query_dict = compile_query(query_input)
+    optional_dict=compile_optional_data(optional_input)
+
+    image_type_list=compile_type_data(type_input)
+
     print(query_dict)
+
     if query_dict== False or query_dict=={}:
         logger.write("Invalid input. Query is stopped.")
         logger.write("----------------DIVIDING LINE --------------------")
         return HttpResponse("Invalid input.")
 
-    df = search_mongo(query_dict, logger, CONFIG_PATH)
+    df = search_mongo(query_dict,optional_dict,image_type_list, logger, CONFIG_PATH)
     # Download images
     if df.shape==(0,0):
         logger.write("No results. Query is stopped.")
@@ -203,36 +216,36 @@ def main_search(query_input,resize_input, user_id, search_id):
         logger.write("Download finished.")
 
         # Draw labels on images
-        if 'label' in query_dict.keys():
+        if 'label' in optional_dict.keys():
             logger.write("Start annotating images...")
             # Need to implement multirpocessing to speed up this part.
             draw_all_labels(df, user_root, search_id)
             logger.write("Annotation finished.")
 
         # Perform origin image crop if selected.
-        if "crop" in query_dict.keys():
+        if "crop" in optional_dict.keys():
             logger.write("Cropping images with all bounding boxes..")
             image_dir = scan_images(root_folder_path=user_root,
-                                    root_folder_name=search_id, image_type_list=query_dict['type'])
+                                    root_folder_name=search_id, image_type_list=image_type_list)
             crop_with_all_bounding_box(df, image_dir)
             logger.write("Cropping finished.")
 
         # Retrieve local image paths
         image_dir = scan_images(root_folder_path=user_root, root_folder_name=search_id,
-                                image_type_list=query_dict['type'], unnest=True)
+                                image_type_list=image_type_list, unnest=True)
 
         # Move scan images to the right folders
         if query_dict['search_type'] == "scan":
             logger.write("Rearange scan images...")
             arrange_scan_by_class(df, user_root, search_id)
         # Prepare dataset
-        elif "detection" in query_dict.keys():
+        elif "detection" in optional_dict.keys():
             logger.write("Prepare dataset for object detection...")
             if resize_input!="":
                 df = recalculate_bb(df, customization_dict, image_dir)
             df.to_csv(os.path.join(user_root, search_id, 'info.csv'), index=False)
 
-        elif "classifier" in query_dict.keys():
+        elif "classifier" in optional_dict.keys():
             logger.write("Prepare dataset for classifier...")
             download_bounding_box(df, user_root, search_id)
             bounding_box_dict = scan_bb_images(
@@ -246,8 +259,8 @@ def main_search(query_input,resize_input, user_id, search_id):
         logger.write("----------------DIVIDING LINE --------------------")
 
         # Store static info in local json file
-        flag_classifier=True if 'classifier' in query_dict.keys() else False
-        info = {'image_type_list': query_dict['type'],
+        flag_classifier=True if 'classifier' in optional_dict.keys() else False
+        info = {'image_type_list': image_type_list,
                 'object_id_list': query_dict['class'],
                 'search_pattern': query_dict['search_type'],
                 'flag_classifier':flag_classifier}
@@ -258,27 +271,30 @@ def main_search(query_input,resize_input, user_id, search_id):
 
 
 def search_database(request):
-    query_input=request.POST.get('query_input')
-    resize_input=request.POST.get('resize_input')
+    # query_input=request.POST.get('query_input')
+    # resize_input=request.POST.get('resize_input')
+    # optional_input=request.POST.get('optional_input')
+    form_dict=request.POST.dict()
+    print(form_dict)
     user_id=request.session['user_id']
-    search_id = str(uuid.uuid4())
-    request.session['search_id'] = search_id
-    thr = threading.Thread(target=main_search, args=(
-        query_input,resize_input, user_id, search_id))
-    thr.start()
-    return HttpResponse('.....')
-
-def start_search(request):
-    """The most important function of the website.
-        Read the form and search the db, download images to static folder."""
-    user_id = request.session['user_id']
-    form_dict = request.GET.dict()
     search_id = str(uuid.uuid4())
     request.session['search_id'] = search_id
     thr = threading.Thread(target=main_search, args=(
         form_dict, user_id, search_id))
     thr.start()
-    return render(request, "terminal.html")
+    return HttpResponse('.....')
+
+# def start_search(request):
+#     """The most important function of the website.
+#         Read the form and search the db, download images to static folder."""
+#     user_id = request.session['user_id']
+#     form_dict = request.GET.dict()
+#     search_id = str(uuid.uuid4())
+#     request.session['search_id'] = search_id
+#     thr = threading.Thread(target=main_search, args=(
+#         form_dict, user_id, search_id))
+#     thr.start()
+#     return render(request, "terminal.html")
 
 
 def view_images(request):

@@ -62,51 +62,129 @@
                     </div>
                     <div class="active content field class_accord">
                         <!-- <input placeholder="Query sentence" name="query_data" type="text"> -->
-                        <span><input name="query_data" id="query_input" placeholder="Input the query sentence to search images from databases" type="text" onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px';"></span>
+                        <span><input name="query_data" id="query_input" placeholder="Input the query sentence to search images from databases" type="text"></span>
+                        <label>Optional:</label>
+                        <span><input name="optional_data" id="optional_input" placeholder="Optional parameters" value="limit=20" type="text" ></span>
+                        <label>Image types:</label>
+                        <span><input name="type_data" id="type_input" placeholder="Image type parameters" value="Color,Depth,Mask,Normal,Unlit" type="text" ></span>
+                        <label>Data manipulation:</label>
+                        <span><input name="resize_data" id="resize_input" placeholder="Resize parameters" type="text" ></span>
 
-                        <h3>Examples:</h3>
-                        <h4>Entity search:</h4>
-                        <p style="margin-left: 20px;">entity@PaP@1@or@IAISink@Color+Mask label</p>
-                        <p style="margin-left: 20px;"> entity@PaP@1@or@OrionAdam@Color+Mask label expand</p>
-                        <p style="margin-left: 20px;">
-                            entity@PaP@1@or@IAISink(occlusion&gt;0.2;occlusion&lt;0.7;size&lt;0.8;size>0.02;clipped=true)+IAIFridgeDoorPanel(size&lt;0.03;occlusion&lt;0.03)@Color+Mask
-                        </p>
-
-                        <h5 style="margin-left: 20px;">Optional input (add with one whitespace):</h5>
-                        <p style="margin-left: 40px;">label, crop, expand, detection, classifier</p>
-                        <!-- <p style="margin-left: 60px;">label: Draw labels on images.</p>
-                        <p style="margin-left: 60px;">crop: Crop images with the largest bounding box boundaries.</p>
-                        <p style="margin-left: 60px;">expand: Also search for child bone objects if a skeletal object is entered.</p>
-                        <p style="margin-left: 60px;">detection: Bounding box coordinates can also be downloaded.</p>
-                        <p style="margin-left: 60px;">classifier: Add extra UI and images for each cropped objects </p> -->
-
-                        <h4>Event search:</h4>
-                        <p style="margin-left: 20px;">event@PaP@1@RightHandView@0.3@Color+Depth+Mask</p>
-                        <h4>Scan search:</h4>
-                        <p style="margin-left: 20px;">scan@PaP@IAIDoorA+IAIWindowTypeC@Color+Depth</p>
                     </div>
+                </div>
 
+                <div class="ui accordion field">
 
-                    <div class="title class_accord" style="border-radius: 8px;background-color: #cfd8dd">
-
+                    <div class="active title class_accord" style="border-radius: 8px;background-color: #cfd8dd">
                         <i class="icon angle down" style="float:right;"></i>
-
-                        <font size="4"><b> &nbsp; &nbsp;Customization </b></font>
+                        <font size="4"><b>  &nbsp;&nbsp;Query Examples </b></font>
                     </div>
-                    <div class="content field class_accord">
+                    <div class="content">
+                        <div class="ui ordered list">
+                            <div class="item">
+                                <a>Main query:</a>
+                                <div class="list">
+                                    <a class="item">Entity search grammar:</a>
+                                    <p>entity@DATABASE@COLLECTION@LOGIC@OBJECT_CLASS</p>
 
-                        <input placeholder="customization sentence" name="customization_data" id="resize_input" type="text">
+                                    <a class="item">Event search grammar:</a>
+                                    <p>event@DATABASE@COLLECTION@CAMERA_VIEW@TIMESTAMP</p>
+                                    <a class="item">Scan search grammar:</a>
+                                    <p>scan@DATABASE@OBJECT_CLASS</p>
+                                    <a class="item">Explainations:</a>
+                                    <p><b>DATABASE</b>: Name of the database in MongoDB.</p>
+                                    <p><b>COLLECTION</b>: Name of the collection in MongoDB.</p>
+                                    <p><b>LOGIC(and|or)</b>: Search logic. Appear at least one or all.</p>
+                                    <p><b>OBJECT_CLASS</b>: Target class name for searching.</p>
+                                    <p><b>CAMERA_VIEW</b>: Target camera view for event searching.</p>
+                                    <p><b>TIMESTAMP</b>: Target timestamp for event searching.</p>
+                                    <a class="item">Examples:</a>
+                                    <h5>Basic entity search:</h5>
+                                    <p style="margin-left: 20px;"> entity@PaP@1@or@IAISink</p>
+                                    <h5>Multiple collections and classes entity search:</h5>
+                                    <p style="margin-left: 20px;"> entity@PaP@1+2@or@IAISink+OrionAdam</p>
+                                    <h5>Precise entity search:</h5>
+                                    <p style="margin-left: 20px;">
+                                        entity@PaP@1@or@IAISink(occl_perc&gt;0.2;occl_perc&lt;0.7;img_perc&lt;0.8;img_perc>0.02;clipped=true)
+                                    </p>
+                                    <h5 style="margin-left: 20px;">Event search:</h5>
+                                    <p>event@PaP@1@RightHandView@0.3</p>
+                                    <h5>Scan search:</h5>
+                                    <p style="margin-left: 20px;">scan@PaP@IAIDoorA+IAIWindowTypeC</p>
+                                </div>
+                            </div>
 
-                        <h3>Examples:</h3>
-                        <h4>Cut images</h4>
-                        <p style="margin-left: 20px;">cut@80@80</p>
-                        <h4>Pad images:</h4>
-                        <p style="margin-left: 20px;">pad@480@320</p>
-                        <h5 style="margin-left: 20px;">Optional input (add with one whitespace):</h5>
-                        <p style="margin-left: 40px;">reflect,replicate,constant=255,0,0</p>
+                            <div class="item">
+                                <a>Optional parameters:</a>
+                                <div class="list">
+                                    <a class="item">Grammar:</a>
+                                    <p>PARAM1,PARAM2,...</p>
+
+                                    <a class="item">Explainations (PARM):</a>
+                                    <p><b>label</b>: Add annotations on images.</p>
+                                    <p><b>crop</b>: Crop images with the largest bounding box boundaries.</p>
+                                    <p><b>expand</b>: Also search for child bone objects if a skeletal object is entered.</p>
+                                    <p><b>detection</b>: Bounding box coordinates can also be downloaded.</p>
+                                    <p><b>classifier</b>: Add extra UI and images for each cropped objects.</p>
+                                    <p><b>limit</b>: Limit result images. (To speed up)</p>
+                                    <a class="item">Examples:</a>
+                                    <h5>Basic:</h5>
+                                    <p style="margin-left: 20px;">label,crop</p>
+                                </div>
+                            </div>
+
+                            <div class="item">
+                                <a>Image types:</a>
+                                <div class="list">
+                                    <a class="item">Grammar:</a>
+                                    <p>TYPE1,TYPE2,...</p>
+
+                                    <a class="item">Explainations (TYPE):</a>
+                                    <p><b>Color</b>: RGB image type.</p>
+                                    <p><b>Depth</b>: One channel Image with distance infomation.</p>
+                                    <p><b>Mask</b>: Mask each object with one color.</p>
+                                    <p><b>Normal</b>: Images with normal vectors.</p>
+                                    <p><b>Unlit</b>: Images with full lighting condition.</p>
+                                    <a class="item">Examples:</a>
+                                    <h5>Basic:</h5>
+                                    <p style="margin-left: 20px;">Color,Depth</p>
+                                </div>
+                            </div>
+
+
+                            <div class="item">
+                                <a>Data manipulation:</a>
+                                <div class="list">
+                                    <a class="item">Grammar:</a>
+                                    <p>RESIZE_TYPE@WIDTH@HEIGHT PAD_TYPE</p>
+
+                                    <a class="item">Explainations:</a>
+                                    <p><b>RESIZE_TYPE(cut|pad)</b>: Manipulation type to images.</p>
+                                    <p><b>WIDTH(int)</b>: Target image width.</p>
+                                    <p><b>HEIGHT(int)</b>: Target image height.</p>
+                                    <p><b>PAD_TYPE(optional;default:reflect;reflect|replicate|R,G,B)</b>: Choose type of padding.</p>
+                                    <a class="item">Examples:</a>
+                                    <h5>Basic:</h5>
+                                    <p style="margin-left: 20px;">cut@80@80</p>
+                                    <h5>Pad with constant value:</h5>
+                                    <p style="margin-left: 20px;">pad@480@320 255,0,0</p>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+
+
 
                     </div>
 
+                </div>
+
+
+
+
+                <div class="ui accordion field">
                     <div class="title class_accord" style="border-radius: 8px;background-color: #cfd8dd">
                         <i class="icon angle down" style="float:right;"></i>
 
@@ -125,6 +203,9 @@
 
                         </div>
                     </div>
+                </div>
+
+                <div class="ui accordion field">
                     <div class="title class_terminal" style="border-radius: 8px;background-color: #cfd8dd">
                         <i class="icon angle down" style="float:right;"></i>
 
@@ -136,7 +217,44 @@
                             <p id="server_log"></p>
                         </div>
                     </div>
+                </div>
 
+
+
+
+
+
+                <div class="ui accordion field">
+
+                    <div class="title" style="border-radius: 8px;background-color: #cfd8dd">
+                        <i class="icon angle down" style="float:right;"></i>
+
+                        <font size="4"><b> &nbsp; &nbsp;Result </b></font>
+                    </div>
+                    <div class="content">
+                        <div class="ui grid">
+                            <div class="row">
+                                <div class="five wide column">
+                                    <a href="/download/" target="_blank">
+                                        <button class="ui fluid button disabled operation_button" type=" button">Download</button>
+                                    </a>
+                                </div>
+                                <div class="five wide column">
+                                    <a href="/view_images/" target="_blank">
+                                        <button class="ui fluid button disabled operation_button" type="button">View</button>
+                                    </a>
+                                </div>
+                                <div class="five wide column">
+
+                                    <a href="/training/" target="_blank">
+
+                                        <button class="ui fluid button disabled training_button" type="button">Train Example</button>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <button type="button" id="search" formtarget="_blank" class="fluid ui left labeled icon button">
@@ -147,27 +265,24 @@
         </div>
     </div>
 </div>
-
-
-<div class="three blue ui buttons" style="display:block;margin-left: 35%;margin-right: auto;margin-top: 1%;">
-    <a href="/download/" target="_blank">
-        <button class="ui massive button disabled operation_button" type="button">Download</button>
-    </a>
-    <a href="/view_images/" target="_blank">
-        <button class="ui massive button disabled operation_button" type="button">View</button>
-    </a>
-    <a href="/training/" target="_blank">
-
-        <button class="ui massive button disabled training_button" type="button">Train</button>
-    </a>
-</div>
 <div class="ui grid">
     <div class="row"></div>
     <div class="row"></div>
     <div class="row"></div>
+    <div class="row"></div>
+    <div class="row"></div>
+    <div class="row"></div>
+
+    <div class="row"></div>
+    <div class="row"></div>
+    <div class="row"></div>
+    <div class="row"></div>
+
+    <div class="row"></div>
+    <div class="row"></div>
 </div>
 
-<div class="ui bottom secondary mini fluid menu" style="background-color: #145179;position:absolute;bottom: 0;">
+<div class="ui bottom secondary mini fluid menu" style="background-color: #145179;">
 
     <a class="item">
         <font color="white" size="4"> <b> Logo1 </b></font>

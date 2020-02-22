@@ -25,7 +25,6 @@ sys.path.append("..")
 urlpatterns = [
     path(r'', image_views.login),
     path(r"to_search_page/", image_views.search),
-    path(r'start_search/', image_views.start_search),
     path(r'create_pc/', pc_views.create_pc),
     path(r'update_database_info/', image_views.update_database_info),
     path(r'search_database/',image_views.search_database),

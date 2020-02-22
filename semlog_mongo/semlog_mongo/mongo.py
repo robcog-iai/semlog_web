@@ -3,6 +3,41 @@ import sys
 sys.path.append("../..")
 from semlog_mongo.semlog_mongo.utils import *
 
+def compile_optional_data(data):
+    optional_data=data.lower().replace(" ","").split(",")
+    return_dict={}
+
+    if len(optional_data) != 0:
+        for param in optional_data:
+            if "label" in param:
+                return_dict['label'] = True
+            if "crop" in param:
+                return_dict['crop'] = True
+            if "detection" in param:
+                return_dict['detection'] = True
+            if "classifier" in param:
+                return_dict['classifier'] = True
+            if "expand" in param:
+                return_dict['expand'] = True
+            if "limit" in param:
+                return_dict['limit']=int(param.split("=")[1])
+    return return_dict
+    
+def compile_type_data(data):
+    image_type_list=[]
+    
+    data=data.lower()
+    if 'color' in data:
+        image_type_list.append("Color")
+    if 'depth' in data:
+        image_type_list.append("Depth")
+    if 'mask' in data:
+        image_type_list.append("Mask")
+    if 'normal' in data:
+        image_type_list.append("Normal")
+    if 'unlit' in data:
+        image_type_list.append("Unlit")
+    return image_type_list
 
 
 
@@ -23,12 +58,12 @@ def compile_query(data):
             params=info[1].replace(")","")
             param_list=params.split(";") 
             for param in param_list:
-                if "occlusion" in param:
+                if "occl_perc" in param:
                     if ">" in param:
                         return_dict[class_name]["occlusion_gt"]=float(param.split(">")[1])
                     elif "<" in param:
                         return_dict[class_name]["occlusion_lt"]=float(param.split("<")[1])
-                elif "size" in param:
+                elif "img_perc" in param:
                     if ">" in param:
                         return_dict[class_name]["size_gt"]=float(param.split(">")[1])
                     elif "<" in param:
@@ -51,22 +86,7 @@ def compile_query(data):
             query['collection'] = data[2].split("+")
             query['logic'] = data[3]
             query['class'] = compile_class_list(data[4])
-            query['type'] = data[5].split("+")
 
-            if len(optional_data) != 0:
-                for param in optional_data:
-                    if "label" in param:
-                        query['label'] = True
-                    if "crop" in param:
-                        query['crop'] = True
-                    if "detection" in param:
-                        query['detection'] = True
-                    if "classifier" in param:
-                        query['classifier'] = True
-                    if "expand" in param:
-                        query['expand'] = True
-                    if "limit" in param:
-                        query['limit']=int(param.split("=")[1])
 
 
         elif search_type == "scan":
@@ -75,7 +95,6 @@ def compile_query(data):
             # Change to scan collection
             query['collection'] = data[1]+".scans"
             query['class'] = data[2].split("+")
-            query['type'] = data[3].split("+")
 
         elif search_type == "event":
             query["search_type"] = "event"
@@ -85,18 +104,18 @@ def compile_query(data):
             query['camera_view'] = data[3]
             query['timestamp'] = data[4]
             query['class'] = ['Event']
-            query['type'] = data[5].split("+")
     except Exception as e:
         # All invalid input return false
         return False
     return query
 
 
-def search_mongo(query_dict, logger, config_path):
+def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
     """Search database with query dict.
 
     Args:
         query_dict (Dict): A compiled dict from website input data.
+        optional_dict (Dict): A compiled dict from website optional input data.
         logger (Logger): A Logger instance to record all progress.
         config_path (String): Path for db config file
 
@@ -104,14 +123,15 @@ def search_mongo(query_dict, logger, config_path):
         pandas.Dataframe: A df instance stores image data.
     """
     ip, username, password = load_mongo_account(config_path)
+    logger.write("Optional dict:"+str(optional_dict))
+    logger.write("Image types:"+",".join(image_type_list))
     if query_dict["search_type"] == "entity":
         db = query_dict["database"]
         coll_list = query_dict["collection"]
         class_dict = query_dict["class"]
-        image_type_list = query_dict['type']
-        if 'limit' in query_dict.keys():
-            img_limit=query_dict['limit']
-        if "expand" in query_dict.keys():
+        if 'limit' in optional_dict.keys():
+            img_limit=optional_dict['limit']*len(image_type_list)
+        if "expand" in optional_dict.keys():
             expand_bones=True
             logger.write("Expand skeletal objects...")
         else:
@@ -126,12 +146,12 @@ def search_mongo(query_dict, logger, config_path):
             logger.write("Collection: "+coll)
             # Change to .vis collection
             client = db_client[coll]
-            for class_name,optional_dict in class_dict.items():
+            for class_name,param_dict in class_dict.items():
                 logger.write("Search class: "+class_name)
-                if optional_dict!={}:
+                if param_dict!={}:
                     logger.write("Parameter dict: "+str(optional_dict))
                 result.extend(search_one(
-                    client, class_name,optional_dict, image_type_list=image_type_list,expand_bones=expand_bones))
+                    client, class_name,param_dict, image_type_list=image_type_list,expand_bones=expand_bones))
                 logger.write("Length of results: "+str(len(result)))
         if len(result) == 0:
             df = pd.DataFrame()
@@ -144,26 +164,27 @@ def search_mongo(query_dict, logger, config_path):
         db = query_dict["database"]
         coll = query_dict["collection"]
         class_list = query_dict["class"]
-        image_type_list = query_dict['type']
         df = scan_search(db, coll, class_list, image_type_list, config_path)
     elif query_dict["search_type"] == "event":
         db = query_dict["database"]
         coll = query_dict["collection"]
         camera_view = query_dict['camera_view']
         timestamp = query_dict['timestamp']
-        image_type_list = query_dict['type']
         df = event_search(db, coll, timestamp, camera_view, config_path)
     
-    if "limit" in query_dict.keys():
+    if "limit" in optional_dict.keys():
+
         unique_img_list=[]
         for i, row in df.iterrows():
             if row['file_id'] not in unique_img_list:
                 unique_img_list.append(row['file_id'])
             if len(unique_img_list)>img_limit:
                 break
+        print(df.shape)
         new_df=df[:i]
         unique_documents=new_df.document.unique()
         df=df[df.document.isin(unique_documents)]
+        print(df.shape)
         return df
         
 

@@ -3,15 +3,15 @@ var r;
 var flag_start_reading = 0
 $(document).ready(function() {
 
-    $("#query_input").focusout(function() {
+    // $("#query_input").focusout(function() {
 
-        if (this.value.length > 0) {
-            this.style.width = ((this.value.length + 1) * 9) + 'px';
-        } else {
-            this.style.width = ((this.getAttribute('placeholder').length + 1) * 8) + 'px';
-        }
+    //     if (this.value.length > 0) {
+    //         this.style.width = ((this.value.length + 1) * 9) + 'px';
+    //     } else {
+    //         this.style.width = ((this.getAttribute('placeholder').length + 1) * 8) + 'px';
+    //     }
 
-    });
+    // });
 
     $.ajaxSetup({
         data: { csrfmiddlewaretoken: token },
@@ -55,12 +55,16 @@ $(document).ready(function() {
         $(".training_button").addClass("disabled")
         var query_input = $("#query_input").val()
         var resize_input = $("#resize_input").val()
+        var optional_input = $("#optional_input").val()
+        var type_input = $("#type_input").val()
 
         $.ajax({
             type: "POST",
             data: {
                 "query_input": query_input,
-                "resize_input": resize_input
+                "resize_input": resize_input,
+                "optional_input": optional_input,
+                "type_input": type_input,
             },
             url: "/search_database/",
             cache: false,

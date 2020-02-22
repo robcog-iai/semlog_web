@@ -27,9 +27,9 @@ def compile_customization(data):
 
         if len(optional_data)!=0:
             optional_data=optional_data[0]
-            if "=" in optional_data:
+            if "," in optional_data:
                 return_dict['pad_type']='constant'
-                color_list=optional_data.split("=")[1].split(",")
+                color_list=optional_data.split(",")
                 return_dict['constant_color']=color_list
             else:
                 return_dict['pad_type']=optional_data
