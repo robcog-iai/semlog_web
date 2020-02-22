@@ -232,7 +232,7 @@ def main_search(form_dict, user_id, search_id):
             logger.write("Annotation finished.")
 
         # Perform origin image crop if selected.
-        if "crop" in optional_dict.keys():
+        if "crop" in optional_dict.keys() and query_dict['search_type']=="entity":
             logger.write("Cropping images with all bounding boxes..")
             image_dir = scan_images(root_folder_path=user_root,
                                     root_folder_name=search_id, image_type_list=image_type_list)
@@ -248,13 +248,13 @@ def main_search(form_dict, user_id, search_id):
             logger.write("Rearange scan images...")
             arrange_scan_by_class(df, user_root, search_id)
         # Prepare dataset
-        elif "detection" in optional_dict.keys():
+        elif "detection" in optional_dict.keys() and query_dict['search_type']=="entity":
             logger.write("Prepare dataset for object detection...")
             if resize_input!="":
                 df = recalculate_bb(df, customization_dict, image_dir)
             df.to_csv(os.path.join(user_root, search_id, 'info.csv'), index=False)
 
-        elif "classifier" in optional_dict.keys():
+        elif "classifier" in optional_dict.keys() and query_dict['search_type']=="entity":
             logger.write("Prepare dataset for classifier...")
             download_bounding_box(df, user_root, search_id)
             bounding_box_dict = scan_bb_images(
