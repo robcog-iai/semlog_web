@@ -52,7 +52,7 @@
             <div class="ui top attached tabular menu">
                 {% for img_type in image_type_list %} {% if forloop.first %}
                 <a class="active item" data-tab="{{forloop.counter}}">{{img_type}}</a> {% else %}
-                <a class="item" data-tab="{{forloop.counter}}">{{img_type}}</a> {% endif %} {% endfor %} >
+                <a class="item" data-tab="{{forloop.counter}}">{{img_type}}</a> {% endif %} {% endfor %}
             </div>
             {% for img_type,img_list in image_dir.items %} {% if forloop.first %}
             <div class="ui bottom attached active tab segment" data-tab="{{ forloop.counter }}">

@@ -1,5 +1,6 @@
 var r;
 
+var flag_start_reading = 0
 $(document).ready(function() {
 
     $("#query_input").focusout(function() {
@@ -44,6 +45,7 @@ $(document).ready(function() {
 
 
     $("#search").click(function() {
+        console.log(flag_start_reading)
 
         // $(".class_accord").removeClass("active")
         // $(".class_terminal").addClass("active")
@@ -71,41 +73,48 @@ $(document).ready(function() {
                 //     alert(xhr.responseText);
                 // },
         });
-        var interval = window.setInterval(function() {
-            var flag_stop = 0
-            var flag_classifier = 0
-            var log_info = update_server_msg()
-            log_info = log_info['data'].split("@")
-            $("#server_log").empty()
-            for (let key in log_info) {
-                var content = log_info[key]
-                var text = document.createTextNode(log_info[key])
-                $("#server_log").append(text)
-                $("#server_log").append("<br />")
-                if (content.includes("succeeded")) {
-                    $(".operation_button").removeClass("disabled")
-                    if (flag_classifier == 1) {
-                        $(".training_button").removeClass("disabled")
+        if (flag_start_reading == 0) {
+            var interval = window.setInterval(function() {
+                var flag_stop = 0
+                var flag_classifier = 0
+                var log_info = update_server_msg()
+                log_info = log_info['data'].split("@")
+                $("#server_log").empty()
+                for (let key in log_info) {
+                    var content = log_info[key]
+                    var text = document.createTextNode(log_info[key])
+                    $("#server_log").append(text)
+                    $("#server_log").append("<br />")
+                    if (content.includes("succeeded")) {
+                        $(".operation_button").removeClass("disabled")
+                        if (flag_classifier == 1) {
+                            $(".training_button").removeClass("disabled")
+                        }
+                    }
+                    if (content.includes("classifier")) {
+                        flag_classifier = 1
+
+                    }
+                    if (content.includes("Query")) {
+                        // flag_stop = 1
                     }
                 }
-                if (content.includes("classifier")) {
-                    flag_classifier = 1
 
+
+                if (flag_stop == 1) {
+                    clearInterval(interval)
                 }
-                if (content.includes("Query")) {
-                    flag_stop = 1
-                }
-            }
+
+            }, 2000)
+            return false;
+        }
 
 
-            if (flag_stop == 1) {
-                clearInterval(interval)
-            }
 
-        }, 1000)
-        return false;
+    })
 
-
+    $("#search").click(function() {
+        flag_start_reading = 1
     })
 
 

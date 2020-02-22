@@ -117,8 +117,9 @@ def read_log(request):
     if request.method == 'POST':
         user_root = request.session['user_root']
         search_id = request.session['search_id']
+        user_id=request.session['user_id']
         create_a_folder(user_root)
-        logger = Logger(user_root,search_id)
+        logger = Logger(user_root,user_id)
         log_data = logger.read()
 
         return_dict = {"data": log_data}
@@ -160,11 +161,27 @@ def show_one_image(request):
 
 
 def main_search(query_input,resize_input, user_id, search_id):
+
+
     # Create root folder
     user_root = os.path.join(IMAGE_ROOT, user_id)
     create_a_folder(user_root)
+
+
+    # Delete previous folders
+    all_folders=os.listdir(user_root)
+    delete_path=[os.path.join(user_root,i) for i in all_folders if i!=user_id+".log"]
+    try:
+        pool = Pool(12)
+        pool.map(clean_folder, delete_path)
+        pool.close()
+        pool.join()
+    except Exception as e:
+        print(e)
+        pass
+
     create_a_folder(os.path.join(user_root, search_id))
-    logger = Logger(user_root,search_id)
+    logger = Logger(user_root,user_id)
     if resize_input != "":
         customization_dict = compile_customization(resize_input)
         logger.write("customization input: "+str(customization_dict))
