@@ -211,7 +211,8 @@ def main_search(query_input,resize_input, user_id, search_id):
         # Prepare dataset
         elif "detection" in query_dict.keys():
             logger.write("Prepare dataset for object detection...")
-            df = recalculate_bb(df, customization_dict, image_dir)
+            if resize_input!="":
+                df = recalculate_bb(df, customization_dict, image_dir)
             df.to_csv(os.path.join(user_root, search_id, 'info.csv'), index=False)
 
         elif "classifier" in query_dict.keys():
@@ -228,9 +229,11 @@ def main_search(query_input,resize_input, user_id, search_id):
         logger.write("----------------DIVIDING LINE --------------------")
 
         # Store static info in local json file
+        flag_classifier=True if 'classifier' in query_dict.keys() else False
         info = {'image_type_list': query_dict['type'],
                 'object_id_list': query_dict['class'],
-                'search_pattern': query_dict['search_type']}
+                'search_pattern': query_dict['search_type'],
+                'flag_classifier':flag_classifier}
         with open(os.path.join(user_root, search_id, 'info.json'), 'w') as f:
             json.dump(info, f)
 
@@ -271,7 +274,10 @@ def view_images(request):
     image_type_list = info['image_type_list']
     search_pattern = info['search_pattern']
     image_dir = scan_images(user_root, search_id, image_type_list)
+
+    # Add flag for conditional representation.
     flag_scan = False
+    flag_classifier=info['flag_classifier']
     if search_pattern == "scan":
         flag_scan = True
         bounding_box_dict = scan_bb_images(
@@ -280,7 +286,12 @@ def view_images(request):
         bounding_box_dict = scan_bb_images(user_root, search_id)
 
     return render(request, 'gallery.html',
-                  {"object_id_list": object_id_list, "image_dir": image_dir, "bounding_box": bounding_box_dict, "flag_scan": flag_scan})
+                  {"object_id_list": object_id_list,
+                   "image_dir": image_dir,
+                    "bounding_box": bounding_box_dict,
+                     "flag_scan": flag_scan,
+                     "flag_classifier":flag_classifier,
+                     "image_type_list":image_type_list})
 
 
 def download(request):

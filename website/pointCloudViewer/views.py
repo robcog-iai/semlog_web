@@ -49,8 +49,8 @@ def create_pc(request):
     generator = PointCloudGenerator(rgb_file=img_path, depth_file=depth_img_path,
                                     focal_length=width//2, scalingfactor=10)
     # Calculate 3d position
-    print(flag_depth_conversion)
-    generator.calculate(flag_depth_conversion)
+    # print(flag_depth_conversion)
+    generator.calculate(False)
 
     # Remove the alpha column
     data = generator.df[:6]

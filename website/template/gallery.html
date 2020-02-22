@@ -37,8 +37,10 @@
         <a class="active item" data-tab="first">
             <font size="6"><b> Origin </b></font>
         </a>
+        {% if flag_classifier %}
         <a class="item" data-tab="second">
             <font size="6"><b> Bounding Boxes </b></font>
+            {% endif %}
         </a> {% endif %}
     </div>
     {% if flag_scan %}
@@ -48,11 +50,9 @@
         <div class="ui active tab segment" data-tab="first">
             {% endif %}
             <div class="ui top attached tabular menu">
-                <a class="active item" data-tab="1">Color</a>
-                <a class="item" data-tab="2">Depth</a>
-                <a class="item" data-tab="3">Mask</a>
-                <a class="item" data-tab="4">Normal</a>
-                <a class="item" data-tab="5">Unlit</a>
+                {% for img_type in image_type_list %} {% if forloop.first %}
+                <a class="active item" data-tab="{{forloop.counter}}">{{img_type}}</a> {% else %}
+                <a class="item" data-tab="{{forloop.counter}}">{{img_type}}</a> {% endif %} {% endfor %} >
             </div>
             {% for img_type,img_list in image_dir.items %} {% if forloop.first %}
             <div class="ui bottom attached active tab segment" data-tab="{{ forloop.counter }}">
