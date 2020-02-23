@@ -1,7 +1,11 @@
 import itertools
 import sys
+import time
 sys.path.append("../..")
 from semlog_mongo.semlog_mongo.utils import *
+
+
+
 
 def compile_optional_data(data):
     optional_data=data.lower().replace(" ","").split(",")
@@ -127,6 +131,7 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
     logger.write("Optional dict: "+str(optional_dict))
     logger.write("Image types:"+",".join(image_type_list))
     if query_dict["search_type"] == "entity":
+        t_start_entity_search=time.time()
         db = query_dict["database"]
         coll_list = query_dict["collection"]
         class_dict = query_dict["class"]
@@ -143,16 +148,27 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
         logger.write("Enter entity search.")
         logger.write("Database: "+db)
         for coll in coll_list:
+            t_coll_start_time=time.time()
             coll=coll+".vis"
             logger.write("Collection: "+coll)
             # Change to .vis collection
             client = db_client[coll]
             for class_name,param_dict in class_dict.items():
+                t_class_start_time=time.time()
                 logger.write("Search class: "+class_name)
                 if param_dict!={}:
                     logger.write("Parameter dict: "+str(optional_dict))
                 result.extend(search_one(
                     client, class_name,param_dict, image_type_list=image_type_list,expand_bones=expand_bones))
+                t_class_end_time=time.time()
+                t_class_time=convert_duration_time(t_class_end_time,t_class_start_time)
+                logger.write("Class: "+class_name+" finished with: "+t_class_time+"s.")
+            t_coll_end_time=time.time()
+            t_coll_time=convert_duration_time(t_coll_end_time,t_coll_start_time)
+            logger.write("Collection: "+coll+" finished with: "+t_coll_time+"s.")
+        t_end_entity_search=time.time()
+        t_entity_search=convert_duration_time(t_end_entity_search,t_start_entity_search)
+        logger.write("Entity search finished with: "+t_entity_search+ "s.")
         if len(result) == 0:
             df = pd.DataFrame()
         else:
@@ -161,16 +177,22 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
             df[['x_min', 'x_max', 'y_min', 'y_max']] = df[[
                 'x_min', 'x_max', 'y_min', 'y_max']].astype('int32')
     elif query_dict["search_type"] == "scan":
+        logger.write("Enter scan search.")
+        t_start_scan_search=time.time()
         db = query_dict["database"]
         coll = query_dict["collection"]
         class_list = query_dict["class"]
         df = scan_search(db, coll, class_list, image_type_list, config_path)
+        logger.write("Scan search finished with "+convert_duration_time(time.time(),t_start_scan_search)+"s.")
     elif query_dict["search_type"] == "event":
+        logger.write("Enter event search.")
+        t_start_event_search=time.time()
         db = query_dict["database"]
         coll = query_dict["collection"]
         camera_view_list = query_dict['camera_view']
         timestamp = query_dict['timestamp']
         df = event_search(db, coll, timestamp, camera_view_list, config_path)
+        logger.write("Event search finished with "+convert_duration_time(time.time(),t_start_event_search)+"s.")
     
     if "limit" in optional_dict.keys() and query_dict['search_type']=="entity":
         unique_img_list=[]

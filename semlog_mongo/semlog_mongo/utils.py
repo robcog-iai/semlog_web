@@ -6,6 +6,8 @@ import gridfs
 import os
 from bson.objectid import ObjectId
 
+def convert_duration_time(t_end,t_start):
+    return "{:.3f}".format(t_end-t_start)
 
 def load_mongo_account(config_path):
     """Load account info from a local file."""

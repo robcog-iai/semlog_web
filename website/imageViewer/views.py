@@ -227,24 +227,30 @@ def main_search(form_dict, user_id, search_id):
         logger.write("No results. Query is stopped.")
     else:
         logger.write("Start downloading images...")
+        t_start_download=time.time()
         download_images(root_folder_path=user_root,
                         root_folder_name=search_id, df=df, config_path=CONFIG_PATH)
-        logger.write("Download finished.")
+        t_download=convert_duration_time(time.time(),t_start_download)
+        logger.write("Download finished with "+t_download+"s.")
 
         # Draw labels on images
         if 'label' in optional_dict.keys() and query_dict['search_type']=="entity":
             logger.write("Start annotating images...")
+            t_start_label=time.time()
             # Need to implement multirpocessing to speed up this part.
             draw_all_labels(df, user_root, search_id)
-            logger.write("Annotation finished.")
+            t_label=convert_duration_time(time.time(),t_start_label)
+            logger.write("Annotation finished with "+t_label+"s.")
 
         # Perform origin image crop if selected.
         if "crop" in optional_dict.keys() and query_dict['search_type']=="entity":
             logger.write("Cropping images with all bounding boxes..")
+            t_start_crop=time.time()
             image_dir = scan_images(root_folder_path=user_root,
                                     root_folder_name=search_id, image_type_list=image_type_list)
             crop_with_all_bounding_box(df, image_dir)
-            logger.write("Cropping finished.")
+            t_crop=convert_duration_time(time.time(),t_start_crop)
+            logger.write("Cropping finished with "+t_crop+"s.")
 
         # Retrieve local image paths
         image_dir = scan_images(root_folder_path=user_root, root_folder_name=search_id,
@@ -257,17 +263,22 @@ def main_search(form_dict, user_id, search_id):
         # Prepare dataset
         elif "detection" in optional_dict.keys() and query_dict['search_type']=="entity":
             logger.write("Prepare dataset for object detection...")
+            t_start_detection=time.time()
             if resize_input!="":
                 df = recalculate_bb(df, customization_dict, image_dir)
             df.to_csv(os.path.join(user_root, search_id, 'info.csv'), index=False)
+            t_detection=convert_duration_time(time.time(),t_start_detection)
+            logger.write("Detection preparation finished with "+t_detection+"s.")
 
         elif "classifier" in optional_dict.keys() and query_dict['search_type']=="entity":
             logger.write("Prepare dataset for classifier...")
+            t_start_classifier=time.time()
             download_bounding_box(df, user_root, search_id)
             bounding_box_dict = scan_bb_images(
                 user_root, search_id, unnest=True)
             if resize_input != "":
                 customize_image_resolution(customization_dict, bounding_box_dict)
+            logger.write("Classifier preparation finished with "+convert_duration_time(time.time(),t_start_classifier)+"s.")
         elif resize_input != "":
             customize_image_resolution(customization_dict, image_dir)
 
@@ -357,6 +368,8 @@ def download(request):
     user_id = request.session['user_id']
     user_root = request.session['user_root']
     search_id = request.session['search_id']
+    logger = Logger(user_root,user_id)
+    t_start_zip=time.time()
     zip_target = os.path.join(user_root, search_id)
     zip_path = os.path.join(user_root, search_id, "Color_images.zip")
     make_archive(zip_target, zip_path)
@@ -367,5 +380,6 @@ def download(request):
         'Content-Disposition'] = 'attachment; filename=%s' % "dataset.zip"
     response['Content-Length'] = os.path.getsize(zip_path)
     zip_file.close()
+    logger.write("Zipping files finished with "+convert_duration_time(time.time(),t_start_zip)+"s.")
 
     return response
