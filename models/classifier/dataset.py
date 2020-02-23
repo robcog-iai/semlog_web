@@ -12,6 +12,8 @@ class ClassifierDataset(Dataset):
         self.class_list=list(set([i.split("_")[2].split(".")[0] for i in self.image_path_list]))
         self.label_list = []
         self.transform = transforms.Compose([
+            # Enforce resizing for evaluation. Remove to train for different resolution.
+            transforms.Resize([80,80]),
             transforms.ToTensor(),
         ])
         for p in self.image_path_list:

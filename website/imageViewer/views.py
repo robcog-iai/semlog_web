@@ -106,11 +106,18 @@ def training(request):
     user_id = request.session['user_id']
     user_root = request.session['user_root']
     search_id = request.session['search_id']
-    classifier_train.train(
-        dataset_path=os.path.join(user_root, search_id, "BoundingBoxes"),
-        model_saving_path=os.path.join(user_root, search_id)
-    )
-    return HttpResponse("Model starts training. Progress can be seen in port 8097.")
+
+
+    # return HttpResponse(" <h1 style='text-align:center;margin-top:300px;'>Please install Visdom and run 'visdom' in a new terminal to start training!<h1>")
+
+    thr = threading.Thread(target=classifier_train.train, args=(
+        os.path.join(user_root,search_id,"BoundingBoxes"),10, 0.2,os.path.join(user_root,search_id),0.00001))
+    thr.start()
+    # classifier_train.train(
+    #     dataset_path=os.path.join(user_root, search_id, "BoundingBoxes"),
+    #     model_saving_path=os.path.join(user_root, search_id)
+    # )
+    return HttpResponse(" <h1 style='text-align:center;margin-top:300px;'>Model starts training. Progress can be seen in localhost:8097 from a browser.<h1>")
 
 
 def read_log(request):
