@@ -1,4 +1,3 @@
-
 from django.shortcuts import render
 from django.http import HttpResponse
 import uuid
@@ -8,15 +7,9 @@ from multiprocessing.dummy import Pool
 import time
 import json
 import shutil
-
 import os
 
-try:
-    from website.settings import IMAGE_ROOT, CONFIG_PATH
-except Exception as e:
-    os.system("git submodule init")
-    os.system("git submodule update")
-    from website.settings import IMAGE_ROOT, CONFIG_PATH
+from website.settings import IMAGE_ROOT, CONFIG_PATH
 from image_path.utils import create_a_folder
 from image_path.image_path import *
 from image_path.logger import Logger
@@ -191,8 +184,6 @@ def main_search(form_dict, user_id, search_id):
     optional_input=form_dict['optional_input']
     type_input=form_dict['type_input']
 
-
-
     # Create logger and folder
     create_a_folder(os.path.join(user_root, search_id))
     logger = Logger(user_root,user_id)
@@ -211,10 +202,7 @@ def main_search(form_dict, user_id, search_id):
         logger.write("customization input: "+str(customization_dict))
     query_dict = compile_query(query_input)
     optional_dict=compile_optional_data(optional_input)
-
     image_type_list=compile_type_data(type_input)
-
-    print(query_dict)
 
     if query_dict== False or query_dict=={}:
         logger.write("Invalid input. Query is stopped.")

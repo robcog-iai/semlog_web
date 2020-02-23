@@ -7,6 +7,7 @@ import os
 from bson.objectid import ObjectId
 
 def convert_duration_time(t_end,t_start):
+    """Convert duration time to string."""
     return "{:.3f}".format(t_end-t_start)
 
 def load_mongo_account(config_path):
@@ -663,7 +664,7 @@ def event_search(db,collection,timestamp,camera_view_list,config_path=None):
             db: Target database.
             collection: Target collection.
             timestamp: Target timestamp.
-            camera_view: Name of the camera view.
+            camera_view_list: list of the camera views.
             config_path: File records account information.
 
         Return:
@@ -676,7 +677,7 @@ def event_search(db,collection,timestamp,camera_view_list,config_path=None):
             Args:
                 client: A MongoClient instance.
                 timestamp: Search for the first image closest to this timestamp.
-                view_id: Class name of camera_views
+                view_id_list: List of camera_views.
 
             Returns:
                 A list of qualified results.
@@ -689,8 +690,6 @@ def event_search(db,collection,timestamp,camera_view_list,config_path=None):
         for view_id in view_id_list:
             or_list.append({"views.class":view_id})
         pipeline.append({"$match":{"$or":or_list}})
-        # pipeline.append({"$match": {"views.class": view_id}})
-        # pipeline.append({"$limit": 1})
         pipeline.append({"$limit":len(view_id_list)})
         pipeline.append({"$replaceRoot": {"newRoot": "$views"}})
         pipeline.append({"$unwind": {"path": "$images"}})
@@ -707,10 +706,6 @@ def event_search(db,collection,timestamp,camera_view_list,config_path=None):
 
 
     df = pd.DataFrame(image_info)
-    # if 'df' in locals():
-    #     df = df.append(info_df, ignore_index=True)
-    # else:
-    #     df = info_df
     if 'file_id' not in df.columns:
         df=pd.DataFrame()
     else:

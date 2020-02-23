@@ -146,11 +146,11 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
         result = []
 
         logger.write("Enter entity search.")
-        logger.write("Database: "+db)
+        logger.write("Enter database: "+db)
         for coll in coll_list:
             t_coll_start_time=time.time()
             coll=coll+".vis"
-            logger.write("Collection: "+coll)
+            logger.write("Enter collection: "+coll)
             # Change to .vis collection
             client = db_client[coll]
             for class_name,param_dict in class_dict.items():
