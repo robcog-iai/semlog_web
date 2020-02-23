@@ -654,7 +654,7 @@ def get_camera_view(client):
 
 
 
-def event_search(db,collection,timestamp,camera_view,config_path=None):
+def event_search(db,collection,timestamp,camera_view_list,config_path=None):
     """Search with event sentences.
 
         Args:
@@ -668,7 +668,7 @@ def event_search(db,collection,timestamp,camera_view,config_path=None):
             A df contains qualified results.
 
     """
-    def search_single_image_by_view(client, timestamp, view_id):
+    def search_single_image_by_view(client, timestamp, view_id_list):
         """Search with the give camera name and timestamp.
             
             Args:
@@ -683,19 +683,25 @@ def event_search(db,collection,timestamp,camera_view,config_path=None):
         pipeline = []
         pipeline.append({"$match": {"timestamp": {"$gte": timestamp}}})
         pipeline.append({"$unwind": {"path": "$views"}})
-        pipeline.append({"$match": {"views.class": view_id}})
-        pipeline.append({"$limit": 1})
+        or_list=[]
+        for view_id in view_id_list:
+            or_list.append({"views.class":view_id})
+        pipeline.append({"$match":{"$or":or_list}})
+        # pipeline.append({"$match": {"views.class": view_id}})
+        # pipeline.append({"$limit": 1})
+        pipeline.append({"$limit":len(view_id_list)})
         pipeline.append({"$replaceRoot": {"newRoot": "$views"}})
         pipeline.append({"$unwind": {"path": "$images"}})
         pipeline.append({"$replaceRoot": {"newRoot": "$images"}})
         pipeline.append({"$addFields":{"database":client.database.name}})
         pipeline.append({"$addFields":{"collection":client.name}})
+        pprint.pprint(pipeline)
         result=list(client.aggregate(pipeline))
         return result
 
     ip,username,password=load_mongo_account(config_path)
     client = MongoClient(ip,username=username,password=password)[db][collection]
-    image_info = search_single_image_by_view(client, timestamp=float(timestamp), view_id=camera_view)
+    image_info = search_single_image_by_view(client, timestamp=float(timestamp), view_id_list=camera_view_list)
 
 
     df = pd.DataFrame(image_info)

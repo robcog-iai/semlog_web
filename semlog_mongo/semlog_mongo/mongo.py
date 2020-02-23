@@ -101,7 +101,7 @@ def compile_query(data):
             query['database'] = data[1]
             # Change to .vis collection
             query['collection'] = data[2]+".vis"
-            query['camera_view'] = data[3]
+            query['camera_view'] = data[3].split("+")
             query['timestamp'] = data[4]
             query['class'] = ['Event']
     except Exception as e:
@@ -168,9 +168,9 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
     elif query_dict["search_type"] == "event":
         db = query_dict["database"]
         coll = query_dict["collection"]
-        camera_view = query_dict['camera_view']
+        camera_view_list = query_dict['camera_view']
         timestamp = query_dict['timestamp']
-        df = event_search(db, coll, timestamp, camera_view, config_path)
+        df = event_search(db, coll, timestamp, camera_view_list, config_path)
     
     if "limit" in optional_dict.keys() and query_dict['search_type']=="entity":
         unique_img_list=[]
@@ -182,5 +182,5 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
         new_df=df[:i]
         unique_documents=new_df.document.unique()
         df=df[df.document.isin(unique_documents)]
-    logger.write("Length of results: "+str(df.shape[1]))
+    logger.write("Length of results: "+str(df.shape[0]))
     return df
