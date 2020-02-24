@@ -9,6 +9,7 @@ import cv2
 def create_pc(request):
     """Create point clouds depending on the image clicked."""
     img_path = request.GET['img_path']
+    img_path=os.path.join(IMAGE_ROOT,img_path)
     color_folder=os.path.dirname(img_path)
     print("Color folder:",color_folder)
     color_image_list=sorted(os.listdir(color_folder))

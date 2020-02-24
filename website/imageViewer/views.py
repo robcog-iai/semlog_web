@@ -318,7 +318,7 @@ def view_images(request):
     object_id_list = info['object_id_list']
     image_type_list = info['image_type_list']
     search_pattern = info['search_pattern']
-    image_dir = scan_images(user_root, search_id, image_type_list)
+    image_dir = scan_images(user_root, search_id, image_type_list,relative_path=True)
 
     # Add flag for conditional representation.
     flag_scan = False

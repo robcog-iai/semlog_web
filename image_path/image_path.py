@@ -6,7 +6,7 @@ import shutil
 from image_path.utils import *
 
 
-def scan_images(root_folder_path, root_folder_name, image_type_list,unnest=False):
+def scan_images(root_folder_path, root_folder_name, image_type_list,unnest=False,relative_path=False):
     """Scan images from image_root (except bounding box).
 
     Args:
@@ -34,8 +34,13 @@ def scan_images(root_folder_path, root_folder_name, image_type_list,unnest=False
             image_dir[image_type] = [os.path.join(
                 root_folder_name,image_type, i) for i in image_list]
         else:
-            image_dir[image_type] = [os.path.join(
-                image_type_folder, i) for i in image_list]
+            if relative_path is False:
+                image_dir[image_type] = [os.path.join(
+                    image_type_folder, i) for i in image_list]
+            else:
+                user_id=os.path.basename(os.path.normpath(root_folder_path))
+                image_dir[image_type] = [os.path.join(
+                    user_id,root_folder_name,image_type, i) for i in image_list]
     if unnest is True:
         result=[]
         for path_list in image_dir.values():
