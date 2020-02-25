@@ -45,6 +45,8 @@ $(document).ready(function() {
 
 
     $("#search").click(function() {
+        $("#search").addClass("loading disabled")
+            // $(".ui.accordion.three_button").accordion("toggle", 0)
 
         var flag_stop = 0
 
@@ -110,6 +112,9 @@ $(document).ready(function() {
                         if (content.includes("DIVIDING")) {
                             flag_stop = 1
                             one_search_end_timestamp = log_time
+                            $("#search").removeClass("loading disabled")
+                            $(".ui.accordion.three_button").accordion("toggle", 0)
+
                         }
                     }
                     if (flag_stop == 1) {
