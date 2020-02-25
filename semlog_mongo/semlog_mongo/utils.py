@@ -696,7 +696,6 @@ def event_search(db,collection,timestamp,camera_view_list,config_path=None):
         pipeline.append({"$replaceRoot": {"newRoot": "$images"}})
         pipeline.append({"$addFields":{"database":client.database.name}})
         pipeline.append({"$addFields":{"collection":client.name}})
-        pprint.pprint(pipeline)
         result=list(client.aggregate(pipeline))
         return result
 

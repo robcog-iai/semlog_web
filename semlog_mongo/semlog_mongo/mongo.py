@@ -78,6 +78,7 @@ def compile_query(data):
         return return_dict
 
     try:
+        copy_data=data
         data = data.split(" ")
         optional_data = data[1:]
         data = data[0].split("@")
@@ -91,8 +92,6 @@ def compile_query(data):
             query['logic'] = data[3]
             query['class'] = compile_class_list(data[4])
 
-
-
         elif search_type == "scan":
             query["search_type"] = "scan"
             query['database'] = data[1]
@@ -102,13 +101,29 @@ def compile_query(data):
 
         elif search_type == "event":
             query["search_type"] = "event"
-            query['database'] = data[1]
-            # Change to .vis collection
-            query['collection'] = data[2]+".vis"
-            query['camera_view'] = data[3].split("+")
-            query['timestamp'] = data[4]
+            query["event_list"]=[]
+            # Remove optional params, whitespace and the first event@
+            data=copy_data.split(" ")[0].replace(" ","")[6:]
+            # if "&" in data:
+            event_list=data.split("&")
+            for each_event in event_list:
+                return_dict={}
+                event_params=each_event.split("@")
+                return_dict['database']=event_params[0]
+                return_dict['collection']=event_params[1]+".vis"
+                return_dict['camera_view']=event_params[2].split("+")
+                if "+" not in event_params[3]:
+                    return_dict['timestamp']=event_params[3]
+                    query['event_list'].append(return_dict)
+                else:
+                    time_list=event_params[3].split("+")
+                    for each_time in time_list:
+                        return_dict['timestamp']=each_time
+                        query['event_list'].append({"database":event_params[0],'collection':event_params[1]+".vis",
+                        "camera_view":event_params[2].split("+"),"timestamp":each_time})
             query['class'] = ['Event']
     except Exception as e:
+        print(e)
         # All invalid input return false
         return False
     return query
@@ -187,11 +202,22 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
     elif query_dict["search_type"] == "event":
         logger.write("Enter event search.")
         t_start_event_search=time.time()
-        db = query_dict["database"]
-        coll = query_dict["collection"]
-        camera_view_list = query_dict['camera_view']
-        timestamp = query_dict['timestamp']
-        df = event_search(db, coll, timestamp, camera_view_list, config_path)
+        event_list=query_dict['event_list']
+        print("8888888888888888888888888888")
+        print(event_list)
+        frames=[]
+        for each_event in event_list:
+            db = each_event["database"]
+            coll = each_event["collection"]
+            camera_view_list = each_event['camera_view']
+            timestamp = each_event['timestamp']
+            df = event_search(db, coll, timestamp, camera_view_list, config_path)
+            if not df.empty:
+                frames.append(df)
+        if frames==[]:
+            return pd.DataFrame()
+        else:
+            df=pd.concat(frames)
         logger.write("Event search finished with "+convert_duration_time(time.time(),t_start_event_search)+"s.")
     
     if "limit" in optional_dict.keys() and query_dict['search_type']=="entity":
