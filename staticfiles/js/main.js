@@ -1,4 +1,5 @@
 var r;
+var one_search_end_timestamp = 0;
 
 var flag_start_reading = 0
 $(document).ready(function() {
@@ -45,6 +46,8 @@ $(document).ready(function() {
 
     $("#search").click(function() {
 
+        var flag_stop = 0
+
         $("#div_server_log").scrollTop($("#div_server_log")[0].scrollHeight);
 
         $(".operation_button").addClass("disabled")
@@ -76,37 +79,44 @@ $(document).ready(function() {
         });
         if (flag_start_reading == 0) {
             var interval = window.setInterval(function() {
-                var flag_stop = 0
                 var flag_classifier = 0
                 var log_info = update_server_msg()
                 log_info = log_info['data'].split("$")
                 $("#server_log").empty()
                 for (let key in log_info) {
+
                     var content = log_info[key]
+
+                    log_time = content.split(/[ ,]+/)
+                    if (log_time.length != 1) {
+                        log_time = log_time[3].replace("]", "").replace(":", "").replace(":", "")
+                        log_time = parseInt(log_time)
+                    }
                     var text = document.createTextNode(log_info[key])
                     $("#server_log").append(text)
                     $("#server_log").append("<br />")
-                    if (content.includes("succeeded")) {
-                        $(".operation_button").removeClass("disabled")
-                        if (flag_classifier == 1) {
-                            $(".training_button").removeClass("disabled")
+                    if (log_time > one_search_end_timestamp) {
+
+                        if (content.includes("succeeded")) {
+                            $(".operation_button").removeClass("disabled")
+                            if (flag_classifier == 1) {
+                                $(".training_button").removeClass("disabled")
+                            }
+                        }
+                        if (content.includes("classifier")) {
+                            flag_classifier = 1
+
+                        }
+                        if (content.includes("DIVIDING")) {
+                            flag_stop = 1
+                            one_search_end_timestamp = log_time
                         }
                     }
-                    if (content.includes("classifier")) {
-                        flag_classifier = 1
-
+                    if (flag_stop == 1) {
+                        clearInterval(interval)
                     }
-                    if (content.includes("Query")) {
-                        // flag_stop = 1
-                    }
+
                 }
-
-
-
-                if (flag_stop == 1) {
-                    clearInterval(interval)
-                }
-
             }, 1000)
             return false;
         }
@@ -115,9 +125,9 @@ $(document).ready(function() {
 
     })
 
-    $("#search").click(function() {
-        flag_start_reading = 1
-    })
+    // $("#search").click(function() {
+    //     flag_start_reading = 1
+    // })
 
 
 
