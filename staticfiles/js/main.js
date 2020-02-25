@@ -89,31 +89,29 @@ $(document).ready(function() {
 
                     var content = log_info[key]
 
-                    log_time = content.split(/[ ,]+/)
-                    if (log_time.length != 1) {
-                        log_time = log_time[3].replace("]", "").replace(":", "").replace(":", "")
-                        log_time = parseInt(log_time)
-                    }
+                    log_time = content.split(/[ ,]+/)[0].replace("[", "").replace("]", "").replace(":", "").replace(".", "").replace(":", "")
+                    log_time = parseInt(log_time)
+
                     var text = document.createTextNode(log_info[key])
                     $("#server_log").append(text)
                     $("#server_log").append("<br />")
                     if (log_time > one_search_end_timestamp) {
 
-                        if (content.includes("succeeded")) {
+                        if (content.includes("available")) {
                             $(".operation_button").removeClass("disabled")
                             if (flag_classifier == 1) {
                                 $(".training_button").removeClass("disabled")
                             }
                         }
-                        if (content.includes("classifier")) {
+                        if (content.includes("classifier preparation finished")) {
                             flag_classifier = 1
 
                         }
-                        if (content.includes("DIVIDING")) {
+                        if (content.includes("----")) {
                             flag_stop = 1
                             one_search_end_timestamp = log_time
                             $("#search").removeClass("loading disabled")
-                            $(".ui.accordion.three_button").accordion("toggle", 0)
+                            $(".ui.accordion.three_button").accordion("open", 0)
 
                         }
                     }

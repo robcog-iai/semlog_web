@@ -190,53 +190,57 @@ def main_search(form_dict, user_id, search_id):
     create_a_folder(os.path.join(user_root, search_id))
     logger = Logger(user_root,user_id)
 
-    logger.write("Query input: "+query_input)
-    logger.write("Optional input: "+optional_input)
-    logger.write("Image type input: "+type_input)
-    logger.write("Data manipulation input: " +resize_input)
+    logger.write("query: ")
+    logger.write(query_input)
+    logger.write("optional parameters: ")
+    logger.write(optional_input)
+    logger.write("requested image types: ")
+    logger.write(type_input)
+    logger.write("data manipulation requests: ")
+    logger.write(resize_input)
     # Compile data
     if resize_input != "":
         customization_dict = compile_customization(resize_input)
-        logger.write("customization input: "+str(customization_dict))
+        # logger.write("customization input: "+str(customization_dict))
     query_dict = compile_query(query_input)
     optional_dict=compile_optional_data(optional_input)
     image_type_list=compile_type_data(type_input)
 
     if query_dict== False or query_dict=={}:
-        logger.write("Invalid input. Query is stopped.")
+        logger.write("no results found. Query is stopped.")
         logger.write("----------------DIVIDING LINE --------------------")
         return HttpResponse("Invalid input.")
 
     df = search_mongo(query_dict,optional_dict,image_type_list, logger, CONFIG_PATH)
     # Download images
     if df.shape==(0,0):
-        logger.write("No results. Query is stopped.")
+        logger.write("no results found. Query is stopped.")
     else:
-        logger.write("Start downloading images...")
+        logger.write("start downloading images...")
         t_start_download=time.time()
         download_images(root_folder_path=user_root,
                         root_folder_name=search_id, df=df, config_path=CONFIG_PATH)
         t_download=convert_duration_time(time.time(),t_start_download)
-        logger.write("Download finished with "+t_download+"s.")
+        logger.write("download finished ("+t_download+"s)")
 
         # Draw labels on images
         if 'label' in optional_dict.keys() and query_dict['search_type']=="entity":
-            logger.write("Start annotating images...")
+            logger.write("start annotating images...")
             t_start_label=time.time()
             # Need to implement multirpocessing to speed up this part.
             draw_all_labels(df, user_root, search_id)
             t_label=convert_duration_time(time.time(),t_start_label)
-            logger.write("Annotation finished with "+t_label+"s.")
+            logger.write("annotation finished ("+t_label+"s)")
 
         # Perform origin image crop if selected.
         if "crop" in optional_dict.keys() and query_dict['search_type']=="entity":
-            logger.write("Cropping images with all bounding boxes..")
+            logger.write("start cropping images with all bounding boxes...")
             t_start_crop=time.time()
             image_dir = scan_images(root_folder_path=user_root,
                                     root_folder_name=search_id, image_type_list=image_type_list)
             crop_with_all_bounding_box(df, image_dir)
             t_crop=convert_duration_time(time.time(),t_start_crop)
-            logger.write("Cropping finished with "+t_crop+"s.")
+            logger.write("cropping finished ("+t_crop+"s)")
 
         # Retrieve local image paths
         image_dir = scan_images(root_folder_path=user_root, root_folder_name=search_id,
@@ -244,32 +248,32 @@ def main_search(form_dict, user_id, search_id):
 
         # Move scan images to the right folders
         if query_dict['search_type'] == "scan":
-            logger.write("Rearange scan images...")
+            # logger.write("Rearange scan images...")
             arrange_scan_by_class(df, user_root, search_id)
         # Prepare dataset
         elif "detection" in optional_dict.keys() and query_dict['search_type']=="entity":
-            logger.write("Prepare dataset for object detection...")
+            logger.write("start preparing dataset for object detection...")
             t_start_detection=time.time()
             if resize_input!="":
                 df = recalculate_bb(df, customization_dict, image_dir)
             df.to_csv(os.path.join(user_root, search_id, 'info.csv'), index=False)
             t_detection=convert_duration_time(time.time(),t_start_detection)
-            logger.write("Detection preparation finished with "+t_detection+"s.")
+            logger.write("detection preparation finished ("+t_detection+"s)")
 
         elif "classifier" in optional_dict.keys() and query_dict['search_type']=="entity":
-            logger.write("Prepare dataset for classifier...")
+            logger.write("start prepare dataset for classifier...")
             t_start_classifier=time.time()
             download_bounding_box(df, user_root, search_id)
             bounding_box_dict = scan_bb_images(
                 user_root, search_id, unnest=True)
             if resize_input != "":
                 customize_image_resolution(customization_dict, bounding_box_dict)
-            logger.write("Classifier preparation finished with "+convert_duration_time(time.time(),t_start_classifier)+"s.")
+            logger.write("classifier preparation finished ("+convert_duration_time(time.time(),t_start_classifier)+"s)")
         elif resize_input != "":
             customize_image_resolution(customization_dict, image_dir)
 
-        logger.write("Query succeeded.")
-        logger.write("----------------DIVIDING LINE --------------------")
+        logger.write("results available.")
+        logger.write("----")
 
         # Store static info in local json file
         flag_classifier=True if 'classifier' in optional_dict.keys() else False

@@ -142,9 +142,9 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
         pandas.Dataframe: A df instance stores image data.
     """
     ip, username, password = load_mongo_account(config_path)
-    logger.write("Query dict: "+str(query_dict))
-    logger.write("Optional dict: "+str(optional_dict))
-    logger.write("Image types:"+",".join(image_type_list))
+    # logger.write("Query dict: "+str(query_dict),)
+    # logger.write("Optional dict: "+str(optional_dict))
+    # logger.write("Image types:"+",".join(image_type_list))
     if query_dict["search_type"] == "entity":
         t_start_entity_search=time.time()
         db = query_dict["database"]
@@ -154,36 +154,36 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
             img_limit=optional_dict['limit']*len(image_type_list)
         if "expand" in optional_dict.keys():
             expand_bones=True
-            logger.write("Expand skeletal objects...")
+            logger.write("expand skeletal objects...")
         else:
             expand_bones=False
         db_client = MongoClient(ip, username=username, password=password)[db]
         result = []
 
-        logger.write("Enter entity search.")
-        logger.write("Enter database: "+db)
+        logger.write("start search...")
+        logger.write("enter database: "+db)
         for coll in coll_list:
             t_coll_start_time=time.time()
             coll=coll+".vis"
-            logger.write("Enter collection: "+coll)
+            logger.write("enter collection: "+coll)
             # Change to .vis collection
             client = db_client[coll]
             for class_name,param_dict in class_dict.items():
                 t_class_start_time=time.time()
-                logger.write("Search class: "+class_name)
-                if param_dict!={}:
-                    logger.write("Parameter dict: "+str(optional_dict))
+                logger.write("search class: "+class_name)
+                # if param_dict!={}:
+                    # logger.write("Parameter dict: "+str(optional_dict))
                 result.extend(search_one(
                     client, class_name,param_dict, image_type_list=image_type_list,expand_bones=expand_bones))
                 t_class_end_time=time.time()
                 t_class_time=convert_duration_time(t_class_end_time,t_class_start_time)
-                logger.write("Class: "+class_name+" finished with: "+t_class_time+"s.")
+                logger.write("class: "+class_name+" finished. ("+t_class_time+"s)")
             t_coll_end_time=time.time()
             t_coll_time=convert_duration_time(t_coll_end_time,t_coll_start_time)
-            logger.write("Collection: "+coll+" finished with: "+t_coll_time+"s.")
+            logger.write("collection: "+coll+" finished. ("+t_coll_time+"s)")
         t_end_entity_search=time.time()
         t_entity_search=convert_duration_time(t_end_entity_search,t_start_entity_search)
-        logger.write("Entity search finished with: "+t_entity_search+ "s.")
+        logger.write("entity search finished. ("+t_entity_search+ "s)")
         if len(result) == 0:
             df = pd.DataFrame()
         else:
@@ -192,19 +192,17 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
             df[['x_min', 'x_max', 'y_min', 'y_max']] = df[[
                 'x_min', 'x_max', 'y_min', 'y_max']].astype('int32')
     elif query_dict["search_type"] == "scan":
-        logger.write("Enter scan search.")
+        logger.write("starting scan search...")
         t_start_scan_search=time.time()
         db = query_dict["database"]
         coll = query_dict["collection"]
         class_list = query_dict["class"]
         df = scan_search(db, coll, class_list, image_type_list, config_path)
-        logger.write("Scan search finished with "+convert_duration_time(time.time(),t_start_scan_search)+"s.")
+        logger.write("scan search finished. ("+convert_duration_time(time.time(),t_start_scan_search)+"s)")
     elif query_dict["search_type"] == "event":
-        logger.write("Enter event search.")
+        logger.write("start event search...")
         t_start_event_search=time.time()
         event_list=query_dict['event_list']
-        print("8888888888888888888888888888")
-        print(event_list)
         frames=[]
         for each_event in event_list:
             db = each_event["database"]
@@ -218,7 +216,7 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
             return pd.DataFrame()
         else:
             df=pd.concat(frames)
-        logger.write("Event search finished with "+convert_duration_time(time.time(),t_start_event_search)+"s.")
+        logger.write("event search finished. ("+convert_duration_time(time.time(),t_start_event_search)+"s)")
     
     if "limit" in optional_dict.keys() and query_dict['search_type']=="entity":
         unique_img_list=[]
@@ -230,5 +228,5 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
         new_df=df[:i]
         unique_documents=new_df.document.unique()
         df=df[df.document.isin(unique_documents)]
-    logger.write("Length of results: "+str(df.shape[0]))
+    logger.write("found "+str(df.shape[0])+" images.")
     return df
