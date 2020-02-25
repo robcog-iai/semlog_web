@@ -153,9 +153,10 @@ def crop_with_all_bounding_box(df, image_dir):
             image_dir: A dict contains all target images
     """
 
-    rgb_dir = image_dir['Color']
-    parent_path = Path(rgb_dir[0]).parent
-    # df = df[df["type"] == "Color"]
+    type_dir = image_dir['Color']
+    parent_path = Path(type_dir[0]).parent.parent   
+
+    print(parent_path)
 
     grouped_df = df.groupby(['file_id'])
     for name, group in grouped_df:
@@ -163,7 +164,8 @@ def crop_with_all_bounding_box(df, image_dir):
         ymin = group['y_min'].min()
         xmax = group['x_max'].max()
         ymax = group['y_max'].max()
-        img_dir = os.path.join(parent_path, name+".png")
+        img_type=group['type'].values[0]
+        img_dir = os.path.join(parent_path,img_type, name+".png")
         img = cv2.imread(img_dir)
         img = img[ymin:ymax, xmin:xmax]
         cv2.imwrite(img_dir, img)

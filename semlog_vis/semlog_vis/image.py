@@ -310,11 +310,12 @@ def draw_all_labels(df,root_folder_path,root_folder_name):
     label_info_list=[]
     for name, group in grouped_df:
         img_name,class_name=name
+        img_type=group['type'].values[0]
         bb_list=group[coordinate_names].values.astype(int)
         if class_name not in class_label_dict.keys():
             class_label_dict[class_name]=get_random_color()
         bb_color=class_label_dict[class_name]
-        label_info_list.append([img_name,class_name,bb_color,bb_list])
+        label_info_list.append([img_name,img_type,class_name,bb_color,bb_list])
         # draw_label_on_image(root_folder_path,root_folder_name,img_name,class_name,bb_color,bb_list)
     print("Label list generated.")
     pool = Pool(10)
@@ -326,9 +327,9 @@ def draw_all_labels(df,root_folder_path,root_folder_name):
 
 
 def draw_label_on_one_image(label_info,root_folder_path,root_folder_name):
-    img_name,class_name,bb_color,bb_list=label_info
+    img_name,img_type,class_name,bb_color,bb_list=label_info
 
-    img_path=os.path.join(root_folder_path,root_folder_name,"Color",img_name+".png")
+    img_path=os.path.join(root_folder_path,root_folder_name,img_type,img_name+".png")
     img=cv2.imread(img_path)
     if img is None:
         print("img is not readable. pass")
@@ -338,23 +339,23 @@ def draw_label_on_one_image(label_info,root_folder_path,root_folder_name):
         cv2.putText(img,class_name,(each_bb[0],each_bb[3]),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2,cv2.LINE_AA)
     cv2.imwrite(img_path,img)
 
-def draw_label_on_image(root_folder_path,root_folder_name,img_name,class_name,bb_color,bb_list):
-    """Create all object annotation on an image.
+# def draw_label_on_image(root_folder_path,root_folder_name,img_name,class_name,bb_color,bb_list):
+#     """Create all object annotation on an image.
     
-        Args:
-            root_folder_path: Path to root folder.
-            root_folder_name: Folder name in root path.
-            img_name: the file id of the image.
-            class_name: name of the object class to be drawn.
-            bb_color: Color of the bounding box.
-            bb_list: All bounding boxws coordinates.
-    """
-    img_path=os.path.join(root_folder_path,root_folder_name,"Color",img_name+".png")
-    img=cv2.imread(img_path)
-    for each_bb in bb_list:
-        cv2.rectangle(img,(each_bb[0],each_bb[2]),(each_bb[1],each_bb[3]),bb_color,3)
-        cv2.putText(img,class_name,(each_bb[0],each_bb[3]),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2,cv2.LINE_AA)
-    cv2.imwrite(img_path,img)
+#         Args:
+#             root_folder_path: Path to root folder.
+#             root_folder_name: Folder name in root path.
+#             img_name: the file id of the image.
+#             class_name: name of the object class to be drawn.
+#             bb_color: Color of the bounding box.
+#             bb_list: All bounding boxws coordinates.
+#     """
+#     img_path=os.path.join(root_folder_path,root_folder_name,"Color",img_name+".png")
+#     img=cv2.imread(img_path)
+#     for each_bb in bb_list:
+#         cv2.rectangle(img,(each_bb[0],each_bb[2]),(each_bb[1],each_bb[3]),bb_color,3)
+#         cv2.putText(img,class_name,(each_bb[0],each_bb[3]),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2,cv2.LINE_AA)
+#     cv2.imwrite(img_path,img)
 
 def crop_object_from_image(saving_folder,root_folder_path,root_folder_name,row_info):
     """Crop one object from an image.

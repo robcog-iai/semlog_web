@@ -203,7 +203,7 @@ def search_skel(client,object_identification,optional_dict={},object_pattern='cl
                                 "views.images.x_min": "$views.skel_entities.img_bb.min.x",
                                 "views.images.y_min": "$views.skel_entities.img_bb.min.y",
                                 "views.images.x_max": "$views.skel_entities.img_bb.max.x",
-                                "views.images.y_max": "$views.skel_entities.img_bb.max.x",
+                                "views.images.y_max": "$views.skel_entities.img_bb.max.y",
 
                                 # Add document id
                                 "views.images.document": "$_id"}})
