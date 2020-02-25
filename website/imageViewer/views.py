@@ -51,7 +51,9 @@ def log_out(request):
 def login(request):
     server_state = check_mongodb_state(CONFIG_PATH)
     state = "Online" if server_state == True else "Offline"
-    return_dict = {"server_state": state}
+
+    num_users=len(os.listdir(IMAGE_ROOT))
+    return_dict = {"server_state": state,"num_users":num_users}
     print("Server state: ", state)
     return render(request, 'login.html', return_dict)
 
@@ -188,14 +190,10 @@ def main_search(form_dict, user_id, search_id):
     create_a_folder(os.path.join(user_root, search_id))
     logger = Logger(user_root,user_id)
 
-    logger.write("Query input:")
-    logger.write(query_input)
-    logger.write("Optional input:")
-    logger.write(optional_input)
-    logger.write("Image type input:")
-    logger.write(type_input)
-    logger.write("Data manipulation input:")
-    logger.write(resize_input)
+    logger.write("Query input: "+query_input)
+    logger.write("Optional input: "+optional_input)
+    logger.write("Image type input: "+type_input)
+    logger.write("Data manipulation input: " +resize_input)
     # Compile data
     if resize_input != "":
         customization_dict = compile_customization(resize_input)
