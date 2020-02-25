@@ -155,7 +155,7 @@ def crop_with_all_bounding_box(df, image_dir):
 
     rgb_dir = image_dir['Color']
     parent_path = Path(rgb_dir[0]).parent
-    df = df[df["type"] == "Color"]
+    # df = df[df["type"] == "Color"]
 
     grouped_df = df.groupby(['file_id'])
     for name, group in grouped_df:

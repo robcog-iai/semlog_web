@@ -28,11 +28,11 @@ def compile_customization(data):
         if len(optional_data)!=0:
             optional_data=optional_data[0]
             if "," in optional_data:
-                return_dict['pad_type']='constant'
+                return_dict['padding_type']='constant'
                 color_list=optional_data.split(",")
-                return_dict['constant_color']=color_list
+                return_dict['constant_color']=tuple([int(i) for i in color_list])
             else:
-                return_dict['pad_type']=optional_data
+                return_dict['padding_type']=optional_data
         return return_dict
 
 
@@ -43,7 +43,10 @@ def customize_image_resolution(customization_dict,image_dir):
     width=customization_dict['width']
     height=customization_dict['height']
 
+    print(customization_dict)
     if resize_type == 'pad':
+        print("!!!!!!!!!!!!!!!!")
+        print(padding_type)
         padding_type = convert_padding_type(padding_type)
         pad_all_images(image_dir, width, height,
                         padding_type, customization_dict['constant_color'])
@@ -65,6 +68,7 @@ def convert_padding_type(padding_type):
         padding_type = cv2.BORDER_REPLICATE
     else:
         padding_type = cv2.BORDER_REFLECT
+    print("pad type:",padding_type)
     return padding_type
 
 def remove_image_background(img, mask, mask_color, background_color=(255, 255, 255)):
@@ -170,6 +174,8 @@ def pad_image(img_path, width, height, pad_type, value=(0, 0, 0)):
             The processed image.
     """
 
+
+
     def get_left_right(margin_width):
         if margin_width % 2 == 0:
             left = margin_width // 2
@@ -187,7 +193,7 @@ def pad_image(img_path, width, height, pad_type, value=(0, 0, 0)):
             top = margin_height // 2
             bottom = margin_height // 2 + 1
         return top, bottom
-
+    
     img = cv2.imread(img_path)
     h, w, _ = img.shape
     margin_width = width - w
@@ -296,7 +302,7 @@ def draw_all_labels(df,root_folder_path,root_folder_name):
             root_folder_path: Path to root folder.
             root_folder_name: Folder name in root path.
     """
-    df=df[df.type=="Color"]
+    # df=df[df.type=="Color"]
     grouped_df=df.groupby(['file_id','class'])
     coordinate_names=['x_max','x_min','y_max','y_min']
 
