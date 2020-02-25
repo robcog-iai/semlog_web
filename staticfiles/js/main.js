@@ -17,7 +17,6 @@ $(document).ready(function() {
         data: { csrfmiddlewaretoken: token },
     });
 
-    var interval = 2000;
 
 
     function update_server_msg() {
@@ -108,7 +107,7 @@ $(document).ready(function() {
                     clearInterval(interval)
                 }
 
-            }, 2000)
+            }, 1000)
             return false;
         }
 
