@@ -45,10 +45,8 @@ $(document).ready(function() {
 
 
     $("#search").click(function() {
-        console.log(flag_start_reading)
 
-        // $(".class_accord").removeClass("active")
-        // $(".class_terminal").addClass("active")
+        $("#div_server_log").scrollTop($("#div_server_log")[0].scrollHeight);
 
         $(".operation_button").addClass("disabled")
 
@@ -103,6 +101,7 @@ $(document).ready(function() {
                         // flag_stop = 1
                     }
                 }
+
 
 
                 if (flag_stop == 1) {
