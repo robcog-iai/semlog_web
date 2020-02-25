@@ -32,14 +32,14 @@
         {% if flag_scan %}
 
         <a class="active item" data-tab="second">
-            <font size="6"><b> Scans </b></font>
+            <font size="6"><b> Scan images </b></font>
         </a> {% else %}
         <a class="active item" data-tab="first">
-            <font size="6"><b> Origin </b></font>
+            <font size="6"><b> Full images </b></font>
         </a>
         {% if flag_classifier %}
         <a class="item" data-tab="second">
-            <font size="6"><b> Bounding Boxes </b></font>
+            <font size="6"><b> Cropped images </b></font>
             {% endif %}
         </a> {% endif %}
     </div>
@@ -63,6 +63,7 @@
                         {% for img_path in img_list %}
                         <div class="three wide column">
                             <div class="ui medium rounded image">
+
                                 <a class="ui left corner label" target="_blank" href="/show_one_image/?img_path={{ img_path }}">
                                     <i class="zoom-in icon"></i>
                                 </a>
@@ -112,9 +113,26 @@
                                     {% for img_path in image_path_list %}
                                     <div class="three wide column">
                                         <div class="ui medium rounded image">
-                                            <a href="/create_pc/?img_path={{ img_path }}" target="_blank">
-                                                <img src="{% static img_path %}">
+
+
+
+                                            <a class="ui left corner label" target="_blank" href="/show_one_image/?img_path={{ img_path }}">
+                                                <i class="zoom-in icon"></i>
                                             </a>
+                                            {% if "Depth" in image_type_list %}
+                                            <a class="ui right corner label" href="/create_pc/?img_path={{ img_path }}" target="_blank">
+                                                <i class="cloud icon"></i>
+                                            </a>
+                                            {% endif %}
+                                            <img src="{% static img_path %}">
+
+
+                                            <!-- <a href="/create_pc/?img_path={{ img_path }}" target="_blank">
+                                                <img src="{% static img_path %}">
+                                            </a> -->
+
+
+
                                         </div>
                                     </div>
                                     {% endfor %}

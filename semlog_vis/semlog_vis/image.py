@@ -196,39 +196,46 @@ def pad_image(img_path, width, height, pad_type, value=(0, 0, 0)):
     
     img = cv2.imread(img_path)
     h, w, _ = img.shape
+    img_ratio=h/w
+    target_ratio=height/width
     margin_width = width - w
     margin_height = height - h
-    if h >= height and w >= width:
-        margin_width = abs(margin_width)
-        margin_height = abs(margin_height)
-        if margin_width >= margin_height:
-            resize_image(img_path, width=width, type='scale')
-            img = cv2.imread(img_path)
-            _h, _w, _ = img.shape
-            margin_height = height - _h
-            top, bottom = get_top_bottom(margin_height)
-            img = cv2.copyMakeBorder(img, top, bottom, 0, 0, pad_type, value=value)
+    # if h >= height and w >= width:
+    margin_width = abs(margin_width)
+    margin_height = abs(margin_height)
+    if img_ratio<target_ratio:
+        resize_image(img_path, width=width, type='scale')
+        img = cv2.imread(img_path)
+        _h, _w, _ = img.shape
+        # print("new h:",_h)
+        # print("new w:",_w)
+        # print("t w:",width)
+        # print("t h:",height)
+        margin_height = height - _h
+        top, bottom = get_top_bottom(margin_height)
+        # print(top,bottom)
+        img = cv2.copyMakeBorder(img, top, bottom, 0, 0, pad_type, value=value)
 
-        else:
-            resize_image(img_path, height=height, type='scale')
-            img = cv2.imread(img_path)
-            _h, _w, _ = img.shape
-            margin_width = width - _w
-            left, right = get_left_right(margin_width)
-            img = cv2.copyMakeBorder(img, 0, 0, left, right, pad_type, value=value)
-
-    elif h <= height and w <= width:
-        img = cv2.resize(img, (width, height))
-    elif h >= height:
-        img = cv2.resize(img, (w, height))
-        h, w, _ = img.shape
+    else:
+        resize_image(img_path, height=height, type='scale')
+        img = cv2.imread(img_path)
+        _h, _w, _ = img.shape
+        margin_width = width - _w
         left, right = get_left_right(margin_width)
         img = cv2.copyMakeBorder(img, 0, 0, left, right, pad_type, value=value)
-    elif w >= width:
-        img = cv2.resize(img, (width, h))
-        h, w, _ = img.shape
-        top, bottom = get_top_bottom(margin_height)
-        img = cv2.copyMakeBorder(img, top, bottom, 0, 0, pad_type, value=value)
+
+    # elif h <= height and w <= width:
+    #     img = cv2.resize(img, (width, height))
+    # elif h >= height:
+    #     img = cv2.resize(img, (w, height))
+    #     h, w, _ = img.shape
+    #     left, right = get_left_right(margin_width)
+    #     img = cv2.copyMakeBorder(img, 0, 0, left, right, pad_type, value=value)
+    # elif w >= width:
+    #     img = cv2.resize(img, (width, h))
+    #     h, w, _ = img.shape
+    #     top, bottom = get_top_bottom(margin_height)
+    #     img = cv2.copyMakeBorder(img, top, bottom, 0, 0, pad_type, value=value)
     cv2.imwrite(img_path, img)
 
 
