@@ -8,6 +8,7 @@ import time
 import json
 import shutil
 import os
+import datetime
 
 from website.settings import IMAGE_ROOT, CONFIG_PATH
 from image_path.utils import create_a_folder
@@ -57,6 +58,11 @@ def login(request):
     print("Server state: ", state)
     return render(request, 'login.html', return_dict)
 
+def modification_date(filename):
+    t = os.path.getmtime(filename)
+    t=datetime.datetime.fromtimestamp(t)
+    t=t.hour*60+t.minute
+    return t
 
 def search(request):
     """Delete old folders before search."""
@@ -73,25 +79,31 @@ def search(request):
     user_list = delete_path
     delete_path = [os.path.join(IMAGE_ROOT, i)
                    for i in delete_path]
+    current_date=datetime.datetime.now()
+    current_minute=current_date.hour*60+current_date.minute
+    path_time=[abs(current_minute-modification_date(i)) for i in delete_path]
+    timeover_list=[ind for ind,i in enumerate(path_time) if i >=120]
+    delete_path_list=[delete_path[ind] for ind in timeover_list]
     try:
         pool = Pool(12)
-        pool.map(clean_folder, delete_path)
+        pool.map(clean_folder, delete_path_list)
         pool.close()
         pool.join()
     except Exception as e:
         print(e)
         pass
-    try:
-        shutil.rmtree(IMAGE_ROOT)
-    except Exception as e:
-        print(e)
+    # try:
+    #     shutil.rmtree(IMAGE_ROOT)
+    # except Exception as e:
+    #     print(e)
     print("Delete all folders for:", time.time() - t1)
     if os.path.isdir(IMAGE_ROOT) is False:
         print("Create image root.")
         os.makedirs(IMAGE_ROOT)
 
     if user_id in user_list:
-        return HttpResponse("<h1 style='text-align:center;margin-top:300px;'>This user name is occupied. Please use another name.<h1>")
+        # return HttpResponse("<h1 style='text-align:center;margin-top:300px;'>This user name is occupied. Please use another name.<h1>")
+        return render(request,'message.html')
 
     return render(request, 'main.html')
 
@@ -137,8 +149,6 @@ def update_database_info(request):
     return_dict = {}
     neglect_list = ['admin', 'config', 'local', 'semlog_web']
     if request.method == 'POST':
-        print("enter update database!")
-        print(request.POST.dict())
         ip, username, password = load_mongo_account(CONFIG_PATH)
         m = MongoClient(ip, username=username, password=password)
         db_list = m.list_database_names()

@@ -1,0 +1,27 @@
+<!DOCTYPE html> {% load static %}
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>RobCoGVis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.css" integrity="sha256-QVBN0oT74UhpCtEo4Ko+k3sNo+ykJFBBtGduw13V9vw=" crossorigin="anonymous" />
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            setTimeout(click_btn, 5000)
+
+            function click_btn() {
+                $("#back").click()
+
+            }
+
+        });
+    </script>
+</head>
+
+<body>
+    <h1 style='text-align:center;margin-top:10%;'>This user name is occupied. Please use another name.</h1>
+    <button type="button" id="back" class="ui massive button" onclick="window.location.href = '/';" style="margin-left: 45%;" hidden>Return</button>
+
+</body>
