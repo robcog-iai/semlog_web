@@ -223,8 +223,9 @@ def main_search(form_dict, user_id, search_id):
 
     df = search_mongo(query_dict,optional_dict,image_type_list, logger, CONFIG_PATH)
     # Download images
-    if df.shape==(0,0):
+    if df.shape[0]==0:
         logger.write("no results found. Query is stopped.")
+        logger.write("----")
     else:
         logger.write("start downloading images...")
         t_start_download=time.time()
@@ -353,6 +354,7 @@ def view_images(request):
 
 def download(request):
     """Download images as .zip file. """
+    
 
     def make_archive(source, destination):
         print(source, destination)
@@ -369,6 +371,7 @@ def download(request):
     user_root = request.session['user_root']
     search_id = request.session['search_id']
     logger = Logger(user_root,user_id)
+    logger.write("start compressing images..")
     t_start_zip=time.time()
     zip_target = os.path.join(user_root, search_id)
     zip_path = os.path.join(user_root, search_id, "Color_images.zip")
@@ -380,6 +383,6 @@ def download(request):
         'Content-Disposition'] = 'attachment; filename=%s' % "dataset.zip"
     response['Content-Length'] = os.path.getsize(zip_path)
     zip_file.close()
-    logger.write("Zipping files finished with "+convert_duration_time(time.time(),t_start_zip)+"s.")
+    logger.write("compressing images finished ("+convert_duration_time(time.time(),t_start_zip)+"s)")
 
     return response

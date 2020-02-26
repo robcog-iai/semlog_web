@@ -71,22 +71,7 @@ def convert_padding_type(padding_type):
     print("pad type:",padding_type)
     return padding_type
 
-def remove_image_background(img, mask, mask_color, background_color=(255, 255, 255)):
-    """Replace the image background with a single color.
-        Args:
-            img: The source image.
-            mask: The source mask.
-            mask_color: Mask color of the object.
-            background_color: New background color to be replaced.
-        
-        Returns:
-            The new image as ndarray.s
-    """
-    img, mask = load_img_and_mask(img, mask)
-    background_binary = cv2.inRange(mask, mask_color, mask_color)
-    new_img = cv2.bitwise_and(img, img, mask=background_binary)
-    new_img = replace_single_color(new_img, (0, 0, 0), background_color)
-    return new_img
+
 
 
 def load_img_and_mask(img, mask):
@@ -250,7 +235,7 @@ def pad_all_images(image_dir, width, height, pad_type, value=(0, 0, 0)):
 
 
     """
-    pool = Pool(10)
+    pool = Pool(1)
     pool.starmap(pad_image, zip(
         image_dir, itertools.repeat(width), itertools.repeat(height), itertools.repeat(pad_type),
         itertools.repeat(value)))
@@ -265,7 +250,7 @@ def scale_all_images(image_dir, ratio):
             ratio: Target ratio to scale.
 
     """
-    pool = Pool(10)
+    pool = Pool(1)
     pool.starmap(scale_image, zip(
         image_dir, itertools.repeat(ratio)))
     pool.close()
@@ -287,7 +272,7 @@ def resize_all_images(image_dir, width, height, resize_type):
         return 0
     print("Enter resizing image.")
     print("Enter resizing.", width)
-    pool = Pool(10)
+    pool = Pool(1)
     pool.starmap(resize_image, zip(
         image_dir, itertools.repeat(width), itertools.repeat(height), itertools.repeat(resize_type)))
     pool.close()
@@ -325,7 +310,7 @@ def draw_all_labels(df,root_folder_path,root_folder_name):
         label_info_list.append([img_name,img_type,class_name,bb_color,bb_list])
         # draw_label_on_image(root_folder_path,root_folder_name,img_name,class_name,bb_color,bb_list)
     print("Label list generated.")
-    pool = Pool(10)
+    pool = Pool(1)
     pool.starmap(draw_label_on_one_image, zip(
         label_info_list, itertools.repeat(root_folder_path), itertools.repeat(root_folder_name)))
     pool.close()

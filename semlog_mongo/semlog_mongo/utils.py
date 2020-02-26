@@ -425,16 +425,17 @@ def search_one(client,object_identification,optional_dict={},object_pattern='cla
     return result
 
 
-def find_conjunct_images_from_df(df,id_list,object_pattern):
+def find_conjunct_images_from_df(df,id_list,object_pattern="class"):
     """Used to remove unqualified entries in an AND search."""
     remove_index_list=[]
     grouped_df=df.groupby(['file_id'])
+    # df.to_csv("t.csv",index=False)
     for each_file_id,grouped_set in grouped_df:
         if object_pattern=='class':
             num_unique=grouped_set['class'].value_counts().shape[0]
         else:
             num_unique=grouped_set['object'].value_counts().shape[0]
-        
+        print(num_unique,len(id_list))
         if num_unique!=len(id_list):
             remove_index_list.extend(grouped_set.index.values)
     df=df.drop(index=remove_index_list)
@@ -776,6 +777,56 @@ def scan_search(db,collection,scan_class_list,image_type_list,config_path):
         df['database']=db
         df['collection']=collection
         return df
+
+def get_bones_from_skel(client,skel):
+
+    pipeline=[
+    {
+        '$unwind': {
+            'path': '$skel_entities'
+        }
+    }, {
+        '$match': {
+            'skel_entities.class': skel
+        }
+    }, {
+        '$unwind': {
+            'path': '$skel_entities.bones'
+        }
+    }, {
+        '$replaceRoot': {
+            'newRoot': '$skel_entities.bones'
+        }
+    }, {
+        '$project': {
+            'class': 1, 
+            '_id': 0
+        }
+    }]
+
+    result=list(client.aggregate(pipeline))
+    result=[i for i in result if i!={}]
+    result=[i['class'] for i in result]
+    return result
+
+def check_skel(client, class_name):
+    pipeline=[
+    {
+        '$unwind': {
+            'path': '$skel_entities'
+        }
+    }, {
+        '$match': {
+            'skel_entities.class': 'GenesisLeftHand'
+        }
+    }]
+
+    result=list(client.aggregate(pipeline))
+    if len(result)==0:
+        return False
+    else:
+        return True
+
 
 
     

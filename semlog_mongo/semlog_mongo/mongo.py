@@ -165,22 +165,25 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
         for coll in coll_list:
             t_coll_start_time=time.time()
             coll=coll+".vis"
-            logger.write("enter collection: "+coll)
+            logger.write("start search in episode: "+coll)
             # Change to .vis collection
             client = db_client[coll]
+            meta_client=db_client[db+".meta"]
+            skel_list=[]
             for class_name,param_dict in class_dict.items():
+                flag_is_skel=check_skel(meta_client,class_name)
+                if flag_is_skel:
+                    skel_list.append(class_name)
                 t_class_start_time=time.time()
-                logger.write("search class: "+class_name)
-                # if param_dict!={}:
-                    # logger.write("Parameter dict: "+str(optional_dict))
+                logger.write("start search for: "+class_name)
                 result.extend(search_one(
                     client, class_name,param_dict, image_type_list=image_type_list,expand_bones=expand_bones))
                 t_class_end_time=time.time()
                 t_class_time=convert_duration_time(t_class_end_time,t_class_start_time)
-                logger.write("class: "+class_name+" finished. ("+t_class_time+"s)")
+                logger.write("search for: "+class_name+" finished. ("+t_class_time+"s)")
             t_coll_end_time=time.time()
             t_coll_time=convert_duration_time(t_coll_end_time,t_coll_start_time)
-            logger.write("collection: "+coll+" finished. ("+t_coll_time+"s)")
+            logger.write("search in episode: "+coll+" finished. ("+t_coll_time+"s)")
         t_end_entity_search=time.time()
         t_entity_search=convert_duration_time(t_end_entity_search,t_start_entity_search)
         logger.write("entity search finished. ("+t_entity_search+ "s)")
@@ -188,6 +191,18 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
             df = pd.DataFrame()
         else:
             df = pd.DataFrame(result)
+            print(df.shape)
+            if query_dict['logic']=="and":
+                if len(skel_list)!=0 and "expand" in optional_dict.keys():
+                    bone_list=[]
+                    for each_skel in skel_list:
+                        bone_list.extend(get_bones_from_skel(meta_client,each_skel))
+                    class_list=list(query_dict['class'].keys())
+                    class_list.extend(bone_list)
+                    df=find_conjunct_images_from_df(df,class_list)
+                else:
+                    df=find_conjunct_images_from_df(df,list(query_dict['class'].keys()))
+                print(df.shape)
             df['file_id'] = df['file_id'].astype(str)
             df[['x_min', 'x_max', 'y_min', 'y_max']] = df[[
                 'x_min', 'x_max', 'y_min', 'y_max']].astype('int32')
@@ -218,7 +233,7 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
             df=pd.concat(frames)
         logger.write("event search finished. ("+convert_duration_time(time.time(),t_start_event_search)+"s)")
     
-    if "limit" in optional_dict.keys() and query_dict['search_type']=="entity":
+    if "limit" in optional_dict.keys() and query_dict['search_type']=="entity" and not df.empty:
         unique_img_list=[]
         for i, row in df.iterrows():
             if row['file_id'] not in unique_img_list:
