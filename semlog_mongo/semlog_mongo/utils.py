@@ -505,7 +505,7 @@ def get_db_info(db_coll_dict,config_path):
             meta_client=client[db][db+".meta"]
             detail_dict[db]={}
 
-            detail_dict[db]['collections']=[i for i in client[db].list_collection_names() if ".meta" not in i and  ".files" not in i and  ".chunks" not in i and  ".vis" not in i and  ".scans" not in i ]
+            detail_dict[db]['episodes']=[i for i in client[db].list_collection_names() if ".meta" not in i and  ".files" not in i and  ".chunks" not in i and  ".vis" not in i and  ".scans" not in i ]
 
             # Add task description
             detail_dict[db]['task_description']=get_task_description(meta_client)

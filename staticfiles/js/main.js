@@ -188,10 +188,10 @@ $(document).ready(function() {
             $("#detail_list").append(task)
 
             var collection_title = document.createElement("h4")
-            collection_title.innerHTML = "Collections:"
+            collection_title.innerHTML = "Episodes:"
             var collections = document.createElement("p")
             collections.style.marginLeft = "20px"
-            collections.innerHTML = details['collections'].join(", ")
+            collections.innerHTML = details['episodes'].join(", ")
             $("#detail_list").append(collection_title)
             $("#detail_list").append(collections)
 
