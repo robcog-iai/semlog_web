@@ -4,6 +4,10 @@ var one_search_end_timestamp = 0;
 var flag_start_reading = 0
 $(document).ready(function() {
 
+    $("#terminal_clear").click(function() {
+        $("#server_log").empty()
+    })
+
     // $("#query_input").focusout(function() {
 
     //     if (this.value.length > 0) {
