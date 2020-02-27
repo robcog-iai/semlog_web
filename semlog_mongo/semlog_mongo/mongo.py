@@ -13,7 +13,7 @@ def compile_optional_data(data):
 
     if len(optional_data) != 0:
         for param in optional_data:
-            if "label" in param:
+            if "label_classes" in param:
                 return_dict['label'] = True
             if "crop" in param:
                 return_dict['crop'] = True
@@ -21,10 +21,12 @@ def compile_optional_data(data):
                 return_dict['detection'] = True
             if "classifier" in param:
                 return_dict['classifier'] = True
-            if "expand" in param:
+            if "label_bones" in param:
                 return_dict['expand'] = True
             if "limit" in param:
                 return_dict['limit']=int(param.split("=")[1])
+            if "use_and_operator" in param:
+                return_dict['and'] =True
     return return_dict
     
 def compile_type_data(data):
@@ -89,8 +91,8 @@ def compile_query(data):
             query["search_type"] = "entity"
             query['database'] = data[1]
             query['collection'] = data[2].split("+")
-            query['logic'] = data[3]
-            query['class'] = compile_class_list(data[4])
+            query['logic'] = 'or'
+            query['class'] = compile_class_list(data[3])
 
         elif search_type == "scan":
             query["search_type"] = "scan"
@@ -192,7 +194,7 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
         else:
             df = pd.DataFrame(result)
             print(df.shape)
-            if query_dict['logic']=="and":
+            if "and" in optional_dict.keys():
                 if len(skel_list)!=0 and "expand" in optional_dict.keys():
                     bone_list=[]
                     for each_skel in skel_list:

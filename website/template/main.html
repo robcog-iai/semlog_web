@@ -62,9 +62,9 @@
                     </div>
                     <div class="active content field class_accord">
                         <!-- <input placeholder="Query sentence" name="query_data" type="text"> -->
-                        <span><input name="query_data" id="query_input" placeholder="Input the query sentence to search images from databases" value="entity@PaP@1@or@IAISink" type="text"></span>
+                        <span><input name="query_data" id="query_input" placeholder="Input the query sentence to search images from databases" value="entity@PaP@1@IAISink" type="text"></span>
                         <label>Optional:</label>
-                        <span><input name="optional_data" id="optional_input" placeholder="Optional parameters" value="limit=20,label" type="text" ></span>
+                        <span><input name="optional_data" id="optional_input" placeholder="Optional parameters" value="limit=20,label_classes" type="text" ></span>
                         <label>Image types:</label>
                         <span><input name="type_data" id="type_input" placeholder="Image type parameters" value="Color,Depth,Mask,Normal,Unlit" type="text" ></span>
                         <label>Data manipulation:</label>
@@ -89,7 +89,7 @@
                                 <a>Main query:</a>
                                 <div class="list">
                                     <a class="item">Entity search grammar:</a>
-                                    <p>entity@DATABASE@COLLECTION@LOGIC@OBJECT_CLASS</p>
+                                    <p>entity@DATABASE@COLLECTION@OBJECT_CLASS</p>
 
                                     <a class="item">Event search grammar:</a>
                                     <p>event@DATABASE@COLLECTION@CAMERA_VIEW@TIMESTAMP</p>
@@ -104,12 +104,12 @@
                                     <p><b>TIMESTAMP</b>: Target timestamp for event searching.</p>
                                     <a class="item">Examples:</a>
                                     <h5>Basic entity search:</h5>
-                                    <p style="margin-left: 20px;"> entity@PaP@1@or@IAISink</p>
+                                    <p style="margin-left: 20px;"> entity@PaP@1@IAISink</p>
                                     <h5>Multiple collections and classes entity search:</h5>
-                                    <p style="margin-left: 20px;"> entity@PaP@1+2@or@IAISink+OrionAdam</p>
+                                    <p style="margin-left: 20px;"> entity@PaP@1+2@IAISink+OrionAdam</p>
                                     <h5>Precise entity search:</h5>
                                     <p style="margin-left: 20px;">
-                                        entity@PaP@1@or@IAISink(occl_perc&gt;0.2;occl_perc&lt;0.7;img_perc&lt;0.8;img_perc>0.02;clipped=true)
+                                        entity@PaP@1@IAISink(occl_perc&gt;0.2;occl_perc&lt;0.7;img_perc&lt;0.8;img_perc>0.02;clipped=true)
                                     </p>
                                     <h5>Event search:</h5>
                                     <p style="margin-left: 20px;">event@PaP@1@GenesisLeftHandView+VisionCamera+HeadView@0.3</p>
@@ -127,15 +127,17 @@
                                     <p>PARAM1,PARAM2,...</p>
 
                                     <a class="item">Explainations (PARM):</a>
-                                    <p><b>label</b>: Add annotations on images.</p>
+                                    <p><b>label_classes</b>: Add annotations on images.</p>
                                     <p><b>crop</b>: Crop images with the largest bounding box boundaries.</p>
-                                    <p><b>expand</b>: Also search for child bone objects if a skeletal object is entered.</p>
+                                    <p><b>label_bones</b>: Also search for child bone objects if a skeletal object is entered.</p>
                                     <p><b>detection</b>: Bounding box coordinates can also be downloaded.</p>
                                     <p><b>classifier</b>: Add extra UI and images for each cropped objects.</p>
                                     <p><b>limit</b>: Limit result images. (To speed up)</p>
+                                    <p><b>use_and_operator</b>: Use AND logic for entity search.</p>
+
                                     <a class="item">Examples:</a>
                                     <h5>Basic:</h5>
-                                    <p style="margin-left: 20px;">label,crop</p>
+                                    <p style="margin-left: 20px;">label_classes,crop</p>
                                 </div>
                             </div>
 
