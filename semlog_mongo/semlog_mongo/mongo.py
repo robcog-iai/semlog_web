@@ -233,7 +233,8 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
             df=pd.concat(frames)
         logger.write("event search finished. ("+convert_duration_time(time.time(),t_start_event_search)+"s)")
     
-    if "limit" in optional_dict.keys() and query_dict['search_type']=="entity" and not df.empty:
+    print(df.shape)
+    if "limit" in optional_dict.keys() and query_dict['search_type']=="entity" and df.shape[0]!=0:
         unique_img_list=[]
         for i, row in df.iterrows():
             if row['file_id'] not in unique_img_list:
@@ -244,4 +245,5 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
         unique_documents=new_df.document.unique()
         df=df[df.document.isin(unique_documents)]
     logger.write("found "+str(df.shape[0])+" images.")
+    # df.to_csv("t.csv",index=False)
     return df

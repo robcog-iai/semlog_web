@@ -430,12 +430,13 @@ def find_conjunct_images_from_df(df,id_list,object_pattern="class"):
     remove_index_list=[]
     grouped_df=df.groupby(['file_id'])
     # df.to_csv("t.csv",index=False)
+    print(id_list)
     for each_file_id,grouped_set in grouped_df:
         if object_pattern=='class':
             num_unique=grouped_set['class'].value_counts().shape[0]
         else:
             num_unique=grouped_set['object'].value_counts().shape[0]
-        print(num_unique,len(id_list))
+        # print(num_unique,len(id_list))
         if num_unique!=len(id_list):
             remove_index_list.extend(grouped_set.index.values)
     df=df.drop(index=remove_index_list)
