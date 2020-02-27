@@ -198,8 +198,7 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
                     for each_skel in skel_list:
                         bone_list.extend(get_bones_from_skel(meta_client,each_skel))
                     class_list=list(query_dict['class'].keys())
-                    class_list.extend(bone_list)
-                    df=find_conjunct_images_from_df(df,class_list)
+                    df=find_conjunct_images_from_df(df,class_list,bone_list=bone_list)
                 else:
                     df=find_conjunct_images_from_df(df,list(query_dict['class'].keys()))
                 print(df.shape)

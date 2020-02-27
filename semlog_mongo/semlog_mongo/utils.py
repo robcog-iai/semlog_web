@@ -425,22 +425,26 @@ def search_one(client,object_identification,optional_dict={},object_pattern='cla
     return result
 
 
-def find_conjunct_images_from_df(df,id_list,object_pattern="class"):
+def find_conjunct_images_from_df(df,id_list,object_pattern="class",bone_list=None):
     """Used to remove unqualified entries in an AND search."""
     remove_index_list=[]
+    if bone_list!=None:
+        bone_df=df[df['class'].isin(bone_list)]
+        df=df
+        [~df['class'].isin(bone_list)]
     grouped_df=df.groupby(['file_id'])
-    # df.to_csv("t.csv",index=False)
-    print(id_list)
     for each_file_id,grouped_set in grouped_df:
         if object_pattern=='class':
             num_unique=grouped_set['class'].value_counts().shape[0]
         else:
             num_unique=grouped_set['object'].value_counts().shape[0]
-        # print(num_unique,len(id_list))
         if num_unique!=len(id_list):
             remove_index_list.extend(grouped_set.index.values)
     df=df.drop(index=remove_index_list)
-    return df
+    if bone_list!=None:
+        return pd.concat([bone_df,df])
+    else:
+        return df
 
 
 def download_one(download_db, image, abs_path='', header=''):
