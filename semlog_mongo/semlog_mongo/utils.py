@@ -77,7 +77,7 @@ def compile_bone_optional_dict(optional_dict):
 
 
 
-def search_entities(client,object_identification,optional_dict={},object_pattern='class',image_type_list=None,view_id_list=[]):
+def search_entities(client,object_identification,optional_dict={},object_pattern='class',image_type_list=None,view_id_list=[],limit=None):
     """Principle searching method to search images that contains one entity.
     
     Args:
@@ -148,12 +148,15 @@ def search_entities(client,object_identification,optional_dict={},object_pattern
 
     # Again remove unnecessary info
     pipeline.append({"$replaceRoot":{"newRoot":"$images"}})
+
+    if limit!=None:
+        pipeline.append({"$limit":limit*len(image_type_list)})
     result=list(client.aggregate(pipeline))
     return result
 
 
 
-def search_skel(client,object_identification,optional_dict={},object_pattern='class',image_type_list=None,view_id_list=[]):
+def search_skel(client,object_identification,optional_dict={},object_pattern='class',image_type_list=None,view_id_list=[],limit=None):
     """Search for skeletal object.
     
     Args:
@@ -221,6 +224,8 @@ def search_skel(client,object_identification,optional_dict={},object_pattern='cl
 
     # Again remove unnecessary info
     pipeline.append({"$replaceRoot":{"newRoot":"$images"}})
+    if limit!=None:
+        pipeline.append({"$limit":limit*len(image_type_list)})
 
     result=list(client.aggregate(pipeline))
 
@@ -228,7 +233,7 @@ def search_skel(client,object_identification,optional_dict={},object_pattern='cl
 
 
 
-def search_bones(client,object_identification,optional_dict={},object_pattern='class',image_type_list=None,view_id_list=[]):
+def search_bones(client,object_identification,optional_dict={},object_pattern='class',image_type_list=None,view_id_list=[],limit=None):
     """Search for bone object.
     
     Args:
@@ -306,13 +311,16 @@ def search_bones(client,object_identification,optional_dict={},object_pattern='c
 
     # pprint.pprint(pipeline)
 
+    if limit!=None:
+        pipeline.append({"$limit":limit*len(image_type_list)})
+
 
     result=list(client.aggregate(pipeline))
 
     return result
 
 
-def search_all_bones_from_skel(client,object_identification,object_pattern='class',image_type_list=None,view_id_list=[]):
+def search_all_bones_from_skel(client,object_identification,object_pattern='class',image_type_list=None,view_id_list=[],limit=None):
     """Search for bones from one skeletal object.
     
     Args:
@@ -381,14 +389,12 @@ def search_all_bones_from_skel(client,object_identification,object_pattern='clas
     # Again remove unnecessary info
     pipeline.append({"$replaceRoot":{"newRoot":"$images"}})
 
-    pprint.pprint(pipeline)
-
 
     result=list(client.aggregate(pipeline))
 
     return result
 
-def search_one(client,object_identification,optional_dict={},object_pattern='class',image_type_list=None,view_id_list=[],expand_bones=False):
+def search_one(client,object_identification,optional_dict={},object_pattern='class',image_type_list=None,view_id_list=[],limit=None,expand_bones=False):
     """Search for one object.
     
     Args:
@@ -405,16 +411,16 @@ def search_one(client,object_identification,optional_dict={},object_pattern='cla
     """
 
     # First Search in entities
-    result=search_entities(client,object_identification,optional_dict,object_pattern,image_type_list,view_id_list)
+    result=search_entities(client,object_identification,optional_dict,object_pattern,image_type_list,view_id_list,limit)
 
     # Not an entity, search for skel then.
     if len(result)==0:
         print("No an entity.")
-        result=search_skel(client,object_identification,optional_dict,object_pattern,image_type_list,view_id_list)
+        result=search_skel(client,object_identification,optional_dict,object_pattern,image_type_list,view_id_list,limit)
         # Not a skel, search for bones then
         if len(result)==0:
             print("No a bone.")
-            result=search_bones(client,object_identification,optional_dict,object_pattern,image_type_list,view_id_list)
+            result=search_bones(client,object_identification,optional_dict,object_pattern,image_type_list,view_id_list,limit)
     # Is a skel, if expanding, expand all bones
     if expand_bones is True:
         print("Expand to search bones")
@@ -473,13 +479,15 @@ def download_one(download_db, image, abs_path='', header=''):
     file = open(saving_path, "wb+")
     download_db.download_to_stream(file_id=ObjectId(image_file_id), destination=file)
 
-def download_images(root_folder_path, root_folder_name, df,config_path):
+def download_images(root_folder_path, root_folder_name, df,config_path,logger):
     """Function to download all images with the DataFrame()."""
     print("Enter downloading!")
+    len_images=df['file_id'].nunique()
+    perc_list=[i*0.05 for i in range(0,20,1)]
     df = df[['file_id', 'type', 'database', 'collection']]
     download_df=df.drop_duplicates()
     grouped_df = download_df.groupby(['database', 'collection'])
-    for database_collection, group in grouped_df:
+    for ind,(database_collection, group) in enumerate(grouped_df):
         print("Enter collection:", database_collection)
         print("Length of images", group.shape[0])
         group = group[['file_id', 'type']].values
@@ -490,8 +498,13 @@ def download_images(root_folder_path, root_folder_name, df,config_path):
         download_agent = gridfs.GridFSBucket(
             MongoClient(ip,username=username,password=password)[database], collection)
 
-        for each_image in group:
+        for i,each_image in enumerate(group):
             download_one(download_agent, each_image, root_folder_path, root_folder_name)
+            num=(ind+1)*(i+1)
+            perc=float("{:.2f}".format((ind+1)*(i+1)/len_images))
+            if perc in perc_list or num==len_images:
+                perc_list.remove(perc)
+                logger.write("Image downloaded: "+str(num)+"/"+str(len_images))
 
 
 def get_db_info(db_coll_dict,config_path):
@@ -822,7 +835,7 @@ def check_skel(client, class_name):
         }
     }, {
         '$match': {
-            'skel_entities.class': 'GenesisLeftHand'
+            'skel_entities.class': class_name
         }
     }]
 
@@ -831,6 +844,157 @@ def check_skel(client, class_name):
         return False
     else:
         return True
+
+
+def and_search(client,meta_client,class_list,view_id_list=[],image_type_list=None,limit=None):
+    pipeline=[]
+
+    skel_list=[]
+    # Unwind views for filtering multiple camera views
+    pipeline.append({"$unwind":{"path":"$views"}})
+
+    # Right now only view name is supported, can be extended to view id easily
+    if view_id_list !=[]:
+        # Change class to id for view id filtering
+        pipeline.append({"$match":{"views.class":{"$in":view_id_list}}})
+    
+    and_list={"$match":{"$and":[]}}
+    for _class in class_list:
+        flag_skel=check_skel(meta_client,_class)
+        if flag_skel:
+            skel_list.append(_class)
+            and_list["$match"]["$and"].append({"views.skel_entities.class":_class})
+        else:
+            and_list["$match"]["$and"].append({"views.entities.class":_class})
+    pipeline.append(and_list)
+
+    pipeline.append({"$unwind":{"path":"$views.entities"}})
+    pipeline.append({"$unwind":{"path":"$views.skel_entities"}})
+
+
+    entity_or_list = {"$match": {"$or": []}}
+    skel_entity_or_list={"$match":{"$or":[]}}
+    for _class in class_list:
+        flag_skel=check_skel(meta_client,_class)
+        if flag_skel:
+            pipeline.append({"$match":{"views.skel_entities.class":_class}})
+            skel_entity_or_list["$match"]["$or"].append({"views.skel_entities.class":_class})
+        else:
+            entity_or_list["$match"]["$or"].append({"views.entities.class":_class})
+    pipeline.append(entity_or_list)
+    if skel_entity_or_list["$match"]["$or"]!=[]:
+        pipeline.append(skel_entity_or_list)
+
+    pipeline.append({"$unwind":{"path":"$views.images"}})
+    if image_type_list is not None:
+        or_list = {"$match": {"$or": []}}
+        for image_type in image_type_list:
+            or_list["$match"]["$or"].append({"views.images.type": image_type})
+        pipeline.append(or_list)
+
+    pipeline.append({"$addFields":{
+        "database":client.database.name,
+        "collection":client.name,
+        "file_id":"$views.images.file_id",
+        "type":"$views.images.type"
+    }})
+    if limit!=None:
+        pipeline.append({"$limit":limit*len(image_type_list)})
+    result=list(client.aggregate(pipeline))
+    pprint.pprint(pipeline)
+    print("and results:",len(result))
+    return result,skel_list
+
+def get_entity_dict(info):
+    r={}
+    r['document']=info['_id']
+    r['database']=info['database']
+    r['collection']=info['collection']
+    r['file_id']=str(info['file_id'])
+    r['type']=info['type']
+    info=info['views']['entities']
+    r['class']=info['class']
+    r['object']=info['id']
+    r['x_min']=info['img_bb']['min']['x']
+    r['x_max']=info['img_bb']['max']['x']
+    r['y_min']=info['img_bb']['min']['y']
+    r['y_max']=info['img_bb']['max']['y']
+    r['percentage']=info['img_perc']
+    return r
+
+def get_skel_dict(info):
+    r={}
+
+    r['document']=info['_id']
+    r['database']=info['database']
+    r['collection']=info['collection']
+    r['file_id']=str(info['file_id'])
+    r['type']=info['type']
+
+    info=info['views']['skel_entities']
+    r['class']=info['class']
+    r['object']=info['id']
+    r['x_min']=info['img_bb']['min']['x']
+    r['x_max']=info['img_bb']['max']['x']
+    r['y_min']=info['img_bb']['min']['y']
+    r['y_max']=info['img_bb']['max']['y']
+    r['percentage']=info['img_perc']
+    return r
+
+def get_bone_dict_list(info):
+    bone_list=info['views']['skel_entities']['bones']
+    r_list=[]
+    for bone in bone_list:
+        r={}
+        r['document']=info['_id']
+        r['database']=info['database']
+        r['collection']=info['collection']
+        r['file_id']=str(info['file_id'])
+        r['type']=info['type']
+        r['class']=bone['class']
+        r['object']='bone'
+        r['x_min']=bone['img_bb']['min']['x']
+        r['x_max']=bone['img_bb']['max']['x']
+        r['y_min']=bone['img_bb']['min']['y']
+        r['y_max']=bone['img_bb']['max']['y']
+        r['percentage']=bone['img_perc']
+        r_list.append(r)
+    return r_list
+
+
+def compile_and_search(info_list,skel_list,flag_expand=False):
+    df=pd.DataFrame(columns=['type','file_id','collection','database','class','object','percentage',
+            "x_min","y_min","x_max","y_max","document"])
+    for each_info in info_list:
+        entity_dict=get_entity_dict(each_info)
+        print(df.shape)
+        df=df.append(entity_dict,ignore_index=True)
+
+        if skel_list!=[]:
+            skel_dict=get_skel_dict(each_info)
+            df=df.append(skel_dict,ignore_index=True)
+            if flag_expand:
+                bone_dict_list=get_bone_dict_list(each_info)
+                df=df.append(bone_dict_list,ignore_index=True)
+    return df
+
+
+
+
+# client=MongoClient(host='127.0.0.1',username='robcog',password='robcog')['PaP']['1.vis']
+# meta_client=MongoClient(host='127.0.0.1',username='robcog',password='robcog')['PaP']['PaP.meta']
+# class_list=['IAILabWalls','OrionAdam']
+
+# r=and_search(client,meta_client,class_list,image_type_list=['Color'])
+# df=compile_and_search(r,True)
+# print(df.shape)
+    
+
+
+
+
+
+
 
 
 

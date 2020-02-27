@@ -286,7 +286,7 @@ def get_random_color():
     b=random.randint(0,255)
     return(r,g,b)
 
-def draw_all_labels(df,root_folder_path,root_folder_name):
+def draw_all_labels(df,root_folder_path,root_folder_name,logger):
     """Draw all the labels from a df.
 
         Args:
@@ -295,12 +295,14 @@ def draw_all_labels(df,root_folder_path,root_folder_name):
             root_folder_name: Folder name in root path.
     """
     # df=df[df.type=="Color"]
+    len_images=df['file_id'].nunique()
+    perc_list=[i*0.05 for i in range(0,20,1)]
     grouped_df=df.groupby(['file_id','class'])
     coordinate_names=['x_max','x_min','y_max','y_min']
 
     class_label_dict={}
     label_info_list=[]
-    for name, group in grouped_df:
+    for ind,(name, group) in enumerate(grouped_df):
         img_name,class_name=name
         img_type=group['type'].values[0]
         bb_list=group[coordinate_names].values.astype(int)
@@ -308,46 +310,50 @@ def draw_all_labels(df,root_folder_path,root_folder_name):
             class_label_dict[class_name]=get_random_color()
         bb_color=class_label_dict[class_name]
         label_info_list.append([img_name,img_type,class_name,bb_color,bb_list])
-        # draw_label_on_image(root_folder_path,root_folder_name,img_name,class_name,bb_color,bb_list)
-    print("Label list generated.")
-    pool = Pool(1)
-    pool.starmap(draw_label_on_one_image, zip(
-        label_info_list, itertools.repeat(root_folder_path), itertools.repeat(root_folder_name)))
-    pool.close()
-    pool.join()
-    print("Drawing labels is finished.")
+        draw_label_on_image(root_folder_path,root_folder_name,img_name,img_type,class_name,bb_color,bb_list)
+        perc=float("{:.2f}".format((ind+1)/len_images))
+        if perc in perc_list or ind==len_images-1:
+            perc_list.remove(perc)
+            logger.write("Images annotated: "+str(ind+1)+"/"+str(len_images))
+    # print("Label list generated.")
+    # pool = Pool(1)
+    # pool.starmap(draw_label_on_one_image, zip(
+    #     label_info_list, itertools.repeat(root_folder_path), itertools.repeat(root_folder_name)))
+    # pool.close()
+    # pool.join()
+    # print("Drawing labels is finished.")
 
 
-def draw_label_on_one_image(label_info,root_folder_path,root_folder_name):
-    img_name,img_type,class_name,bb_color,bb_list=label_info
+# def draw_label_on_one_image(label_info,root_folder_path,root_folder_name):
+#     img_name,img_type,class_name,bb_color,bb_list=label_info
 
-    img_path=os.path.join(root_folder_path,root_folder_name,img_type,img_name+".png")
-    img=cv2.imread(img_path)
-    if img is None:
-        print("img is not readable. pass")
-        return 0
-    for each_bb in bb_list:
-        cv2.rectangle(img,(each_bb[0],each_bb[2]),(each_bb[1],each_bb[3]),bb_color,3)
-        cv2.putText(img,class_name,(each_bb[0],each_bb[3]),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2,cv2.LINE_AA)
-    cv2.imwrite(img_path,img)
-
-# def draw_label_on_image(root_folder_path,root_folder_name,img_name,class_name,bb_color,bb_list):
-#     """Create all object annotation on an image.
-    
-#         Args:
-#             root_folder_path: Path to root folder.
-#             root_folder_name: Folder name in root path.
-#             img_name: the file id of the image.
-#             class_name: name of the object class to be drawn.
-#             bb_color: Color of the bounding box.
-#             bb_list: All bounding boxws coordinates.
-#     """
-#     img_path=os.path.join(root_folder_path,root_folder_name,"Color",img_name+".png")
+#     img_path=os.path.join(root_folder_path,root_folder_name,img_type,img_name+".png")
 #     img=cv2.imread(img_path)
+#     if img is None:
+#         print("img is not readable. pass")
+#         return 0
 #     for each_bb in bb_list:
 #         cv2.rectangle(img,(each_bb[0],each_bb[2]),(each_bb[1],each_bb[3]),bb_color,3)
 #         cv2.putText(img,class_name,(each_bb[0],each_bb[3]),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2,cv2.LINE_AA)
 #     cv2.imwrite(img_path,img)
+
+def draw_label_on_image(root_folder_path,root_folder_name,img_name,img_type,class_name,bb_color,bb_list):
+    """Create all object annotation on an image.
+    
+        Args:
+            root_folder_path: Path to root folder.
+            root_folder_name: Folder name in root path.
+            img_name: the file id of the image.
+            class_name: name of the object class to be drawn.
+            bb_color: Color of the bounding box.
+            bb_list: All bounding boxws coordinates.
+    """
+    img_path=os.path.join(root_folder_path,root_folder_name,img_type,img_name+".png")
+    img=cv2.imread(img_path)
+    for each_bb in bb_list:
+        cv2.rectangle(img,(each_bb[0],each_bb[2]),(each_bb[1],each_bb[3]),bb_color,3)
+        cv2.putText(img,class_name,(each_bb[0],each_bb[3]),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2,cv2.LINE_AA)
+    cv2.imwrite(img_path,img)
 
 def crop_object_from_image(saving_folder,root_folder_path,root_folder_name,row_info):
     """Crop one object from an image.

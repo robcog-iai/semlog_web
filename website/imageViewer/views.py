@@ -230,7 +230,7 @@ def main_search(form_dict, user_id, search_id):
         logger.write("start downloading images...")
         t_start_download=time.time()
         download_images(root_folder_path=user_root,
-                        root_folder_name=search_id, df=df, config_path=CONFIG_PATH)
+                        root_folder_name=search_id, df=df, config_path=CONFIG_PATH,logger=logger)
         t_download=convert_duration_time(time.time(),t_start_download)
         logger.write("download finished ("+t_download+"s)")
 
@@ -239,7 +239,7 @@ def main_search(form_dict, user_id, search_id):
             logger.write("start annotating images...")
             t_start_label=time.time()
             # Need to implement multirpocessing to speed up this part.
-            draw_all_labels(df, user_root, search_id)
+            draw_all_labels(df, user_root, search_id,logger)
             t_label=convert_duration_time(time.time(),t_start_label)
             logger.write("annotation finished ("+t_label+"s)")
 
