@@ -299,6 +299,7 @@ def draw_all_labels(df,root_folder_path,root_folder_name,logger):
     perc_list=[i*0.05 for i in range(0,20,1)]
     grouped_df=df.groupby(['file_id','class'])
     coordinate_names=['x_max','x_min','y_max','y_min']
+    group_len=len(grouped_df)
 
     class_label_dict={}
     label_info_list=[]
@@ -311,10 +312,10 @@ def draw_all_labels(df,root_folder_path,root_folder_name,logger):
         bb_color=class_label_dict[class_name]
         label_info_list.append([img_name,img_type,class_name,bb_color,bb_list])
         draw_label_on_image(root_folder_path,root_folder_name,img_name,img_type,class_name,bb_color,bb_list)
-        perc=float("{:.2f}".format((ind+1)/len_images))
+        perc=float("{:.2f}".format((ind+1)/group_len))
         if perc in perc_list:
             perc_list.remove(perc)
-            logger.write("Images annotated: "+str(ind+1)+"/"+str(len_images))
+            logger.write("Classes annotated: "+str(ind+1)+"/"+str(group_len))
     # print("Label list generated.")
     # pool = Pool(1)
     # pool.starmap(draw_label_on_one_image, zip(

@@ -1,10 +1,19 @@
 var r;
 var one_search_end_timestamp = 0;
+var clear_time = 0;
 
 var flag_start_reading = 0
 $(document).ready(function() {
 
     $("#terminal_clear").click(function() {
+        var today = new Date();
+        clear_time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + ":" + today.getMilliseconds();
+        clear_time = parseInt(clear_time.replace(":", "").replace(":", "").replace(":", ""))
+        if (clear_time < 99999999) {
+            clear_time = clear_time * 10
+        }
+        console.log(clear_time)
+        console.log(one_search_end_timestamp)
         $("#server_log").empty()
     })
 
@@ -96,9 +105,13 @@ $(document).ready(function() {
                     log_time = content.split(/[ ,]+/)[0].replace("[", "").replace("]", "").replace(":", "").replace(".", "").replace(":", "")
                     log_time = parseInt(log_time)
 
-                    var text = document.createTextNode(log_info[key])
-                    $("#server_log").append(text)
-                    $("#server_log").append("<br />")
+                    if (log_time >= clear_time) {
+                        var text = document.createTextNode(log_info[key])
+                        $("#server_log").append(text)
+                        $("#server_log").append("<br />")
+                    }
+
+
                     if (log_time > one_search_end_timestamp) {
 
                         if (content.includes("available")) {

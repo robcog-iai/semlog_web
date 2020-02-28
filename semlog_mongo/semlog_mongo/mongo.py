@@ -248,13 +248,13 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
     
 
     if "limit" in optional_dict.keys() and query_dict['search_type']=="entity" and df.shape[0]!=0:
-        df=df.sort_values(by=['document'])
+        df=df.sort_values(by=['file_id'])
         df=df.reset_index()
         unique_img_list=[]
         final_ind=1
         for i, row in df.iterrows():
-            if row['document'] not in unique_img_list:
-                unique_img_list.append(row['document'])
+            if row['file_id'] not in unique_img_list:
+                unique_img_list.append(row['file_id'])
             if len(unique_img_list)>img_limit:
                 break
         new_df=df[:i]
