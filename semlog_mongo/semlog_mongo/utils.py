@@ -502,7 +502,7 @@ def download_images(root_folder_path, root_folder_name, df,config_path,logger):
             download_one(download_agent, each_image, root_folder_path, root_folder_name)
             num=(ind+1)*(i+1)
             perc=float("{:.2f}".format((ind+1)*(i+1)/len_images))
-            if perc in perc_list or num==len_images:
+            if perc in perc_list:
                 perc_list.remove(perc)
                 logger.write("Image downloaded: "+str(num)+"/"+str(len_images))
 

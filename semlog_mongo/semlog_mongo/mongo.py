@@ -262,8 +262,8 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
         # unique_documents=new_df.document.unique()
         # df=df[df.document.isin(unique_documents)]
 
-    df.to_csv("t.csv",index=False)
-    
-    logger.write("found "+str(df['file_id'].value_counts().shape[0])+" images.")
-    print("Final df:",df.shape)
+    if df.shape[0]==0:
+        logger.write("found 0 images.")
+    else:
+        logger.write("found "+str(df['file_id'].value_counts().shape[0])+" images.")
     return df   

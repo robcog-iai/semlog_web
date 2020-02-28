@@ -312,7 +312,7 @@ def draw_all_labels(df,root_folder_path,root_folder_name,logger):
         label_info_list.append([img_name,img_type,class_name,bb_color,bb_list])
         draw_label_on_image(root_folder_path,root_folder_name,img_name,img_type,class_name,bb_color,bb_list)
         perc=float("{:.2f}".format((ind+1)/len_images))
-        if perc in perc_list or ind==len_images-1:
+        if perc in perc_list:
             perc_list.remove(perc)
             logger.write("Images annotated: "+str(ind+1)+"/"+str(len_images))
     # print("Label list generated.")
