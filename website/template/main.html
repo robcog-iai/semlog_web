@@ -39,7 +39,7 @@
 
         <img class="ui tiny circular image" src="{% static 'img/rob.jpg' %}" style="width: 25px;height: 25px;position: relative;top: 5px;" />
         <a class="ui item">
-            <font color="white" size="2" id="log_out"> &nbsp; Logout</font>
+            <font color="white" size="2" id="log_out" class="log_out"> &nbsp; Logout</font>
         </a>
     </div>
 </div>
@@ -70,10 +70,11 @@
                         <label>Data manipulation:</label>
                         <span><input name="resize_data" id="resize_input" placeholder="Resize parameters" type="text" ></span>
 
-                        <button type="button" id="search" formtarget="_blank" class="fluid ui left labeled icon button">
-                        <i class="search icon"></i>
-                        Search
-                    </button>
+                        <div class="two ui buttons">
+                            <button type="button" id="log_out" formtarget="_blank" class="ui left labeled icon button log_out">Abort</button>
+                            <button type="button" id="search" formtarget="_blank" class="ui left labeled icon button">Search</button>
+                        </div>
+
                     </div>
                 </div>
 
