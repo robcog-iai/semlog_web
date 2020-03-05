@@ -45,6 +45,13 @@ def create_pc(request):
         depth_image=depth_image_list[loc_index]
         depth_img_path=os.path.join(depth_folder,depth_image)
 
+    elif 'Unlit' in img_path:
+        depth_folder=color_folder.replace("Color","Unlit")
+        depth_image_list=sorted(os.listdir(depth_folder))
+        loc_index=color_image_list.index(color_image)
+        depth_image=depth_image_list[loc_index]
+        depth_img_path=os.path.join(depth_folder,depth_image)
+
 
     # Calculate PointCloud
     generator = PointCloudGenerator(rgb_file=img_path, depth_file=depth_img_path,
