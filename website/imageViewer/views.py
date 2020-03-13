@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.shortcuts import redirect
 import uuid
 import sys
 import threading
@@ -109,6 +110,17 @@ def search(request):
 
 
 def training(request):
+    # Specify the port number, you could get this dynamically
+    # through a config file or something if you wish
+    new_port = '4445'
+
+    # `request.get_host()` gives us {hostname}:{port}
+    # we split this by colon to just obtain the hostname
+    hostname = request.get_host().split(':')[0]
+    # Construct the new url to redirect to
+    url = 'http://' + hostname + ':' + new_port + '/'
+
+
     """Entrance for training the multiclass classifier."""
     user_id = request.session['user_id']
     user_root = request.session['user_root']
@@ -124,7 +136,8 @@ def training(request):
     #     dataset_path=os.path.join(user_root, search_id, "BoundingBoxes"),
     #     model_saving_path=os.path.join(user_root, search_id)
     # )
-    return HttpResponse(" <h1 style='text-align:center;margin-top:300px;'>Model starts training. Progress can be seen in localhost:8097 from a browser.<h1>")
+    return redirect(url)
+    # return HttpResponse(" <h1 style='text-align:center;margin-top:300px;'>Model starts training. Progress can be seen in localhost:8097 from a browser.<h1>")
 
 
 def read_log(request):
