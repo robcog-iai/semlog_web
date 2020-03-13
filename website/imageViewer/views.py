@@ -124,7 +124,7 @@ def training(request):
     #     dataset_path=os.path.join(user_root, search_id, "BoundingBoxes"),
     #     model_saving_path=os.path.join(user_root, search_id)
     # )
-    return HttpResponse(" <h1 style='text-align:center;margin-top:300px;'>Model starts training. Progress can be seen in localhost:8097 from a browser.<h1>")
+    return HttpResponse(" <h1 style='text-align:center;margin-top:300px;'>Training started using visdom (https://github.com/facebookresearch/visdom, see progress at http://134.102.206.230:4445/ <h1>")
 
 
 def read_log(request):
