@@ -20,16 +20,17 @@
 
 <body>
     <div class="ui center page grid">
+		<div class="row">NOTE: *very* experimental web service for accesing annotated synthetic image data from virtual environments, if unhandled execption occur, just press logout and try again</div>
         <div class="row"></div>
         <div class="row"></div>
-        <div class="row">
+        <!--div class="row">
             <div class="four wide column"></div>
             <div class="eight wide column">
                 <h1 class="ui header" style="font-family: Comic Sans MS;font-size:80px">
                     RobCoGVis
                 </h1>
             </div>
-        </div>
+        </div-->
         <div class="row"></div>
         <div class="row"></div>
         <div class="row">
@@ -46,7 +47,7 @@
                         <div class="row">
                             <div class="four wide column"></div>
                             <div class="eight wide column">
-                                <input type="text" placeholder="User01" name="user_id" value="DefaultAlias" />
+                                <input type="text" placeholder="User01" name="user_id" value="DefaultUserName" />
                             </div>
                         </div>
                         <div class="row">
@@ -64,11 +65,8 @@
             <div class="six wide column"></div>
             <div class="four wide column">
                 <div class="ui styled accordion">
-                    <div class="active title" style="background-color: #cfd8dd">
-                        <i class="dropdown icon"></i> Server state
-                    </div>
                     <div class="active content" style="background-color: #e5e5e7">
-                        <font size="4"><b>Server: </b></font>
+                        <font size="3"><b>Server: </b></font>
                         <div style="display: inline;">
                             <font size="3" color="green" id="server_state">{{ server_state}}</font>
                         </div>
