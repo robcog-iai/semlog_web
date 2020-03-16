@@ -48,7 +48,7 @@ def train(dataset_path, num_epoch=10, test_split=0.2, model_saving_path=None, lr
 
     """
 
-    vis = visdom.Visdom()
+    vis = visdom.Visdom(port=4445)
     accuracy_figure,train_loss_figure=create_vis_figures(vis)
     dataset = ClassifierDataset(dataset_path)
     dataset_length = len(dataset)

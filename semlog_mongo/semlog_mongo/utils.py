@@ -797,6 +797,15 @@ def scan_search(db,collection,scan_class_list,image_type_list,config_path):
         return df
 
 def get_bones_from_skel(client,skel):
+    """Get bone info from a skel.
+    
+    Args:
+        client (pymongo client): A mongo client.
+        skel (str): A skeletal object.
+    
+    Returns:
+        list: A list of bones.
+    """
 
     pipeline=[
     {
@@ -828,6 +837,15 @@ def get_bones_from_skel(client,skel):
     return result
 
 def check_skel(client, class_name):
+    """Check if the class is a skel.
+    
+    Args:
+        client (MongoClient): A pymongo client.
+        class_name (str): Name of the class
+    
+    Returns:
+        bool: Indicate if class is a skeletal object.
+    """
     pipeline=[
     {
         '$unwind': {
@@ -847,6 +865,19 @@ def check_skel(client, class_name):
 
 
 def and_search(client,meta_client,class_list,view_id_list=[],image_type_list=None,limit=None):
+    """Search function for AND
+    
+    Args:
+        client (MongoClient): A pymongo client.
+        meta_client (MongoClient): Meta client for meta collection.
+        class_list (list): A list of class names.
+        view_id_list (list, optional): A list of camera views. Defaults to [].
+        image_type_list (list, optional): A list of image types. Defaults to None.
+        limit (int, optional): Number of results to return. Defaults to None.
+    
+    Returns:
+        list: A result list and a skel_list indicates which is skeletal objects.
+    """
     pipeline=[]
 
     skel_list=[]
@@ -906,6 +937,14 @@ def and_search(client,meta_client,class_list,view_id_list=[],image_type_list=Non
     return result,skel_list
 
 def get_entity_dict(info):
+    """Get entity info from and search.
+    
+    Args:
+        info (dict): Mongo aggregation result.
+    
+    Returns:
+        dict: entity info dict.
+    """
     r={}
     r['document']=info['_id']
     r['database']=info['database']
@@ -923,6 +962,14 @@ def get_entity_dict(info):
     return r
 
 def get_skel_dict(info):
+    """Get skel info from and search.
+    
+    Args:
+        info (dict): Mongo aggregation result.
+    
+    Returns:
+        dict: skel info dict.
+    """
     r={}
 
     r['document']=info['_id']
@@ -942,6 +989,15 @@ def get_skel_dict(info):
     return r
 
 def get_bone_dict_list(info):
+
+    """Get bone info from and search.
+    
+    Args:
+        info (dict): Mongo aggregation result.
+    
+    Returns:
+        list: List of bone info dict.
+    """
     bone_list=info['views']['skel_entities']['bones']
     r_list=[]
     for bone in bone_list:
@@ -963,6 +1019,16 @@ def get_bone_dict_list(info):
 
 
 def compile_and_search(info_list,skel_list,flag_expand=False):
+    """Compile result of and search to a DataFrame().
+    
+    Args:
+        info_list (list): and search result.
+        skel_list (list): A list of skel list
+        flag_expand (bool, optional): Flag of expanding bones. Defaults to False.
+    
+    Returns:
+        pd.DataFrame(): Information dataframe.
+    """
     df=pd.DataFrame(columns=['type','file_id','collection','database','class','object','percentage',
             "x_min","y_min","x_max","y_max","document"])
     for each_info in info_list:

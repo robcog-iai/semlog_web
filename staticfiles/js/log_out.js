@@ -22,7 +22,7 @@ $(document).ready(function() {
         return false;
     }
 
-    $("#log_out").click(function() {
+    $(".log_out").click(function() {
         log_out()
         window.location.href = "/"
     })

@@ -8,6 +8,14 @@ from semlog_mongo.semlog_mongo.utils import *
 
 
 def compile_optional_data(data):
+    """Compile Optional input.
+    
+    Args:
+        data (str): Input string from website.
+    
+    Returns:
+        dict: An optional dict recording target parameters.
+    """
     optional_data=data.lower().replace(" ","").split(",")
     return_dict={}
 
@@ -30,6 +38,14 @@ def compile_optional_data(data):
     return return_dict
     
 def compile_type_data(data):
+    """Compile type input from website.
+    
+    Args:
+        data (str): Input string from the website.
+    
+    Returns:
+        list: A image type list.
+    """
     image_type_list=[]
     
     data=data.lower()
@@ -48,8 +64,24 @@ def compile_type_data(data):
 
 
 def compile_query(data):
+    """Compile query input.
+    
+    Args:
+        data (str): Query input string.
+    
+    Returns:
+        dict: A information dict after compiling.
+    """
 
     def compile_class_list(class_info):
+        """Compile classes with optional params
+        
+        Args:
+            class_info (str): A string of classes.
+        
+        Returns:
+            dict: A class dict with params.
+        """
         class_list=class_info.split("+")
         return_dict={}
         for each_class in class_list:
@@ -144,9 +176,6 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
         pandas.Dataframe: A df instance stores image data.
     """
     ip, username, password = load_mongo_account(config_path)
-    # logger.write("Query dict: "+str(query_dict),)
-    # logger.write("Optional dict: "+str(optional_dict))
-    # logger.write("Image types:"+",".join(image_type_list))
     if query_dict["search_type"] == "entity":
         t_start_entity_search=time.time()
         db = query_dict["database"]
