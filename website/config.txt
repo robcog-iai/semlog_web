@@ -1,1 +1,1 @@
-{"ip":"127.0.0.1","username":"robcog","password":"robcog"}
+{"ip":"127.0.0.1","username":"","password":""}

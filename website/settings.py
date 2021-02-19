@@ -16,6 +16,7 @@ import django_heroku
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH=os.path.join(PROJECT_ROOT,'config.txt')
+print(CONFIG_PATH)
 
 
 # Quick-start development settings - unsuitable for production

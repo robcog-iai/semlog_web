@@ -143,9 +143,13 @@ def compile_query(data):
             for each_event in event_list:
                 return_dict={}
                 event_params=each_event.split("@")
+                if len(event_params)==3:
+                    each_event+="@0.1"
+                    event_params=each_event.split("@")
                 return_dict['database']=event_params[0]
                 return_dict['collection']=event_params[1]+".vis"
                 return_dict['camera_view']=event_params[2].split("+")
+                # add dummy timestamp
                 if "+" not in event_params[3]:
                     return_dict['timestamp']=event_params[3]
                     query['event_list'].append(return_dict)
@@ -261,11 +265,15 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
         t_start_event_search=time.time()
         event_list=query_dict['event_list']
         frames=[]
+        print(query_dict)
         for each_event in event_list:
             db = each_event["database"]
             coll = each_event["collection"]
             camera_view_list = each_event['camera_view']
-            timestamp = each_event['timestamp']
+            if 'timestamp' in each_event.keys():
+                timestamp = each_event['timestamp']
+            else:
+                timestamp=0.1
             df = event_search(db, coll, timestamp, camera_view_list, config_path)
             if not df.empty:
                 frames.append(df)

@@ -421,6 +421,10 @@ def search_one(client,object_identification,optional_dict={},object_pattern='cla
         if len(result)==0:
             print("No a bone.")
             result=search_bones(client,object_identification,optional_dict,object_pattern,image_type_list,view_id_list,limit)
+
+            if len(result)==0:
+                print("Search id")
+                result=search_entities(client,object_identification,optional_dict,'id',image_type_list,view_id_list,limit)
     # Is a skel, if expanding, expand all bones
     if expand_bones is True:
         print("Expand to search bones")
@@ -690,7 +694,7 @@ def event_search(db,collection,timestamp,camera_view_list,config_path=None):
             A df contains qualified results.
 
     """
-    def search_single_image_by_view(client, timestamp, view_id_list):
+    def search_single_image_by_view(client, timestamp, view_id_list,search_type='class'):
         """Search with the give camera name and timestamp.
             
             Args:
@@ -703,11 +707,15 @@ def event_search(db,collection,timestamp,camera_view_list,config_path=None):
         """
 
         pipeline = []
-        pipeline.append({"$match": {"timestamp": {"$gte": timestamp}}})
+        if search_type=='class':
+            pipeline.append({"$match": {"timestamp": {"$gte": timestamp}}})
         pipeline.append({"$unwind": {"path": "$views"}})
         or_list=[]
         for view_id in view_id_list:
-            or_list.append({"views.class":view_id})
+            if search_type=='class':
+                or_list.append({"views.class":view_id})
+            else:
+                or_list.append({"views.id":view_id})
         pipeline.append({"$match":{"$or":or_list}})
         pipeline.append({"$limit":len(view_id_list)})
         pipeline.append({"$replaceRoot": {"newRoot": "$views"}})
@@ -721,6 +729,8 @@ def event_search(db,collection,timestamp,camera_view_list,config_path=None):
     ip,username,password=load_mongo_account(config_path)
     client = MongoClient(ip,username=username,password=password)[db][collection]
     image_info = search_single_image_by_view(client, timestamp=float(timestamp), view_id_list=camera_view_list)
+    if len(image_info)==0:
+        image_info = search_single_image_by_view(client, timestamp=float(timestamp), view_id_list=camera_view_list,search_type='id')
 
 
     df = pd.DataFrame(image_info)
