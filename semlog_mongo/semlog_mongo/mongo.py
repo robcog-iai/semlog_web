@@ -63,6 +63,109 @@ def compile_type_data(data):
 
 
 
+# def compile_query(data):
+#     """Compile query input.
+    
+#     Args:
+#         data (str): Query input string.
+    
+#     Returns:
+#         dict: A information dict after compiling.
+#     """
+
+#     def compile_class_list(class_info):
+#         """Compile classes with optional params
+        
+#         Args:
+#             class_info (str): A string of classes.
+        
+#         Returns:
+#             dict: A class dict with params.
+#         """
+#         class_list=class_info.split("+")
+#         return_dict={}
+#         for each_class in class_list:
+#             info=each_class.split("(")
+#             class_name=info[0]
+#             return_dict[class_name]={}
+
+#             # If no optional input
+#             if "(" not in each_class:
+#                 continue
+                
+#             params=info[1].replace(")","")
+#             param_list=params.split(";") 
+#             for param in param_list:
+#                 if "occl_perc" in param:
+#                     if ">" in param:
+#                         return_dict[class_name]["occlusion_gt"]=float(param.split(">")[1])
+#                     elif "<" in param:
+#                         return_dict[class_name]["occlusion_lt"]=float(param.split("<")[1])
+#                 elif "img_perc" in param:
+#                     if ">" in param:
+#                         return_dict[class_name]["size_gt"]=float(param.split(">")[1])
+#                     elif "<" in param:
+#                         return_dict[class_name]["size_lt"]=float(param.split("<")[1])
+#                 elif "clipped" in param:
+#                     return_dict[class_name]['clipped']=False if param.split("=")[1] == "false" else True
+
+#         return return_dict
+
+#     try:
+#         copy_data=data
+#         data = data.split(" ")
+#         optional_data = data[1:]
+#         data = data[0].split("@")
+#         search_type = data[0]
+#         query = {}
+
+#         if search_type == "entity":
+#             query["search_type"] = "entity"
+#             query['database'] = data[1]
+#             query['collection'] = data[2].split("+")
+#             query['logic'] = 'or'
+#             query['class'] = compile_class_list(data[3])
+
+#         elif search_type == "scan":
+#             query["search_type"] = "scan"
+#             query['database'] = data[1]
+#             # Change to scan collection
+#             query['collection'] = data[1]+".scans"
+#             query['class'] = data[2].split("+")
+
+#         elif search_type == "event":
+#             query["search_type"] = "event"
+#             query["event_list"]=[]
+#             # Remove optional params, whitespace and the first event@
+#             data=copy_data.split(" ")[0].replace(" ","")[6:]
+#             # if "&" in data:
+#             event_list=data.split("&")
+#             for each_event in event_list:
+#                 return_dict={}
+#                 event_params=each_event.split("@")
+#                 if len(event_params)==3:
+#                     each_event+="@0.1"
+#                     event_params=each_event.split("@")
+#                 return_dict['database']=event_params[0]
+#                 return_dict['collection']=event_params[1]+".vis"
+#                 return_dict['camera_view']=event_params[2].split("+")
+#                 # add dummy timestamp
+#                 if "+" not in event_params[3]:
+#                     return_dict['timestamp']=event_params[3]
+#                     query['event_list'].append(return_dict)
+#                 else:
+#                     time_list=event_params[3].split("+")
+#                     for each_time in time_list:
+#                         return_dict['timestamp']=each_time
+#                         query['event_list'].append({"database":event_params[0],'collection':event_params[1]+".vis",
+#                         "camera_view":event_params[2].split("+"),"timestamp":each_time})
+#             query['class'] = ['Event']
+#     except Exception as e:
+#         print(e)
+#         # All invalid input return false
+#         return False
+#     return query
+
 def compile_query(data):
     """Compile query input.
     
@@ -82,7 +185,7 @@ def compile_query(data):
         Returns:
             dict: A class dict with params.
         """
-        class_list=class_info.split("+")
+        class_list=class_info.split("^")
         return_dict={}
         for each_class in class_list:
             info=each_class.split("(")
@@ -122,7 +225,7 @@ def compile_query(data):
         if search_type == "entity":
             query["search_type"] = "entity"
             query['database'] = data[1]
-            query['collection'] = data[2].split("+")
+            query['collection'] = data[2].split("^")
             query['logic'] = 'or'
             query['class'] = compile_class_list(data[3])
 
@@ -131,7 +234,7 @@ def compile_query(data):
             query['database'] = data[1]
             # Change to scan collection
             query['collection'] = data[1]+".scans"
-            query['class'] = data[2].split("+")
+            query['class'] = data[2].split("^")
 
         elif search_type == "event":
             query["search_type"] = "event"
@@ -148,23 +251,26 @@ def compile_query(data):
                     event_params=each_event.split("@")
                 return_dict['database']=event_params[0]
                 return_dict['collection']=event_params[1]+".vis"
-                return_dict['camera_view']=event_params[2].split("+")
+                return_dict['camera_view']=event_params[2].split("^")
                 # add dummy timestamp
-                if "+" not in event_params[3]:
+                if "^" not in event_params[3]:
                     return_dict['timestamp']=event_params[3]
                     query['event_list'].append(return_dict)
                 else:
-                    time_list=event_params[3].split("+")
+                    time_list=event_params[3].split("^")
                     for each_time in time_list:
                         return_dict['timestamp']=each_time
                         query['event_list'].append({"database":event_params[0],'collection':event_params[1]+".vis",
-                        "camera_view":event_params[2].split("+"),"timestamp":each_time})
+                        "camera_view":event_params[2].split("^"),"timestamp":each_time})
             query['class'] = ['Event']
     except Exception as e:
         print(e)
         # All invalid input return false
         return False
     return query
+
+
+
 
 
 def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
@@ -186,7 +292,8 @@ def search_mongo(query_dict,optional_dict,image_type_list, logger, config_path):
         coll_list = query_dict["collection"]
         class_dict = query_dict["class"]
         if 'limit' in optional_dict.keys():
-            img_limit=optional_dict['limit']
+
+            img_limit=optional_dict['limit']*len(image_type_list)
         else:
             img_limit=None
         if "expand" in optional_dict.keys():

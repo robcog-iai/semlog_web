@@ -423,8 +423,11 @@ def search_one(client,object_identification,optional_dict={},object_pattern='cla
             result=search_bones(client,object_identification,optional_dict,object_pattern,image_type_list,view_id_list,limit)
 
             if len(result)==0:
-                print("Search id")
+                print("Search entity id")
                 result=search_entities(client,object_identification,optional_dict,'id',image_type_list,view_id_list,limit)
+                if len(result)==0:
+                    print("Search bone id")
+                    result=search_skel(client,object_identification,optional_dict,'id',image_type_list,view_id_list,limit)
     # Is a skel, if expanding, expand all bones
     if expand_bones is True:
         print("Expand to search bones")
